@@ -18,6 +18,7 @@ Nim compiler)
 | **nimony-lsp** — Language Server + VSCode extension | [docs](https://aoughwl.github.io/docs/nimony-lsp) |
 | **net stack** — `tcp`/`net`/`serve`/`http`/`requests` | [docs](https://aoughwl.github.io/docs/net-stack) |
 | **web / html / css** — typed HTML5 + MDN CSS engine + DSL | [docs](https://aoughwl.github.io/docs/web) |
+| **ws** - RFC 6455 client | [docs](https://aoughwl.github.io/docs/ws) |
 | **nimony-ts / nimony-py / nimony-hl** — idiomatic TS/Py backends + shared HL-IR | [ts](https://aoughwl.github.io/docs/nimony-ts) · [py](https://aoughwl.github.io/docs/nimony-py) · [hl](https://aoughwl.github.io/docs/nimony-hl) |
 
 
@@ -34,6 +35,7 @@ Nim compiler)
 see: [ic-parallel-deps](https://aoughwl.github.io/changes/ic-parallel-deps.html), [ic-cursor-traversal](https://aoughwl.github.io/changes/ic-cursor-traversal.html), [ic-warm-daemon](https://aoughwl.github.io/changes/ic-warm-daemon.html), [ic-batch-intern](https://aoughwl.github.io/changes/ic-batch-intern.html)
 
 Created [niflens](https://aoughwl.github.io/docs/niflens), a CLI tool for parsing and viewing NIF<br>
+Created [ws](https://aoughwl.github.io/docs/ws), a nimony-native WebSocket (RFC 6455), over plain-text or TLS via [net](https://aoughwl.github.com/docs/net)<br>
 Updated [nimony-lsp](https://aoughwl.github.io/docs/nimony-lsp) and [nim-code](https://aoughwl.github.com/io/docs/nim-code) to benefit from [niflens](https://aoughwl.github.io/docs/niflens)
 
 Live diagnostic and suggestions now work as you type!
