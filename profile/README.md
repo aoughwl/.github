@@ -16,9 +16,9 @@ Nim compiler)
 | **nim-code** — Claude Code plugin + MCP server | [docs](https://aoughwl.github.io/docs/nim-code) |
 | **niflens** — NIF lens CLI for tooling | [docs](https://aoughwl.github.io/docs/niflens) |
 | **nimony-lsp** — Language Server + VSCode extension | [docs](https://aoughwl.github.io/docs/nimony-lsp) |
-| **net stack** — `tcp`/`net`/`serve`/`http`/`requests` | [docs](https://aoughwl.github.io/docs/net-stack) |
+| **net stack** — `tcp`·`net`·`tls`·`http`·`compress`·`serve`·`ws`·`requests` — TLS 1.3, HTTP/1.1+2, WebSocket, HTTP/3 | [docs](https://aoughwl.github.io/docs/net-stack) |
 | **web / html / css** — typed HTML5 + MDN CSS engine + DSL | [docs](https://aoughwl.github.io/docs/web) |
-| **ws** - RFC 6455 client | [docs](https://aoughwl.github.io/docs/ws) |
+| **ws** — RFC 6455 WebSocket (server + client, `ws://` + `wss://`) | [docs](https://aoughwl.github.io/docs/net-stack/ws) |
 | **nimony-ts / nimony-py / nimony-hl** — idiomatic TS/Py backends + shared HL-IR | [ts](https://aoughwl.github.io/docs/nimony-ts) · [py](https://aoughwl.github.io/docs/nimony-py) · [hl](https://aoughwl.github.io/docs/nimony-hl) |
 
 
@@ -35,10 +35,16 @@ Nim compiler)
 see: [ic-parallel-deps](https://aoughwl.github.io/changes/ic-parallel-deps.html), [ic-cursor-traversal](https://aoughwl.github.io/changes/ic-cursor-traversal.html), [ic-warm-daemon](https://aoughwl.github.io/changes/ic-warm-daemon.html), [ic-batch-intern](https://aoughwl.github.io/changes/ic-batch-intern.html)
 
 Created [niflens](https://aoughwl.github.io/docs/niflens), a CLI tool for parsing and viewing NIF<br>
-Created [ws](https://aoughwl.github.io/docs/ws), a nimony-native WebSocket (RFC 6455), over plain-text or TLS via [net](https://aoughwl.github.com/docs/net)<br>
-Updated [nimony-lsp](https://aoughwl.github.io/docs/nimony-lsp) and [nim-code](https://aoughwl.github.com/io/docs/nim-code) to benefit from [niflens](https://aoughwl.github.io/docs/niflens)
+Updated [nimony-lsp](https://aoughwl.github.io/docs/nimony-lsp) and [nim-code](https://aoughwl.github.io/docs/nim-code) to benefit from [niflens](https://aoughwl.github.io/docs/niflens) — live diagnostics and suggestions now work as you type!
 
-Live diagnostic and suggestions now work as you type!
+**Massively expanded the [net stack](https://aoughwl.github.io/docs/net-stack)** — now **8 one-concern repos**:<br>
+&nbsp;&nbsp;• [tls](https://aoughwl.github.io/docs/net-stack/tls) — **TLS 1.3** over OpenSSL 3, client + server (SNI, ALPN, verification); pulled into its own repo<br>
+&nbsp;&nbsp;• [serve](https://aoughwl.github.io/docs/net-stack/serve) — **HTTPS**, a **concurrent** worker pool, **HTTP/2** (nghttp2: h2c + ALPN `h2`), chunked request bodies + `Expect: 100-continue`, opt-in gzip/br compression<br>
+&nbsp;&nbsp;• dual-stack **IPv6** across [tcp](https://aoughwl.github.io/docs/net-stack/tcp) / [net](https://aoughwl.github.io/docs/net-stack/net) — one listener serves v4 + v6<br>
+&nbsp;&nbsp;• new [compress](https://aoughwl.github.io/docs/net-stack/compress) repo — one-shot **gzip / brotli / zstd** codecs<br>
+&nbsp;&nbsp;• [ws](https://aoughwl.github.io/docs/net-stack/ws) — a nimony-native **WebSocket** (RFC 6455), server + client, `ws://` and `wss://`<br>
+&nbsp;&nbsp;• **HTTP/3** in [requests](https://aoughwl.github.io/docs/net-stack/requests) (`useHttp3`) via curl-impersonate's bundled ngtcp2<br>
+Every layer is tested against real clients — `curl --http2`, live `wss://`, TLS 1.3 handshakes.
 
 ## 001 ‎2026-07-07 -  Tuesday, July 7th, 2026
 Today starts the official **aoughwl/nimony fork**.<br>
