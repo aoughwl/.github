@@ -15,5 +15,5 @@ We also shipped **aoughwl/nimony-lsp** and **aoughwl/nim-code**:
 * `nim-code` is a Claude Code plugin and MCP server focused on reducing token usage with Nim and Nimony
 
 **Effective indefinitely,  the Nimony JavaScript/TypeScript/WASM/Python backend work is private.**<br>
-For interested parties: the JavaScript and WebAssembly backends are nearly complete and remain true to the original vision.<br>
+For interested parties: the JavaScript and WebAssembly backends are ~complete and remain true to the original vision.<br>
 I will gladly and promptly add anyone who wants access, but you will need to reach out to me directly over Discord (timbuktu_guy)
