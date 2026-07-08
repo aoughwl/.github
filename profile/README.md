@@ -9,7 +9,7 @@
 
 
 ## 001 ‎2026-07-07 -  Thursday, July 7th, 2026
-Today starts the official **aoughwl nimony fork**.<br>
+Today starts the official **aoughwl/nimony fork**.<br>
 This is now the main place my Nimony work will go:
 * features
 * bug fixes
