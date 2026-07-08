@@ -1,9 +1,14 @@
-# aoughwl
-a next-generation self-hosted platform for  *things n stuff* ✨
+‎‎‎‎‎ ‎‎ ‎‎ ‎‎ ‎‎ ‎‎ ‎‎ ‎‎‎‎ ‎![aoughwl](https://i.postimg.cc/Pxp72hcT/aoughwl-white-transparent.png)<br>
+‎‎ ‎‎ ‎‎ ‎‎ ‎‎ ‎‎ ‎ ‎‎ ‎‎*‎next-gen self-hosted platform for  things n stuff*
 
-## Daily Blog
+<br><br>
+# Daily Blog
 
-### 2026-07-07 -  Thursday, July 7th, 2026
+
+<br>
+
+
+## 001 ‎2026-07-07 -  Thursday, July 7th, 2026
 Today starts the official **aoughwl nimony fork**.<br>
 This is now the main place my Nimony work will go:
 * features
