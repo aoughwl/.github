@@ -29,6 +29,12 @@ Nim compiler)
 
 <br>
 
+## 003 2026-07-09 -  Thursday, July 9th, 2026
+Finalized the aoughwl core spec.
+
+Noticed a memory bug exists-  likely roots as a true Nimony bug  which interacts with niflens and my nim-code instances
+Created [nifrewrite](https://aoughwl.github.io/docs/nifrewrite) makes NIF rewrites simple
+
 ## 002 ‎2026-07-08 -  Wednesday, July 8th, 2026
 
 **Pushed IC to aoughwl/Nimony:**  *~1s -> ~10ms*<br>
