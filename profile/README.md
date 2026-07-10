@@ -29,11 +29,20 @@ Nim compiler)
 
 <br>
 
+## 004 2026-07-10 -  Friday, July 10th 2026
+
+Created [aowl-lsp](https://aoughwl.github.com/docs/private), it's [nimony-lsp](https://aoughwl.github.io/docs/nimony-lsp.html), but built within aoughwl.  This will allow for novel LSP features.
+
 ## 003 2026-07-09 -  Thursday, July 9th, 2026
 Finalized the aoughwl core spec.<br>
 
 Noticed a memory bug exists-  likely roots as a true Nimony bug  which interacts with niflens and my nim-code instances<br>
 Created [nifrewrite](https://aoughwl.github.io/docs/nifrewrite) makes NIF rewrites simple<br>
+
+Fixed [IC](https://aoughwl.github.io/docs/tooling-stack.html)<br>
+Updated [niflens](https://aoughwl.github.io/docs/niflens.html)<br>
+Updated [nimony-lsp](https://aoughwl.github.io/docs/nimony-lsp.html)<br>
+Our VSCode extension + Nimony LSP is nearly as performant and featurefull as it can be, live diagnostics work phenomenally as you type... more to come here.
 
 ## 002 ‎2026-07-08 -  Wednesday, July 8th, 2026
 
