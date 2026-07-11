@@ -31,7 +31,7 @@ Nim compiler)
 
 ## 004 2026-07-10 -  Friday, July 10th 2026
 
-Created [aowl-lsp](https://aoughwl.github.io/docs/private), it's [nimony-lsp](https://aoughwl.github.io/docs/nimony-lsp.html), but built within aoughwl.  This will allow for novel LSP features.
+Created [aowl-lsp](https://aoughwl.github.io/docs/private), it's [nimony-lsp](https://aoughwl.github.io/docs/nimony-lsp.html), but with a universal plugin system. Obtain novel features!<br>
 Created [vscode-aowl](https://aoughwl.github.io/docs/aowl), aoughwl hosted on-machine within VSCode
 
 ## 003 2026-07-09 -  Thursday, July 9th, 2026
