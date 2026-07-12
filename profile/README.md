@@ -29,6 +29,9 @@ Nim compiler)
 
 <br>
 
+## 005 2026-07-11 - Saturday, July 11th 2026
+Created [nifi](https://github.com/aoughwl/nifi), a Nimony NIF Interpreter
+
 ## 004 2026-07-10 -  Friday, July 10th 2026
 
 Created [aowl-lsp](https://aoughwl.github.io/docs/private), it's [nimony-lsp](https://aoughwl.github.io/docs/nimony-lsp.html), but with a universal plugin system. Obtain novel features!<br>
