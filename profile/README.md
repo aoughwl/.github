@@ -42,7 +42,7 @@ Updated [nifi](https://github.com/aoughwl/nifi)
 
 
 ## 006 2026-07-012 - Sunday, July 12th 2026
-Created [nimony-playground](https://aoughwl.github.io/playground/)
+Created [nimony-playground](https://aoughwl.github.io/playground/)<br>
 Created [nifparser](https://github.com/aoughwl/nifparser)
 
 ## 005 2026-07-11 - Saturday, July 11th 2026
