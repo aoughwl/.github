@@ -26,20 +26,19 @@ Nim compiler)
 
 # Daily Blog
 
-
 <br>
+
+## 008 2026-07-014 - Tuesday, July 14th 2026
+Took [nifi](https://github.com/aoughwl/nifi) private,  oh- the fish weren't bittin today<br> 
+Updated [nifi](https://github.com/aoughwl/nifi), 6-10x performance gain
 
 ## 007 2026-07-013 - Monday, July 13th 2026
 Updated [nimony-playground](https://aoughwl.github.io/playground/)<br>
-Updated [nifparser](https://github.com/aoughwl/nifparser)
+Updated [nifparser](https://github.com/aoughwl/nifparser)<br>
 Updated [nifi](https://github.com/aoughwl/nifi)
 * Added curly bracket support to the nifparser
 * Finalized nifparser, passing against the full nimony suite- byte identical to niffler
 * Nearly finished [nimony-playground](https://aoughwl.github.io/playground/), missing small QOL  and a final port to the aoughwl ecosystem (I cannot wait)
-
-
-**Thank you to the kind, caring, and respectful folk inside the nim-lang communities,  your contribution here will not be forgotten.**
-
 
 ## 006 2026-07-012 - Sunday, July 12th 2026
 Created [nimony-playground](https://aoughwl.github.io/playground/)<br>
