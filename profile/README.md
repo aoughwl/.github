@@ -28,6 +28,11 @@ Nim compiler)
 
 <br>
 
+## 009 2026-07-015 - Wednesday, July 15th 2026
+Updated [nifi](https://github.com/aoughwl/nifi)<br>
+Updated [nifparser](https://github.com/aoughwl/nifi)<br>
+Updated [nimony-playground](https://aoughwl.github.io/playground/)<br>
+
 ## 008 2026-07-014 - Tuesday, July 14th 2026
 Took [nifi](https://github.com/aoughwl/nifi) private,  oh- the fish weren't bittin today<br> 
 Updated [nifi](https://github.com/aoughwl/nifi), 6-10x performance gain
