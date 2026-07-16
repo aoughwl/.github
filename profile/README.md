@@ -29,7 +29,9 @@ Nim compiler)
 <br>
 
 ## 009 2026-07-015 - Wednesday, July 15th 2026
+Created [nifc](https://aoughwl.github.io/docs/nifjs)<br>
 Created [nifjs](https://aoughwl.github.io/docs/nifjs)<br>
+Created [nifjs-js](https://github.com/aoughwl/nifjs-js)<br>
 Created [nifsem](https://github.com/aoughwl/nifsem)<br>
 Updated [nifi](https://github.com/aoughwl/nifi)<br>
 Updated [nifparser](https://github.com/aoughwl/nifi)<br>
