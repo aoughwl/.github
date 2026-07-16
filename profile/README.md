@@ -19,13 +19,13 @@ backends.
 **→ [AIF ≡ NIF: how it interops](https://aoughwl.github.io/docs/aif)** · **[the full stack](https://aoughwl.github.io/documentation)**
 
 ### The pipeline
-`.nim / .aowl → aifparser → aifsem* → aifhexer* → { aifc → C · aifjs → JS · aifi → interpret }`
+`.nim / .aowl → aowlparse → aowlsem* → aowlhexer* → { aowlc → C · aowljs → JS · aowli → interpret }`
 
-<sub>*`aifsem` and `aifhexer` are intentionally private for now — docs are public, access on request (Discord: **timbuktu_guy**). The playground moves onto the new sem + hexing shortly.*</sub>
+<sub>*`aowlsem` and `aowlhexer` are intentionally private for now — docs are public, access on request (Discord: **timbuktu_guy**). The playground moves onto the new sem + hexing shortly.*</sub>
 
 | Project | Docs |
 |---|---|
-| **aif toolchain** — `aifparser` · `aifsem` · `aifhexer` · `aifc` · `aifjs` · `aifi` | [AIF ≡ NIF](https://aoughwl.github.io/docs/aif) |
+| **aowl toolchain** — `aowlparse` · `aowlsem` · `aowlhexer` · `aowlc` · `aowljs` · `aowli` | [AIF ≡ NIF](https://aoughwl.github.io/docs/aif) |
 | **nim-code** — Claude Code plugin + MCP server | [docs](https://aoughwl.github.io/docs/nim-code) |
 | **nimony-lsp** — Language Server + VSCode extension | [docs](https://aoughwl.github.io/docs/nimony-lsp) |
 | **net stack** — `tcp`·`net`·`tls`·`http`·`compress`·`serve`·`ws`·`requests` — TLS 1.3, HTTP/1.1+2, WebSocket, HTTP/3 | [docs](https://aoughwl.github.io/docs/net-stack) |
@@ -39,9 +39,13 @@ backends.
 
 <br>
 
+## 011 2026-07-16 - Thursday, July 16th 2026
+
+Renamed the compiler stages **`aif* → aowl*`** (aowlparse / aowlsem / aowlhexer / aowlc / aowljs / aowli / aowlmony) — `aif` now names the **format** only. Renamed **`nim-code → aowl-code`**. Reworked the docs into two homes — **Documentation** (terse reference) and **Engineering Notes** (opinionated writeups) — collapsed the changelog into a single **Changes** record, and cleaned up the nav.
+
 ## 010 2026-07-16 - Thursday, July 16th 2026
 
-Repositioned: **aoughwl is a ground-up Nimony toolchain.** Wrote the interop contract — **[AIF ≡ NIF](https://aoughwl.github.io/docs/aif)**, byte-for-byte, so any Nim/Nimony program behaves identically. Normalized every repo description + topics across the org. `aifsem` and `aifhexer` stay private for now (docs public, access on request); the playground moves onto the new sem + hexing shortly.
+Repositioned: **aoughwl is a ground-up Nimony toolchain.** Wrote the interop contract — **[AIF ≡ NIF](https://aoughwl.github.io/docs/aif)**, byte-for-byte, so any Nim/Nimony program behaves identically. Normalized every repo description + topics across the org. `aowlsem` and `aowlhexer` stay private for now (docs public, access on request); the playground moves onto the new sem + hexing shortly.
 
 ## 009 2026-07-015 - Wednesday, July 15th 2026
 
