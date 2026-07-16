@@ -2,24 +2,36 @@
 ‎‎ ‎‎ ‎‎ ‎‎ ‎‎ ‎‎ ‎ ‎‎ ‎‎ ‎‎ ‎‎ ‎‎ ‎‎*‎next-gen self-hosted platform for  things n stuff*<br>
  ‎‎ ‎ ‎‎ ‎‎  ‎‎ ‎ ‎‎ ‎‎  ‎‎ ‎ ‎‎ ‎‎  ‎‎ ‎ ‎‎  ‎‎ ‎ ‎‎ ‎‎  ‎‎ ‎ ‎‎ ‎‎  ‎‎ ‎ ‎‎ ‎‎  ‎‎ ‎ ‎‎ ‎‎ ‎‎ **[aoughwl.github.io](https://aoughwl.github.io/)**
 <br><br><br>
-# ⭐ aoughwl/nimony
-Our opinionated fork of [Nimony](https://github.com/nim-lang/nimony) (the NIF-based
-Nim compiler)
-* tracks upstream **daily**
-* ships our own compiler fixes and features on top
-* carries a fuller, opinionated stdlib.
-**→ [Full record: Issues Fixed & Features Added](https://aoughwl.github.io/nimony)**
+# ⭐ aoughwl — a ground-up Nimony toolchain
+A from-scratch reimplementation of the [Nimony](https://github.com/nim-lang/nimony)
+toolchain (the NIF-based Nim compiler) — parser, semchecker, lowering, backends —
+written *in* Nimony and self-hosting. **Not a fork.**
+
+Our intermediate format is **[AIF ≡ NIF](https://aoughwl.github.io/docs/aif)**,
+byte-for-byte, so every stage is a drop-in and **any Nim/Nimony program behaves
+identically** — and it also runs in the browser, ships native C / JavaScript
+backends, and sits on a content-addressed substrate.
+
+> We didn't set out to replace Nimony. The aoughwl substrate was going to run *on*
+> it; we patched where it fell short, then rebuilt the pieces from scratch, and ours
+> ended up better. We're here now, so we're finishing it.
+
+**→ [AIF ≡ NIF: how it interops](https://aoughwl.github.io/docs/aif)** · **[the full stack](https://aoughwl.github.io/nimony-platform)**
+
+### The pipeline
+`.nim / .aowl → aifparser → aifsem* → aifhexer* (+aifopt*) → { aifc → C · aifjs → JS · aifi → interpret }`
+
+<sub>*`aifsem` and `aifhexer`/`aifopt` are intentionally private for now — docs are public, access on request (Discord: **timbuktu_guy**). The playground moves onto the new sem + hexing shortly.*</sub>
 
 | Project | Docs |
 |---|---|
-| **nimony-web** — JS + WASM backends & async runtime | [docs](https://aoughwl.github.io/docs/nimony-web) |
+| **aif toolchain** — `aifparser` · `aifsem` · `aifhexer` · `aifc` · `aifjs` · `aifi` | [AIF ≡ NIF](https://aoughwl.github.io/docs/aif) |
 | **nim-code** — Claude Code plugin + MCP server | [docs](https://aoughwl.github.io/docs/nim-code) |
-| **niflens** — NIF lens CLI for tooling | [docs](https://aoughwl.github.io/docs/niflens) |
 | **nimony-lsp** — Language Server + VSCode extension | [docs](https://aoughwl.github.io/docs/nimony-lsp) |
 | **net stack** — `tcp`·`net`·`tls`·`http`·`compress`·`serve`·`ws`·`requests` — TLS 1.3, HTTP/1.1+2, WebSocket, HTTP/3 | [docs](https://aoughwl.github.io/docs/net-stack) |
 | **web / html / css** — typed HTML5 + MDN CSS engine + DSL | [docs](https://aoughwl.github.io/docs/web) |
-| **ws** — RFC 6455 WebSocket (server + client, `ws://` + `wss://`) | [docs](https://aoughwl.github.io/docs/net-stack/ws) |
 | **nimony-ts / nimony-py / nimony-hl** — idiomatic TS/Py backends + shared HL-IR | [ts](https://aoughwl.github.io/docs/nimony-ts) · [py](https://aoughwl.github.io/docs/nimony-py) · [hl](https://aoughwl.github.io/docs/nimony-hl) |
+| **aoughwl/nimony** — the reference fork (byte-exact oracle + upstream-portable fixes) | [record](https://aoughwl.github.io/nimony) |
 
 
 <br><br><br>
@@ -27,6 +39,10 @@ Nim compiler)
 # Daily Blog
 
 <br>
+
+## 010 2026-07-16 - Thursday, July 16th 2026
+
+Repositioned: **aoughwl is a ground-up Nimony toolchain, not a fork.** Wrote the interop contract — **[AIF ≡ NIF](https://aoughwl.github.io/docs/aif)**, byte-for-byte, so any Nim/Nimony program behaves identically. Normalized every repo description + topics across the org. `aifsem` and `aifhexer`/`aifopt` stay private for now (docs public, access on request); the playground moves onto the new sem + hexing shortly.
 
 ## 009 2026-07-015 - Wednesday, July 15th 2026
 
