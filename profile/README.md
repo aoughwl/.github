@@ -33,14 +33,13 @@ Nim compiler)
 Created [aifhexer](https://github.com/aoughwl/aifhexer)<br>
 Created [aif](https://aoughwl.github.io/docs/aif)<br>
 Created [aifmony](https://github.com/aoughwl/aifmony)<br>
+Created [aifc](https://aoughwl.github.io/docs/nifjs)<br>
+Created [aifjs](https://aoughwl.github.io/docs/nifjs)<br>
+Created [aifjs-js](https://github.com/aoughwl/nifjs-js)<br>
+Created [aifsem](https://github.com/aoughwl/nifsem)<br>
 
-
-Created [nifc](https://aoughwl.github.io/docs/nifjs)<br>
-Created [nifjs](https://aoughwl.github.io/docs/nifjs)<br>
-Created [nifjs-js](https://github.com/aoughwl/nifjs-js)<br>
-Created [nifsem](https://github.com/aoughwl/nifsem)<br>
-Updated [nifi](https://github.com/aoughwl/nifi)<br>
-Updated [nifparser](https://github.com/aoughwl/nifi)<br>
+Updated [aifi](https://github.com/aoughwl/nifi)<br>
+Updated [aifparser](https://github.com/aoughwl/nifi)<br>
 Updated [nimony-playground](https://aoughwl.github.io/playground/)<br>
 
 ## 008 2026-07-014 - Tuesday, July 14th 2026
