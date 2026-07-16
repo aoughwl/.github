@@ -2,7 +2,7 @@
 ‎‎ ‎‎ ‎‎ ‎‎ ‎‎ ‎‎ ‎ ‎‎ ‎‎ ‎‎ ‎‎ ‎‎ ‎‎*‎next-gen self-hosted platform for  things n stuff*<br>
  ‎‎ ‎ ‎‎ ‎‎  ‎‎ ‎ ‎‎ ‎‎  ‎‎ ‎ ‎‎ ‎‎  ‎‎ ‎ ‎‎  ‎‎ ‎ ‎‎ ‎‎  ‎‎ ‎ ‎‎ ‎‎  ‎‎ ‎ ‎‎ ‎‎  ‎‎ ‎ ‎‎ ‎‎ ‎‎ **[aoughwl.github.io](https://aoughwl.github.io/)**
 <br><br><br>
-# ⭐ aoughwl — a ground-up Nimony toolchain
+# ⭐ aowlmony — a ground-up Nimony toolchain
 A from-scratch reimplementation of the [Nimony](https://github.com/nim-lang/nimony)
 toolchain (the NIF-based Nim compiler) — parser, semchecker, lowering, backends —
 written *in* Nimony and self-hosting, built from the ground up.
