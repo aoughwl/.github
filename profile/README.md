@@ -30,6 +30,7 @@ Nim compiler)
 
 ## 009 2026-07-015 - Wednesday, July 15th 2026
 
+Created [aifhexer](https://github.com/aoughwl/aifhexer)<br>
 Created [aif](https://aoughwl.github.io/docs/aif)<br>
 Created [aifmony](https://github.com/aoughwl/aifmony)<br>
 
