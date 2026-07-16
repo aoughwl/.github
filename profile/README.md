@@ -5,7 +5,7 @@
 # ⭐ aoughwl — a ground-up Nimony toolchain
 A from-scratch reimplementation of the [Nimony](https://github.com/nim-lang/nimony)
 toolchain (the NIF-based Nim compiler) — parser, semchecker, lowering, backends —
-written *in* Nimony and self-hosting. **Not a fork.**
+written *in* Nimony and self-hosting, built from the ground up.
 
 Our intermediate format is **[AIF ≡ NIF](https://aoughwl.github.io/docs/aif)**,
 byte-for-byte, so every stage is a drop-in and **any Nim/Nimony program behaves
@@ -16,7 +16,7 @@ backends.
 > it; we patched where it fell short, then rebuilt the pieces from scratch, and ours
 > ended up better. We're here now, so we're finishing it.
 
-**→ [AIF ≡ NIF: how it interops](https://aoughwl.github.io/docs/aif)** · **[the full stack](https://aoughwl.github.io/nimony-platform)**
+**→ [AIF ≡ NIF: how it interops](https://aoughwl.github.io/docs/aif)** · **[the full stack](https://aoughwl.github.io/documentation)**
 
 ### The pipeline
 `.nim / .aowl → aifparser → aifsem* → aifhexer* → { aifc → C · aifjs → JS · aifi → interpret }`
@@ -31,7 +31,6 @@ backends.
 | **net stack** — `tcp`·`net`·`tls`·`http`·`compress`·`serve`·`ws`·`requests` — TLS 1.3, HTTP/1.1+2, WebSocket, HTTP/3 | [docs](https://aoughwl.github.io/docs/net-stack) |
 | **web / html / css** — typed HTML5 + MDN CSS engine + DSL | [docs](https://aoughwl.github.io/docs/web) |
 | **nimony-ts / nimony-py / nimony-hl** — idiomatic TS/Py backends + shared HL-IR | [ts](https://aoughwl.github.io/docs/nimony-ts) · [py](https://aoughwl.github.io/docs/nimony-py) · [hl](https://aoughwl.github.io/docs/nimony-hl) |
-| **aoughwl/nimony** — the reference fork (byte-exact oracle + upstream-portable fixes) | [record](https://aoughwl.github.io/nimony) |
 
 
 <br><br><br>
@@ -42,7 +41,7 @@ backends.
 
 ## 010 2026-07-16 - Thursday, July 16th 2026
 
-Repositioned: **aoughwl is a ground-up Nimony toolchain, not a fork.** Wrote the interop contract — **[AIF ≡ NIF](https://aoughwl.github.io/docs/aif)**, byte-for-byte, so any Nim/Nimony program behaves identically. Normalized every repo description + topics across the org. `aifsem` and `aifhexer` stay private for now (docs public, access on request); the playground moves onto the new sem + hexing shortly.
+Repositioned: **aoughwl is a ground-up Nimony toolchain.** Wrote the interop contract — **[AIF ≡ NIF](https://aoughwl.github.io/docs/aif)**, byte-for-byte, so any Nim/Nimony program behaves identically. Normalized every repo description + topics across the org. `aifsem` and `aifhexer` stay private for now (docs public, access on request); the playground moves onto the new sem + hexing shortly.
 
 ## 009 2026-07-015 - Wednesday, July 15th 2026
 
