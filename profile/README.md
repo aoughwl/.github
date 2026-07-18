@@ -39,6 +39,12 @@ backends.
 
 <br>
 
+## 012 2026-07-18 - Saturday, July 18th 2026
+
+The playground grows a semantics choice. **[aowlsem](https://aoughwl.github.io/playground/) now runs in the browser** — you can pick **aowl semantics** instead of the default nim semantics when type-checking, right in the playground. It's marked **experimental**: aowlsem is real and checks a substantial slice today, but it isn't the full stdlib or generics yet, so it grows from here.
+
+**aowlsuggest moved into the playground too** — its quick-fix / lint layer now runs client-side over the parser's diagnostics, so fix-its surface as you edit. And **aowlparser got another update** — the latest parser bundle now ships in the playground.
+
 ## 011 2026-07-17 - Friday, July 17th 2026
 
 A heavy day on the front and middle of the pipeline.
@@ -50,6 +56,10 @@ A heavy day on the front and middle of the pipeline.
 **[aowli](https://aoughwl.github.io/aowli)** — the interpreter/VM now reads the shared **[aowlhl](https://aoughwl.github.io/docs/aowlhl)** HL-IR layer (`hlload` / `hlclassify` / `hlwalk`) instead of its own tree-walk, and gained **dynamic method dispatch** with field write-through for `ptr`/`var` receivers, closures with nested capture, and UTF-8 `add(string, Rune)`.
 
 **aowlhl is now the shared high-level IR** — one Nim→HL-IR reader that both `aowli` and `aowljs` consume, so the interpreter and the JavaScript backend classify and walk the same skeleton. One lowering, many emitters.
+
+**The docs site got a ground-up rebuild.** Migrated **[aoughwl.github.io](https://aoughwl.github.io)** off Jekyll / just-the-docs onto **VitePress** — it's now a single-page app with instant client-side navigation (no full reloads), a collapsible nested sidebar, a near-black dark theme, local search, and self-hosted fonts (no font or page flash). It deploys through a GitHub Actions workflow instead of Jekyll, and the in-browser [playground](https://aoughwl.github.io/playground/) is preserved byte-identically.
+
+The nav is region-grouped — Overview / Pipeline / Emitters / Tools / Libraries — and every pipeline, emitter, and tool row carries a small right-aligned "↗" straight to that project's GitHub repo. A floating theme toggle sits in the corner, and GitHub · Discord · Support links live in the top bar.
 
 ## 010 2026-07-16 - Thursday, July 16th 2026
 
