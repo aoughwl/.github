@@ -44,7 +44,9 @@ backends.
 I found some tokens.
 
 ## 014 2026-07-20 - Monday, July 20th 2026
-I ran out of tokens.
+I ran out of tokens.<br><br>
+
+Shotout to the fellow Nim'er who created this:  [3code](https://3code.capocasa.dev/), check it out !    (I don't endorse it nor do I agree with it)
 
 ## 013 2026-07-19 - Sunday, July 19th 2026
 
