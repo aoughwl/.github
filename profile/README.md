@@ -40,6 +40,12 @@ backends.
 
 <br>
 
+## 015 2026-07-21 - Tuesday, July 21th 2026
+I found some tokens.
+
+## 014 2026-07-20 - Monday, July 20th 2026
+I ran out of tokens.
+
 ## 013 2026-07-19 - Sunday, July 19th 2026
 
 More **aowlsem** — the whole day is a generics push. The semchecker now instantiates and preserves generic constructs end to end: typevar calls and signatures, generic object applications with substituted field types and attached hooks, generic array bounds and range iterators, generic seq index reads, `var` forwarding through generic params, late-bound generic hook calls, and quoted generic operators. Around it: `out` parameter type resolution, `sink`/`source` normalization, typed pointer comparisons lowered to magics, unchecked-pointer index assignments wrapped, `requires` pragma expression checking, and `threadvar` globals emitted. Steady, surgical commits — aowlsem is now **past 340 total commits** since Tuesday.
