@@ -42,12 +42,13 @@ backends.
 <br>
 
 ## 016 2026-07-22 - Wednesday, July 22th 2026
-My tokens got reset today.<br>
-<br>
-Created [semstep?](https://aoughwl.com/fuck-ya-mom) another rewrite of [aowli](https://aoughwl.com/again-fuck-ya-mom), this time *agnostic* (whatever that means)
-<br>
-<br>
-I cannot wait to share and receive feedback on live downstream demos using this and other related *aoughwl* tech.
+**[aowli-release](https://github.com/aoughwl/aowli-release) is live — the first `-release` repo goes public.** It's a binary-only distribution of the **[aowli](https://aoughwl.github.io/docs/aowli-release)** interpreter: it runs a nimony program's typed NIF (`.s.nif`) with no source in sight. Two prebuilt binaries — `aowli-interp` (run, plus `--trace` for an execution call-tree) and `aowli-dbg` (the new debugger) — ship as **[GitHub Release v0.1.0](https://github.com/aoughwl/aowli-release/releases/tag/v0.1.0)**, each hardened with a fail-closed licence gate and `strip --strip-all`, and published with a SHA256 and a VirusTotal lookup per binary. I verified before shipping that the stripped binaries leak **no source paths and no internal proc/type names** — only upstream stdlib/allocator strings remain. Source stays private; anyone can *run* the full thing, and **issues are welcome**.
+
+**New: aowlidbg — a debugger for the interpreter.** It lives inside aowli and works in batch: set breakpoints by line or function, run, and at every hit it dumps the current frame's variables through a non-lossy value walker — so you see real structured values, not `(object)`. Breakpoints off, it reproduces the whole runnable corpus byte-for-byte, so it costs nothing when you're not debugging.
+
+**[aowlcode](https://aoughwl.github.io/docs/aowlcode)** (renamed from `aowl-code`) — the Claude Code plugin picked up the aowli tooling and a model-tiering layer: a `trace` tool over `aowli-interp`, a `debug` tool over `aowli-dbg`, a `/land` checkpoint that flushes what a session learned into memory before the context is cleared, and a cheap **haiku** "applier" agent plus a fan-out workflow — the expensive model produces the exact edits, a swarm of cheap ones apply them in parallel. It resolves the *released* binary, so it never assumes the private source tree.
+
+Underway: wiring **[obfuscate](https://github.com/aoughwl/obfuscate)**'s `obfnif` IR control-flow pass into the release build for real machine-code hardening on top of the strip, and an auto-generated nim/nimony **API wrapper** so every `-release` binary ships a typed library interface instead of a bare CLI.
 
 ## 015 2026-07-21 - Tuesday, July 21th 2026
 I found some tokens.
