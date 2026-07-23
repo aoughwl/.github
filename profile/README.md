@@ -63,7 +63,7 @@ Created **[aowlmcp](https://aoughwl.github.io/docs/aowlmcp)**: transport-indepen
 **aowli became an actual runtime:** flat memory, casts, `copyMem`, allocation, unchecked arrays, fd-backed file I/O, env access, ownership hooks, refcounted `ref` objects, and fail-fast unsupported stdlib calls. It now runs about **92% of compiler-buildable programs**, with no known silent wrong-result cases. Remaining: some OS/VM gaps, threads, async.
 
 ## 016 2026-07-22 - Wednesday, July 22th 2026
-Happy Fuck ya Mum Wednesday to all !
+Happy Fuck ya Mum Wednesday to all!
 
 Released **[aowli-release](https://github.com/aoughwl/aowli-release) [v0.1.0](https://github.com/aoughwl/aowli-release/releases/tag/v0.1.0)** with:
 
