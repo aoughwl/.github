@@ -5,10 +5,10 @@
 <br>
 A rewrite of the entire [Nimony](https://github.com/nim-lang/nimony) ecosystem
 * parser, semantic checker, lowering
-* interpreters and runtimes
+* interpreter and runtime
 * standard library
 * LSP, MCP, vscode, claude plugin
-* code fix suggestions, formatters, obfuscators
+* code fix suggestions, formatter, obfuscator
 * *and much, much, more...*
 
 <br>
