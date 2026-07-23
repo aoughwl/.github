@@ -2,26 +2,24 @@
 ‎‎ ‎‎ ‎‎ ‎‎ ‎‎ ‎‎ ‎ ‎‎ ‎‎ ‎‎ ‎‎ ‎‎ ‎‎*‎next-gen self-hosted platform for  things n stuff*<br>
  ‎‎ ‎ ‎‎ ‎‎  ‎‎ ‎ ‎‎ ‎‎  ‎‎ ‎ ‎‎ ‎‎  ‎‎ ‎ ‎‎  ‎‎ ‎ ‎‎ ‎‎  ‎‎ ‎ ‎‎ ‎‎  ‎‎ ‎ ‎‎ ‎‎  ‎‎ ‎ ‎‎ ‎‎ ‎‎ **[aoughwl.github.io](https://aoughwl.github.io/)**
 <br><br><br>
-# ⭐ aowlmony — a ground-up Nimony toolchain
-A from-scratch reimplementation of the [Nimony](https://github.com/nim-lang/nimony)
-toolchain (the NIF-based Nim compiler) — parser, semchecker, lowering, backends —
-written *in* Nimony and self-hosting, built from the ground up.
-
-Our intermediate format is **[AIF ≡ NIF](https://aoughwl.github.io/docs/aif)**,
-byte-for-byte, so every stage is a drop-in and **any Nim/Nimony program behaves
-identically** — and it also runs in the browser and ships native C / JavaScript
-backends.
+# ⭐ aowlmony — a from-scratch Nimony toolchain
+A rewrite of the [Nimony](https://github.com/nim-lang/nimony) toolchain — parser,
+sem checker, lowering, backends — written in Nimony itself. The format that flows
+between the stages is **[AIF, which is NIF](https://aoughwl.github.io/docs/aif)**
+byte for byte, so any one stage drops straight into the real pipeline and any Nim
+or Nimony program runs the same. It runs in the browser too, and has C and
+JavaScript backends.
 
 > We didn't set out to replace Nimony. The aoughwl substrate was going to run *on*
 > it; we patched where it fell short, then rebuilt the pieces from scratch, and ours
 > ended up better. We're here now, so we're finishing it.
 
-**→ [AIF ≡ NIF: how it interops](https://aoughwl.github.io/docs/aif)** · **[the full stack](https://aoughwl.github.io/documentation)**
+**→ [AIF ≡ NIF: how it interops](https://aoughwl.github.io/docs/aif)** · **[the full stack](https://aoughwl.github.io/)**
 
 ### The pipeline
 `.nim / .aowl → aowlparse → aowlsem* → aowlhexer* → { aowlc → C · aowljs → JS · aowli → interpret }`
 
-<sub>*`aowlsem` and `aowlhexer` are intentionally private for now — docs are public, access on request (Discord: **timbuktu_guy**). The playground moves onto the new sem + hexing shortly.*</sub>
+<sub>*`aowlsem` and `aowlhexer` are private for now, but the docs are public and **anything private is yours if you just ask** — message me on Discord (**timbuktu_guy**) and I'll add you, no hoops. The playground moves onto the new sem + hexing shortly.*</sub>
 
 | Project | Docs |
 |---|---|
@@ -50,6 +48,19 @@ backends.
 **New project: [aowlmcp](https://aoughwl.github.io/docs/aowlmcp) — a [Model Context Protocol](https://modelcontextprotocol.io) server library in Nimony.** Protocol dispatch is transport-agnostic — one `handleMessage` turns a JSON-RPC message into a reply — so the same server and tools run under **three transports**: **stdio** (line-delimited JSON-RPC, no networking dep, for Claude Code / editors), **HTTP** (Streamable-HTTP, blocking or on the async reactor), and **HTTP/3 over QUIC** (the same contract on the net stack's H3 reactor). Every transport is verified end to end — stdio 13/13, HTTP 6/6, HTTP/3 4/4 (initialize + tools/list + tools/call over QUIC, one thread) — and it ships a real toolchain server (compile-to-diagnostics + NIF outline) wired into **[aowlcode](https://aoughwl.github.io/docs/aowlcode)**.
 
 Ten end-to-end suites are green. The one remaining frontier is WebTransport **streams** (datagrams already round-trip); everything else here is done and proven.
+
+<br>
+
+**And aowli can finally run real programs, not just the test suite.** For a while aowli passed the whole runnable corpus but still wasn't a real runtime — I found that out trying to run actual programs and watching SHA256 come out wrong and file writes do nothing. It was one problem wearing a lot of masks: there was no machine under the standard library. aowli faked each stdlib proc by hand and kept every value as a tree, so anything that needs real bytes (hashing, casts, `copyMem`), a real file, or a destructor to fire would just quietly do the wrong thing.
+
+So instead of patching each broken proc one more time, we built the parts a runtime actually stands on:
+
+- **Flat memory** under the value tree — casts, `copyMem`/`zeroMem`, `alloc`, unchecked arrays all work now, so SHA256 and other byte-level code comes out right.
+- **A real file/OS boundary** — an fd table with `open`/`read`/`write`/`close`/`seek`, plus `getEnv`/`putEnv`. `writeFile` writes a file now.
+- **Destructors** — `=destroy`/`=copy`/`=sink`/`=wasMoved` fire, in the right order, including for `ref` objects with a proper refcount. That last one was the hard piece.
+- **No more quiet failures.** Any stdlib call aowli doesn't implement now stops and names itself, instead of returning nil and letting you find out three bugs later. That's the change I care about most — it's the thing that was quietly making us solve the wrong problem.
+
+Honest scoreboard: the reference engine now runs about **92% of everything the compiler can even build**, with zero cases left where it runs but silently hands you a wrong answer. What's left is a known list — a handful of OS calls, some bytecode-VM gaps, and threads/async, which need their own thing (that's next).
 
 ## 016 2026-07-22 - Wednesday, July 22th 2026
 **[aowli-release](https://github.com/aoughwl/aowli-release) is live — the first `-release` repo goes public.** It's a binary-only distribution of the **[aowli](https://aoughwl.github.io/docs/aowli-release)** interpreter: it runs a nimony program's typed NIF (`.s.nif`) with no source in sight. Two prebuilt binaries — `aowli-interp` (run, plus `--trace` for an execution call-tree) and `aowli-dbg` (the new debugger) — ship as **[GitHub Release v0.1.0](https://github.com/aoughwl/aowli-release/releases/tag/v0.1.0)**, each hardened with a fail-closed licence gate and `strip --strip-all`, and published with a SHA256 and a VirusTotal lookup per binary. I verified before shipping that the stripped binaries leak **no source paths and no internal proc/type names** — only upstream stdlib/allocator strings remain. Source stays private; anyone can *run* the full thing, and **issues are welcome**.
