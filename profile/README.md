@@ -32,6 +32,7 @@ Between the frontend stages we use [AIF, which is NIF](https://aoughwl.github.io
 |---|---|
 | **aowl toolchain** — `aowlparse` · `aowlsem` · `aowlhexer` · `aowlc` · `aowljs` · `aowli` | [AIF ≡ NIF](https://aoughwl.github.io/docs/aif) |
 | **aowlup** — `rustup` for the stack: installs / versions / selects the toolchain (variants · profiles) | [repo ↗](https://github.com/aoughwl/aowlup) |
+| **aowlabi** — the stack's shared value-representation / ABI: one canonical per-type layout + marshal matrix, read by `aowlc` · `aowljs` · `aowli` instead of each keeping its own copy | [docs](https://aoughwl.github.io/docs/aowlabi) · [repo ↗](https://github.com/aoughwl/aowlabi) |
 | **aowlcode** — Claude Code plugin + MCP server (trace/debug, `/land`, cheap-applier fan-out) | [docs](https://aoughwl.github.io/docs/aowlcode) |
 | **aowllsp** — Language Server + VSCode extension | [docs](https://aoughwl.github.io/docs/aowllsp) |
 | **aowli-release** — public, binary-only `aowli` interpreter (runs a nimony program's typed NIF); prebuilt `aowli-interp` + `aowli-dbg`, [GitHub Release v0.1.0](https://github.com/aoughwl/aowli-release), hardened (licence gate + stripped), SHA256 + VirusTotal per binary | [docs](https://aoughwl.github.io/docs/aowli-release) |
@@ -46,6 +47,24 @@ Between the frontend stages we use [AIF, which is NIF](https://aoughwl.github.io
 # Daily Blog
 
 <br>
+
+## 018 2026-07-24 - Friday, July 24th 2026
+
+**Gave the whole stack one source of truth for how values are laid out: [aowlabi](https://github.com/aoughwl/aowlabi).** Three places each kept their own copy of *how is a `string` / `seq` / `object` / `ref` actually represented* — the interpreter, the C backend, the JS backend — and they had quietly drifted. aowlabi is now the single canonical answer:
+
+* the size / alignment / field-offset engine — one implementation of the C-struct layout rules, parameterized by pointer size
+* the canonical heap-block spec — string SSO + `LongString{fullLen,rc,cap,data}`, seq `{len,data}`, the ARC ref box `{rc,data}` — as named offset constants, one truth
+* the marshal matrix — which types cross a native boundary by value / by buffer / by fallback, plus the JS representation mapping (fast `number` vs faithful `bigint`, char, tuple, and so on)
+
+[aowlc](https://aoughwl.github.io/docs/aowlc), [aowljs](https://aoughwl.github.io/docs/aowljs) and [aowli](https://aoughwl.github.io/aowli) all read the same spec now instead of re-deriving it.
+
+**[aowli](https://aoughwl.github.io/aowli) grew a real runtime layer.** The scattered places where the interpreter crossed from its value world into a faster / foreign executor — host natives, flat memory, syscalls, the miss policy — are one spine now: a **provider registry** (interpret · host-native · syscall · hybrid-native), a **codec** (identity · flat C-ABI · JS value), and a **policy** that is *never silently wrong* — an unsupported crossing fails loud or falls back to interpret, never a wrong answer.
+
+**And the payoff — hybrid execution.** aowli can now interpret only the file you care about and run *every other module as natively-compiled code at full speed*. Debug one file slowly, with full observability, while its libraries run native. aowli auto-generates C-callable shims for the cross-boundary calls, marshals scalars, POD objects / tuples, strings and seqs across using aowlabi's layout, and dispatches at the call site. Every result is **byte-identical to the fully-native build**; anything that can't be safely marshaled (refs, closures) transparently falls back to the interpreter — so it is faster where it can be and correct everywhere.
+
+```
+aowli --hybrid --interpret:mymod prog     # mymod stays observable, everything else runs native
+```
 
 ## 017 2026-07-23 - Thursday, July 23th 2026
 
