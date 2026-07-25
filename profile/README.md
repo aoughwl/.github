@@ -38,7 +38,7 @@ Between the frontend stages we use [AIF, which is NIF](https://aoughwl.github.io
 | **aowli-release** — public, binary-only `aowli` interpreter (runs a nimony program's typed NIF); prebuilt `aowli-interp` + `aowli-dbg`, [GitHub Release v0.1.0](https://github.com/aoughwl/aowli-release), hardened (licence gate + stripped), SHA256 + VirusTotal per binary | [docs](https://aoughwl.github.io/docs/aowli-release) |
 | **net stack** — `tcp`·`net`·`tls`·`http`·`compress`·`serve`·`ws`·`requests` — TLS 1.3, HTTP/1.1 · 2 · 3, QUIC + WebTransport, Autobahn WebSocket, single-thread async reactor | [docs](https://aoughwl.github.io/docs/net-stack) |
 | **web / html / css** — typed HTML5 + MDN CSS engine + DSL | [docs](https://aoughwl.github.io/docs/web) |
-| **nimony-ts / nimony-py / nimony-hl** — idiomatic TS/Py backends + shared HL-IR | [ts](https://aoughwl.github.io/docs/aowlts) · [py](https://aoughwl.github.io/docs/aowlpy) · [hl](https://aoughwl.github.io/docs/aowlhl) |
+| **aowlts / aowlpy / aowlhl** — idiomatic TS/Py backends + shared HL-IR | [ts](https://aoughwl.github.io/docs/aowlts) · [py](https://aoughwl.github.io/docs/aowlpy) · [hl](https://aoughwl.github.io/docs/aowlhl) |
 
  ‎‎· **[and more, here](https://aoughwl.github.io/)**
 
