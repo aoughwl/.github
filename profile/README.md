@@ -35,7 +35,7 @@ Between the frontend stages we use [AIF, which is NIF](https://aoughwl.github.io
 | **aowlabi** — the stack's shared value-representation / ABI: one canonical per-type layout + marshal matrix, read by `aowlc` · `aowljs` · `aowli` instead of each keeping its own copy | [docs](https://aoughwl.github.io/docs/aowlabi) · [repo ↗](https://github.com/aoughwl/aowlabi) |
 | **aowlcode** — Claude Code plugin + MCP server (trace/debug, `/land`, cheap-applier fan-out) | [docs](https://aoughwl.github.io/docs/aowlcode) |
 | **aowllsp** — Language Server + VSCode extension | [docs](https://aoughwl.github.io/docs/aowllsp) |
-| **aowli-release** — public, binary-only `aowli` interpreter (runs a nimony program's typed NIF); prebuilt `aowli-interp` + `aowli-dbg`, [GitHub Release v0.3.0](https://github.com/aoughwl/aowli-release), hardened (licence gate + stripped), SHA256 + VirusTotal per binary | [docs](https://aoughwl.github.io/docs/aowli-release) |
+| **aowli-release** — public, binary-only distribution of `aowli` (the `aowli` source is private); runs a nimony program's typed NIF; prebuilt `aowli-interp` + `aowli-dbg`, [GitHub Release v0.3.0](https://github.com/aoughwl/aowli-release/releases/tag/v0.3.0), hardened (licence gate + stripped), SHA256 + VirusTotal per binary | [docs](https://aoughwl.github.io/docs/aowli-release) |
 | **net stack** — `tcp`·`net`·`tls`·`http`·`compress`·`serve`·`ws`·`requests` — TLS 1.3, HTTP/1.1 · 2 · 3, QUIC + WebTransport, Autobahn WebSocket, single-thread async reactor | [docs](https://aoughwl.github.io/docs/net-stack) |
 | **web / html / css** — typed HTML5 + MDN CSS engine + DSL | [docs](https://aoughwl.github.io/docs/web) |
 | **aowljs / aowlts / aowlpy / aowlhl** — idiomatic JS/TS/PY backends + shared HL-IR | [ts](https://aoughwl.github.io/docs/aowlts) · [py](https://aoughwl.github.io/docs/aowlpy) · [hl](https://aoughwl.github.io/docs/aowlhl) |
@@ -58,7 +58,11 @@ Created [aoughwl-code](https://aoughwl.github.io/docs/aoughwl-code) and [aoughwl
 
 **The last OS-boundary gaps closed.** Real host `stat` / `lstat` (so `fileExists` / `dirExists` are correct), pointer identity in `==` / `!=`, `cast[int](ptr)` round-tripping through flat memory, and VM argv / stdin seeding. Plus a sweep of narrower fixes: float→int conversion, block-expression values, cyclic-import init order, a self-nested-iterator hang, and `Table` element write-back.
 
-One boundary is **documented, not a gap**: `{.emit.}` literal-C and C FFI are out of scope for a value interpreter — there is no C to run, by design.
+The one boundary the pure value interpreter can't cross by itself is literal-C: `{.emit.}` and C FFI have no C to run inside the value model. **That's exactly what hybrid-native mode absorbs — and today it ran real foreign C for the first time.**
+
+**Hybrid-native executed real C-FFI.** aowli's hybrid mode — interpret most modules, run selected ones as native code — now offloads a header-backed `{.importc.}` proc to a compiled shim and calls into *genuine* C: a `static inline` `cadd` crossed the boundary, ran natively, and marshaled its result back into the interpreter byte-identical to native. The proc-offload path (pure-nimony procs run native) also picked up a permanent regression lane. This is interpreter-development progress, not yet in the public v0.3.0 binary; the remaining piece is top-level `{.emit.}` / importc-var in the *main* module.
+
+**Playground refresh.** The in-browser [playground](https://aoughwl.github.io/playground/) got a round of work: rebuilt engine bundles (fixing a stale-bundle bug where Bytecode-VM and Native-JS runs showed no output), a unified **Pipeline** config panel (parser · checker · lowering · engine), aowlsem rebuilt from latest, the two source-pane toolbars merged into one, a clearer footer with an inline engine picker, and curly-brace block mode no longer false-flags a `{ … }` body as "not a Nim block."
 
 ## 018 2026-07-24 - Friday, July 24th 2026
 
