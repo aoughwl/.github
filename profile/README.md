@@ -35,7 +35,7 @@ Between the frontend stages we use [AIF, which is NIF](https://aoughwl.github.io
 | **aowlabi** — the stack's shared value-representation / ABI: one canonical per-type layout + marshal matrix, read by `aowlc` · `aowljs` · `aowli` instead of each keeping its own copy | [docs](https://aoughwl.github.io/docs/aowlabi) · [repo ↗](https://github.com/aoughwl/aowlabi) |
 | **aowlcode** — Claude Code plugin + MCP server (trace/debug, `/land`, cheap-applier fan-out) | [docs](https://aoughwl.github.io/docs/aowlcode) |
 | **aowllsp** — Language Server + VSCode extension | [docs](https://aoughwl.github.io/docs/aowllsp) |
-| **aowli-release** — public, binary-only distribution of `aowli` (the `aowli` source is private); runs a nimony program's typed NIF; prebuilt `aowli-interp` + `aowli-dbg`, [GitHub Release v0.3.0](https://github.com/aoughwl/aowli-release/releases/tag/v0.3.0), hardened (licence gate + stripped), SHA256 + VirusTotal per binary | [docs](https://aoughwl.github.io/docs/aowli-release) |
+| **aowli-release** — public, binary-only distribution of `aowli` (the `aowli` source is private); runs a nimony program's typed NIF; prebuilt `aowli-interp` + `aowli-dbg`, [GitHub Release v0.3.1](https://github.com/aoughwl/aowli-release/releases/tag/v0.3.1), hardened (obfnif IR + licence gate + stripped), SHA256 + VirusTotal per binary | [docs](https://aoughwl.github.io/docs/aowli-release) |
 | **net stack** — `tcp`·`net`·`tls`·`http`·`compress`·`serve`·`ws`·`requests` — TLS 1.3, HTTP/1.1 · 2 · 3, QUIC + WebTransport, Autobahn WebSocket, single-thread async reactor | [docs](https://aoughwl.github.io/docs/net-stack) |
 | **web / html / css** — typed HTML5 + MDN CSS engine + DSL | [docs](https://aoughwl.github.io/docs/web) |
 | **aowljs / aowlts / aowlpy / aowlhl** — idiomatic JS/TS/PY backends + shared HL-IR | [ts](https://aoughwl.github.io/docs/aowlts) · [py](https://aoughwl.github.io/docs/aowlpy) · [hl](https://aoughwl.github.io/docs/aowlhl) |
@@ -45,6 +45,20 @@ Between the frontend stages we use [AIF, which is NIF](https://aoughwl.github.io
 <br><br><br>
 
 # Daily Blog
+
+<br>
+
+## 021 2026-07-26 - Sunday, July 26th 2026
+
+**Released [aowli](https://aoughwl.github.io/aowli) [v0.3.1](https://github.com/aoughwl/aowli-release/releases/tag/v0.3.1) — the interpreter now runs the Nimony *semantic checker itself*, byte-identical to a native compile.** Pointing the interpreter at [aowlsem](https://aoughwl.github.io/docs/aowlsem) — a real, compiler-grade program — and diffing against native turned up three root-cause bugs; fixing them brought the run to **520/520 tokens identical**. This is the milestone where [aowlcode](https://aoughwl.github.io/docs/aowlcode)'s `debug`/`trace` can be aimed at the compiler's own passes.
+
+* **Fully-initialised pointer values.** Constructing an interior `ptr` left its flat-memory view fields (`region`/`foff`/`elemBits`/`base`) uninitialised, so a later read saw garbage — a genuine memory-safety class, not a cosmetic gap. Caught with **valgrind running under mimalloc's Valgrind-tracking build** (mimalloc otherwise bypasses the sanitizer); every pointer construction now initialises all fields.
+* **`seq` append value-copy.** `s.add x` now copies `x` on the way in — the same `=copy` envelope semantics v0.3.0 gave assignment — so mutating the appended element never aliases the source.
+* **Content-addressed tag dedup.** `StringView.==` is gated so NIF tag interning deduplicates by identity, the way `TokenBuf`-style content-addressed programs expect.
+
+**The debugger got sharper alongside it.** `--break-func:NAME` and file-scoped `--break:file.nim:LINE` resolve routines through the include chain (a bare line number is ambiguous once modules are merged), and `program_args` forward to the interpreted program's `commandLineParams()` — so a breakpoint can land inside `semCall` while the checker runs on a real input.
+
+**And a plugin-packaging gotcha worth writing down.** The [aowlcode](https://aoughwl.github.io/docs/aowlcode) MCP server a session runs isn't the marketplace checkout or the newest cached build — it's the exact version pinned in `installed_plugins.json`. Ours was stuck three months of features back at 0.6.0, silently dropping any newer argument (like `program_args`) before it reached the handler. Bumped the pin to **0.6.9**; the fix is a one-line pin bump plus a restart, but the *diagnosis* — a param present in source yet missing from the live tool schema — is the tell.
 
 <br>
 
