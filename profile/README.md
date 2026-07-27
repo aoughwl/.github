@@ -60,6 +60,14 @@ Also fixed a build issue where a rebuilt debugger binary could be shadowed by an
 
 **Released [aowli](https://aoughwl.github.io/aowli) [v0.3.2](https://github.com/aoughwl/aowli-release/releases/tag/v0.3.2)** — two shipped-runtime correctness fixes surfaced by running a real argument parser under the interpreter: `s[a..b]` / `s[a..<b]` slices returned only the first element instead of the substring, and a non-string value (a `nil`/default) could compare `==` equal to a string. Both fixed; byte-identical to a native compile on the repro, and the differential corpus stays at 77/77. Hardened binaries (obfuscated IR + licence gate + stripped) with SHA256 are on the [release page](https://github.com/aoughwl/aowli-release/releases/tag/v0.3.2).
 
+**And the reason the debugger got all this attention — [aowlsem](https://aoughwl.github.io/docs/aowlsem), the semantic checker it was built to debug — closed most of its remaining generics gap today.** Generic types now *instantiate* the way the reference compiler does, in the cases that were still falling back to the un-specialized generic:
+
+* **Generic sum types construct by inference.** `let d = Some(99)` now works out `Option[int]` from the argument, so `d.val` is an `int` and `d.val == 99` resolves to one integer comparison instead of a 25-way overload set. The same holds for annotated conversions (`Option[int](x)`) and two-parameter sums like `Either[int, string]`.
+* **Generic `ref object` types instantiate in full.** A recursive `Tree[T] = ref object` variant now emits *both* halves the compiler expects — the reference alias and its underlying object type — each carrying its own per-instance lifetime hooks (destroy / move / copy), and its constructors (`Branch(…)`, `Leaf(…)`) build the concrete instance rather than the generic origin.
+* **Plain generic objects infer their instance too** — `Pair(first: 1, second: 2)` picks `Pair[int]` straight from its field values.
+
+Every one of these was found by aiming the interpreter's debugger at aowlsem's own output and diffing against a native compile — the exact loop the interactive-stepping work above was built to make cheap. The byte-exact differential corpus stays green at **498/498**, with the full `std/system` parity intact.
+
 ## 020 2026-07-26 - Sunday, July 26th 2026
 
 **[aowlmcp](https://aoughwl.github.io/docs/aowlmcp) now speaks the [MCP 2026-07-28](https://blog.modelcontextprotocol.io/posts/2026-07-28-release-candidate/) spec — the biggest MCP revision since launch, and a clean break with its stateful past.** The library serves **both** protocol versions, negotiated per request, so upgrading a client is never a flag day:
