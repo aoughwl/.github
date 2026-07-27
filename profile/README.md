@@ -48,6 +48,18 @@ Between the frontend stages we use [AIF, which is NIF](https://aoughwl.github.io
 
 <br>
 
+## 021 2026-07-27 - Monday, July 27th 2026
+
+**[aowli](https://aoughwl.github.io/aowli) got a real *progressive* debugger — run once, pause, and step through the live program instead of re-running it for every look.** Pointing `debug`/`trace` at a compiler-grade program (an [aowlsem](https://aoughwl.github.io/docs/aowlsem) compile) exposed three sharp edges; fixing them turned the batch debugger into an interactive one. Full writeup: **[Debugging → Interactive mode](https://aoughwl.github.io/aowli/debugging)**.
+
+* **The 15,000-token wall, gone.** Dumping one frame local — a `SemContext`, a wide object of wide interning tables — produced a ~15k-token wall of internals. The renderer capped each *node* but never the *total*, so a wide-of-wide structure multiplied out within the depth limit. Fix: a whole-value **character budget** — when it runs out, expansion stops with a `…{budget}` marker, so a dump is a constant size no matter the value's shape, and you can always tell detail was *deferred*, not missing.
+* **Path-addressable `expand`.** Budgeting the dump raised the obvious worry — what if the field you need got elided? So the debugger drills: `expand c.currentModule.name`, `expand xs.3.field` — object fields by name, seq/array by index, `ref`/`ptr` auto-followed — rendering just that sub-value. Read the shape, then drill the exact path. Token-thrift with nothing lost.
+* **Progressive `--session` mode.** Batch mode re-ran the *whole* program on every command — so you had to predict what to capture, and a slow program paid a full re-run per inspection. `aowli-dbg --session` now runs **once** and **stays paused between commands**, stepping and inspecting the live frame on demand: **step** into · **next** over · **finish** out · **continue**, set **breakpoints live** mid-session, and `expand`/`locals`/`stack` the paused frame. It needs no coroutine machinery — the interpreter is already parked on the stack inside its per-statement hook, so a blocking read on the control channel *is* the pause. Batch mode and the zero-overhead default stay byte-for-byte unchanged.
+
+**And the papercut behind "I rebuilt it but nothing changed."** The debugger binary resolves `~/.aowl/bin` *before* the dev build dir, so a stale copy there silently **shadowed** every rebuild — the ghost behind "bump a version somewhere else and it still runs the old one." The build now stamps a version into the binary (`aowli-dbg --version`) and installs to every resolved location at once, so a rebuild can never be shadowed again.
+
+All of it is exposed through [aowlcode](https://aoughwl.github.io/docs/aowlcode) (**0.6.13**): the `debug` tool gains `watch`/`expand` and budgeted output, and a new **`debug_session`** tool drives the interactive loop — start · step · next · finish · continue · expand · locals · stack · break · clear · stop. See [aowlcode → Execution](https://aoughwl.github.io/docs/aowlcode/execution).
+
 ## 020 2026-07-26 - Sunday, July 26th 2026
 
 **[aowlmcp](https://aoughwl.github.io/docs/aowlmcp) now speaks the [MCP 2026-07-28](https://blog.modelcontextprotocol.io/posts/2026-07-28-release-candidate/) spec — the biggest MCP revision since launch, and a clean break with its stateful past.** The library serves **both** protocol versions, negotiated per request, so upgrading a client is never a flag day:
