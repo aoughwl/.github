@@ -50,15 +50,13 @@ Between the frontend stages we use [AIF, which is NIF](https://aoughwl.github.io
 
 ## 021 2026-07-27 - Monday, July 27th 2026
 
-**[aowli](https://aoughwl.github.io/aowli) got a real *progressive* debugger — run once, pause, and step through the live program instead of re-running it for every look.** Pointing `debug`/`trace` at a compiler-grade program (an [aowlsem](https://aoughwl.github.io/docs/aowlsem) compile) exposed three sharp edges; fixing them turned the batch debugger into an interactive one. Full writeup: **[Debugging → Interactive mode](https://aoughwl.github.io/aowli/debugging)**.
+**[aowli](https://aoughwl.github.io/aowli)'s debugger can now pause a running program and step through it interactively**, instead of only printing breakpoint snapshots after a run finishes. Three additions, all in [aowlcode](https://aoughwl.github.io/docs/aowlcode) **0.6.13** and documented under [Debugging](https://aoughwl.github.io/aowli/debugging):
 
-* **The 15,000-token wall, gone.** Dumping one frame local — a `SemContext`, a wide object of wide interning tables — produced a ~15k-token wall of internals. The renderer capped each *node* but never the *total*, so a wide-of-wide structure multiplied out within the depth limit. Fix: a whole-value **character budget** — when it runs out, expansion stops with a `…{budget}` marker, so a dump is a constant size no matter the value's shape, and you can always tell detail was *deferred*, not missing.
-* **Path-addressable `expand`.** Budgeting the dump raised the obvious worry — what if the field you need got elided? So the debugger drills: `expand c.currentModule.name`, `expand xs.3.field` — object fields by name, seq/array by index, `ref`/`ptr` auto-followed — rendering just that sub-value. Read the shape, then drill the exact path. Token-thrift with nothing lost.
-* **Progressive `--session` mode.** Batch mode re-ran the *whole* program on every command — so you had to predict what to capture, and a slow program paid a full re-run per inspection. `aowli-dbg --session` now runs **once** and **stays paused between commands**, stepping and inspecting the live frame on demand: **step** into · **next** over · **finish** out · **continue**, set **breakpoints live** mid-session, and `expand`/`locals`/`stack` the paused frame. It needs no coroutine machinery — the interpreter is already parked on the stack inside its per-statement hook, so a blocking read on the control channel *is* the pause. Batch mode and the zero-overhead default stay byte-for-byte unchanged.
+* **Interactive stepping (`--session`).** Run a program once and keep it paused between commands: step into a call, step over it, run until the current routine returns, or continue to the next breakpoint. You can set breakpoints while it's paused and inspect the current frame — without re-running the program for each look. In the plugin this is the new **`debug_session`** tool.
+* **Readable output for big values.** A large local — say a compiler's context object full of lookup tables — used to print as thousands of lines. Values are now rendered under a size budget and the rest is elided with a marker, so a frame dump stays readable regardless of how large the values are.
+* **Drill into one field.** Rather than print a whole value, name the part you want — `expand c.currentModule.name`, `expand xs.3.field` — and only that piece is shown. Object fields resolve by name, seq/array elements by index.
 
-**And the papercut behind "I rebuilt it but nothing changed."** The debugger binary resolves `~/.aowl/bin` *before* the dev build dir, so a stale copy there silently **shadowed** every rebuild — the ghost behind "bump a version somewhere else and it still runs the old one." The build now stamps a version into the binary (`aowli-dbg --version`) and installs to every resolved location at once, so a rebuild can never be shadowed again.
-
-All of it is exposed through [aowlcode](https://aoughwl.github.io/docs/aowlcode) (**0.6.13**): the `debug` tool gains `watch`/`expand` and budgeted output, and a new **`debug_session`** tool drives the interactive loop — start · step · next · finish · continue · expand · locals · stack · break · clear · stop. See [aowlcode → Execution](https://aoughwl.github.io/docs/aowlcode/execution).
+Also fixed a build issue where a rebuilt debugger binary could be shadowed by an older copy earlier on the lookup path. The binary now reports its build version (`aowli-dbg --version`) and installs to one canonical location. Full command reference: [aowlcode → Execution](https://aoughwl.github.io/docs/aowlcode/execution).
 
 ## 020 2026-07-26 - Sunday, July 26th 2026
 
@@ -73,7 +71,7 @@ Every new flow is proven **over all three transports** — stdio, HTTP, and HTTP
 
 <br>
 
-**Also released [aowli](https://aoughwl.github.io/aowli) [v0.3.1](https://github.com/aoughwl/aowli-release/releases/tag/v0.3.1) — the interpreter now runs the Nimony *semantic checker itself*, byte-identical to a native compile.** Pointing the interpreter at [aowlsem](https://aoughwl.github.io/docs/aowlsem) — a real, compiler-grade program — and diffing against native turned up three root-cause bugs; fixing them brought the run to **520/520 tokens identical**. This is the milestone where [aowlcode](https://aoughwl.github.io/docs/aowlcode)'s `debug`/`trace` can be aimed at the compiler's own passes.
+**Also released [aowli](https://aoughwl.github.io/aowli) [v0.3.1](https://github.com/aoughwl/aowli-release/releases/tag/v0.3.1) — the interpreter now runs the Nimony *semantic checker itself*, byte-identical to a native compile.** Pointing the interpreter at [aowlsem](https://aoughwl.github.io/docs/aowlsem) — a real, compiler-grade program — and diffing against native turned up three root-cause bugs; fixing them brought the run to **520/520 tokens identical**. This means [aowlcode](https://aoughwl.github.io/docs/aowlcode)'s `debug`/`trace` can now be aimed at the compiler's own passes.
 
 * **Fully-initialised pointer values.** Constructing an interior `ptr` left its flat-memory view fields (`region`/`foff`/`elemBits`/`base`) uninitialised, so a later read saw garbage — a genuine memory-safety class, not a cosmetic gap. Caught with **valgrind running under mimalloc's Valgrind-tracking build** (mimalloc otherwise bypasses the sanitizer); every pointer construction now initialises all fields.
 * **`seq` append value-copy.** `s.add x` now copies `x` on the way in — the same `=copy` envelope semantics v0.3.0 gave assignment — so mutating the appended element never aliases the source.
@@ -81,7 +79,7 @@ Every new flow is proven **over all three transports** — stdio, HTTP, and HTTP
 
 **The debugger got sharper alongside it.** `--break-func:NAME` and file-scoped `--break:file.nim:LINE` resolve routines through the include chain (a bare line number is ambiguous once modules are merged), and `program_args` forward to the interpreted program's `commandLineParams()` — so a breakpoint can land inside `semCall` while the checker runs on a real input.
 
-**And a plugin-packaging gotcha worth writing down.** The [aowlcode](https://aoughwl.github.io/docs/aowlcode) MCP server a session runs isn't the marketplace checkout or the newest cached build — it's the exact version pinned in `installed_plugins.json`. Ours was stuck three months of features back at 0.6.0, silently dropping any newer argument (like `program_args`) before it reached the handler. Bumped the pin to **0.6.9**; the fix is a one-line pin bump plus a restart, but the *diagnosis* — a param present in source yet missing from the live tool schema — is the tell.
+**A plugin-packaging note.** The [aowlcode](https://aoughwl.github.io/docs/aowlcode) MCP server a session runs isn't the marketplace checkout or the newest cached build — it's the exact version pinned in `installed_plugins.json`. Ours was stuck several versions back at 0.6.0, which silently dropped any newer argument (like `program_args`) before it reached the handler. The fix is a one-line pin bump (to **0.6.9**) plus a restart; the thing to watch for is a parameter that's present in the source but missing from the live tool's schema.
 
 ## 019 2026-07-25 - Saturday, July 25th 2026
 Created [aoughwlup](https://aoughwl.github.io/docs/aoughwlup) and [aoughwl](https://aoughwl.github.io/docs/aoughwl)<br>
@@ -133,7 +131,6 @@ Created **[aowlmcp](https://aoughwl.github.io/docs/aowlmcp)**: transport-indepen
 **aowli became an actual runtime:** flat memory, casts, `copyMem`, allocation, unchecked arrays, fd-backed file I/O, env access, ownership hooks, refcounted `ref` objects, and fail-fast unsupported stdlib calls. It now runs about **92% of compiler-buildable programs**, with no known silent wrong-result cases. Remaining: some OS/VM gaps, threads, async.
 
 ## 016 2026-07-22 - Wednesday, July 22th 2026
-Happy Fuck ya Mum Wednesday to all!
 
 Released **[aowli-release](https://github.com/aoughwl/aowli-release) [v0.1.0](https://github.com/aoughwl/aowli-release/releases/tag/v0.1.0)** with:
 
@@ -145,12 +142,12 @@ Released **[aowli-release](https://github.com/aoughwl/aowli-release) [v0.1.0](ht
 Updated **[aowlcode](https://aoughwl.github.io/docs/aowlcode)** with trace/debug tools, `/land`, Haiku appliers, and parallel edit application.
 
 ## 015 2026-07-21 - Tuesday, July 21th 2026
-I found some tokens.
+Back to work after a couple of quiet days.
 
 ## 014 2026-07-20 - Monday, July 20th 2026
-I ran out of tokens.<br><br>
+A quiet day.<br><br>
 
-Shotout to the fellow Nim'er who created this:  [3code](https://3code.capocasa.dev/), check it out !    (I don't endorse it nor do I agree with it)
+Shout-out to a fellow Nim'er's project — [3code](https://3code.capocasa.dev/), worth a look.
 
 ## 013 2026-07-19 - Sunday, July 19th 2026
 
@@ -158,7 +155,7 @@ More **aowlsem** — the whole day is a generics push. The semchecker now instan
 
 ## 012 2026-07-18 - Saturday, July 18th 2026
 
-**The biggest day yet for [aowlsem](https://aoughwl.github.io/docs/aowlsem)** — 126 commits landing the clean-room semchecker's core. It now passes **397/397 corpus fixtures byte-exact** against the nimony oracle, and — the milestone — it does a **complete zero-diagnostic traversal of the full `std/system`**: the whole `system.nim` plus its included `std/system/*.nim` set, ~6,383 lines, semcheck with **0 errors and 0 log lines**. Full-system parity against nimony's own output is down to ~33k canonical diff lines from an earliest baseline of ~62k — a **46.5% reduction**, with the first mismatch now a third of the way into the semantic output.
+**A major day for [aowlsem](https://aoughwl.github.io/docs/aowlsem)** — 126 commits landing the clean-room semchecker's core. It now passes **397/397 corpus fixtures byte-exact** against the nimony oracle, and — the milestone — it does a **complete zero-diagnostic traversal of the full `std/system`**: the whole `system.nim` plus its included `std/system/*.nim` set, ~6,383 lines, semcheck with **0 errors and 0 log lines**. Full-system parity against nimony's own output is down to ~33k canonical diff lines from an earliest baseline of ~62k — a **46.5% reduction**, with the first mismatch now a third of the way into the semantic output.
 
 Under that headline: the magic table (arithmetic / comparison / set / pointer magics), `varargs[T]` params with call-site collection, membership (`x in coll`) generalized across seq/array/string, seq slicing and `s[a..b]`, `for (a, b) in …` tuple destructuring, `^k` backwards indexing, `countdown` typevar inference, concept declarations, lifetime-hook attachment, and `ptr UncheckedArray[T]` indexing. aowlsem also grows **diagnostics that go beyond nimony** — E0205 self-comparison, E0206 unsigned-compared-to-zero, E0207 empty-loop-range, E0208 tuple-index-out-of-bounds, E0209 shift-amount-out-of-range. *(source private for now; docs public, access on request)*
 
@@ -207,8 +204,8 @@ Updated [aifparser](https://github.com/aoughwl/nifi)<br>
 Updated [nimony-playground](https://aoughwl.github.io/playground/)<br>
 
 ## 008 2026-07-014 - Tuesday, July 14th 2026
-Took [nifi](https://github.com/aoughwl/nifi) private,  oh- the fish weren't bittin today<br> 
-Updated [nifi](https://github.com/aoughwl/nifi), 6-10x performance gain
+Took [nifi](https://github.com/aoughwl/nifi) private.<br>
+Updated [nifi](https://github.com/aoughwl/nifi) — 6–10× performance gain.
 
 ## 007 2026-07-013 - Monday, July 13th 2026
 Updated [nimony-playground](https://aoughwl.github.io/playground/)<br>
