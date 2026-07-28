@@ -48,6 +48,16 @@ Between the frontend stages we use [AIF, which is NIF](https://aoughwl.github.io
 
 <br>
 
+## 022 2026-07-28 - Tuesday, July 28th 2026
+
+**[aowlsem](https://aoughwl.github.io/docs/aowlsem), the from-scratch semantic checker, spent the day closing byte-level gaps against the reference compiler's own typed output.** The method is deliberately simple: write a small *valid* program that exercises one language feature, run both checkers, and diff the results token-for-token — every difference is a bug to fix or a deliberate lowering choice to record. It is now **~20.8k lines** of self-hosted Nimony across **700 commits**, with the byte-exact differential corpus holding at **498/498** modules and the whole `std/system` checking clean.
+
+* **Generic `ref object` types reached full byte-identity.** Yesterday they instantiated structurally; today they match the reference exactly. `Container[int](…)` now constructs a real heap `ref` (`newobj`) instead of a value; a generic instance's synthesized lifetime hooks (`=destroy`/`=copy`/…) no longer bake in the defining module (the instance is content-addressed already); and the underlying object half numbers its type parameter `T.1` to the alias's `T.0`, matching how the reference counts a `ref object`'s two declarations.
+* **Value objects that carry methods.** An inheritable object with managed fields that *also* declares `method`s (`type Animal = object of RootObj … method sound(a: Animal)`) was emitting the full four-hook lifetime form; the reference emits **only** the user-method vtable table, because a type with a real vtable routes its own destruction through the vtable. The trigger is the *presence of a user method*, not inheritability — a common polymorphism pattern, now byte-identical.
+* **A run of smaller parity fixes.** Generic variants resolve their named-branch fields (`o.val` inside a generic `unwrap[T]`); `{.borrow.}` operators returning a distinct type convert their result back (`+`(Celsius, Celsius) → `(dconv Celsius …)`); `untyped`/`typed` template parameters are now wildcards, so `template twice(x: untyped)` *inlines* at the call site; and bool `case` labels emit the literal `(true)`/`(false)` tags.
+
+Earlier in the day the same grind landed lambdas/anonymous procs as expressions, cross-scope iterator resolution (a local variable named like an iterator no longer hides it), custom `[]`/`[]=`/`{}`/`contains` operators, multi-index `x[i, j]` read and write (two assertion crashes fixed), and a batch of cross-module import-resolution fixes in the driver. The three regression gates stayed green throughout: **498/498** corpus, **64/64** diagnostics, `std/system` within its seven-line window.
+
 ## 021 2026-07-27 - Monday, July 27th 2026
 
 **[aowli](https://aoughwl.github.io/aowli)'s debugger can now pause a running program and step through it interactively**, instead of only printing breakpoint snapshots after a run finishes. Three additions, all in [aowlcode](https://aoughwl.github.io/docs/aowlcode) **0.6.13** and documented under [Debugging](https://aoughwl.github.io/aowli/debugging):
