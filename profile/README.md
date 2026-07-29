@@ -48,6 +48,18 @@ Between the frontend stages we use [AIF, which is NIF](https://aoughwl.github.io
 
 <br>
 
+## 023 2026-07-29 - Wednesday, July 29th 2026
+
+**The [playground](https://aoughwl.github.io/playground/) grew up into a real in-browser IDE.** What was a single-file scratchpad is now a full multi-file workspace with a VS Code-style feel — still running the whole toolchain (parser, semantic checker, interpreter, and the debugger) compiled to JavaScript, entirely in your browser tab.
+
+* **Multi-file projects + a file explorer.** A dockable explorer tree with right-click context menus (rename / move / delete), multi-select, drag-to-move between folders, **preview tabs** (single-click opens an italic preview, double-click or an edit keeps it), and a **navigation history** you drive with the mouse back/forward buttons (or Alt+←/→) — back out of a definition and forward into it, exactly like an editor.
+* **Clone a repo — or share a whole workspace — from a link.** Type `owner/repo` (e.g. `aoughwl/aowllib`) to clone a public GitHub repo client-side, or hand someone a `#clone=owner/repo` link that spawns them straight into it. The **Share** button now packs your *entire* workspace — every project and file — into a single compressed link, not just the active buffer.
+* **The [aowli](https://aoughwl.github.io/aowli) debugger, live in the browser.** Run a program and step through it on a **flame / depth timeline**: every statement is a cell, call depth stacks into lanes, each routine gets its own colour, with a zoomable slice and a full-run minimap — scrub, reverse-step, and jump anywhere. It auto-captures the moment you open it. (Fixing the current-line highlight also traced a neat root cause: `echo` is a *template*, so its expansion carries the stdlib's line info, not your call site — the debugger is now file-aware so it never jumps to a foreign line.)
+* **Split editors + browse the standard library.** Drag a tab to any edge to open two files **side-by-side or stacked**. Ctrl-click or F12 on an `import` opens the real std source (`system`, `syncio`, …) to read inline. And `.json` / `.js` / `.c` / `.nif` files now get native highlighting — including a proper **NIF** grammar — and skip the nimony pipeline entirely, so only `.nim` / `.aowl` are type-checked and run.
+* **Latest bundles.** The obfuscated **aowlsem** (the experimental aowl-semantics checker you can switch to) and the **aowli** interpreter + debugger bundles are refreshed to their newest builds.
+
+Every doc page for a runnable library now carries a **"▶ Try it live in the Playground"** link, too.
+
 ## 022 2026-07-28 - Tuesday, July 28th 2026
 
 [aowli-release](https://github.com/aoughwl/aowli-release) is now private indefinitely.
