@@ -50,6 +50,8 @@ Between the frontend stages we use [AIF, which is NIF](https://aoughwl.github.io
 
 ## 024 2026-07-30 - Thursday, July 30th 2026
 
+[aowlcode](https://github.com/aoughwl/aowlcode) is now private indefinitely.
+
 **[aowlcode](https://aoughwl.github.io/docs/aowlcode) 1.0 — the tool gate is on by default.** aowlcode is the Claude Code plugin/MCP server that fronts the Nim and Nimony toolchains for an agent: structured diagnostics, NIF slices and navigation instead of raw compiler output and 40KB single-line artifacts. The tools shipped months ago and were still bypassed in favour of `grep -rn` + `sed -n`, so 1.0 inverts the default rather than the documentation.
 
 **[Aowl mode](https://aoughwl.github.io/docs/aowlcode/aowl-mode), default `guided`.** A `PreToolUse` hook denies `Grep`, `Glob`, and Bash segments that are a code search (`grep`/`rg`/`ag`), a source/NIF dump (`cat`/`head`/`sed`/`awk`), a tree walk (`find`/`fd`), or a raw `nim c` / `nimony c` / `nim check`. `git`, test scripts and running a built binary pass. `strict` additionally denies Bash outright. Each denial carries a redirect table naming the tool for the question asked, and is appended to a ledger `/aowl-mode status` reports.
