@@ -48,6 +48,25 @@ Between the frontend stages we use [AIF, which is NIF](https://aoughwl.github.io
 
 <br>
 
+## 024 2026-07-30 - Thursday, July 30th 2026
+
+**[aowlcode](https://aoughwl.github.io/docs/aowlcode) 1.0 — the plugin stopped asking to be used and started being the default.** aowlcode is the Claude Code plugin that sits between an AI agent and the compiler: instead of the agent running `nim c` and reading thousands of lines of output, or grepping through machine-generated files that are one 40-kilobyte line each, it asks a tool a question and gets a few lines back. Every one of those tools already existed. They were still being skipped, and today we finally admitted why: choosing a structural tool is a *decision*, and typing `grep` is a *reflex*. Better tools do not win against zero friction — a staircase does not win against an escalator.
+
+So 1.0 changes the default instead of the argument. **[Aowl mode](https://aoughwl.github.io/docs/aowlcode/aowl-mode) is now on out of the box.** Searching the repo with raw `grep`, dumping a source file with `cat`/`sed`, walking the tree with `find`, or invoking the compiler by hand are all refused, and every refusal names the one tool that answers the question that was being asked. Ordinary work — `git`, test scripts, running a built program — passes untouched, and a stricter setting that closes the shell entirely is one command away. A short note at the start of each session states the mode and the redirect table once, which is cheaper than the three refusals it prevents.
+
+The part we are most pleased with is that it cannot strand you. Turning it **off** is now a state you write down rather than the absence of one — and it expires like any other, so a lock you lifted this morning is back tomorrow, and a lock you forgot in another terminal cannot ambush you next week. Both directions heal toward the same baseline. There are four independent escape hatches, including one that always works from inside a locked session.
+
+**A lock is only as good as what it leaves you**, so four tools close the gaps it opens. Each replaces a habit whose failure mode is unbounded output:
+
+* **`search`** — the replacement for repo-wide text and filename search. Machine-generated build artifacts are excluded (a single stray match inside one can cost more than the entire answer is worth), matches are grouped per file, and the output is capped three ways at once — per line, per file, and per search — and says so when it truncates.
+* **`map`** — orient in an unfamiliar repository in one call: which toolchain it uses, its entry points, its configuration files, its directories, and its largest modules. It replaces the `ls` + `find` + read-the-README ritual, and it reads the build script to work out what the project *actually* compiles with — which is how a project with no marker file stops being mistaken for plain Nim.
+* **`changes`** — a bounded `git diff`: how many lines changed per file, and the headers saying which routines they landed in. That is the shape of a change at roughly one percent of the patch's size; ask for the real patch on the one file that turns out to matter.
+* **`run`** — any command, with the **middle** of its output dropped rather than the end. A build log's information is at its two ends: what ran, and why it stopped. The failing assertion always survives.
+
+Yesterday's release (0.8) came from the same instinct and shipped three things two agents had each hand-rolled in shell: **`nif_run`** executes an already-compiled program on the [aowli](https://aoughwl.github.io/aowli) interpreter alongside its dependencies — or several variants of it in identical conditions, for a one-call verdict on whether an optimization changed behaviour; **`bisect`** narrows a flag matrix down to the smallest set of switches that still reproduces a divergence, which is how you find the compiler pass responsible for a miscompile without a linear hand-search; and comparing two compiler artifacts gained a **meaning-only mode** that ignores line numbers and framing so the real difference is visible.
+
+Everything is documented: aowl mode is now the first page of the aowlcode docs rather than a footnote, and the tool reference, hooks, environment variables, and sub-agents are all up to date. 28 end-to-end checks cover the new tools and — importantly — the lock's default-on behaviour itself.
+
 ## 023 2026-07-29 - Wednesday, July 29th 2026
 
 **The [playground](https://aoughwl.github.io/playground/) grew up into a real in-browser IDE.** What was a single-file scratchpad is now a full multi-file workspace with a VS Code-style feel — still running the whole toolchain (parser, semantic checker, interpreter, and the debugger) compiled to JavaScript, entirely in your browser tab.
