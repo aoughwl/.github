@@ -48,6 +48,47 @@ Between the frontend stages we use [AIF, which is NIF](https://aoughwl.github.io
 
 <br>
 
+## 026 2026-08-01 - Saturday, August 1st 2026
+
+**[aowli](https://aoughwl.github.io/docs/aowli-release) landed 13 commits, and three of them were wrong answers rather than crashes.** aowli runs a nimony program's typed NIF on two engines — a tree-walker and a bytecode VM — which are held byte-identical against the native build. Every defect below was silent: correct-looking output, exit 0, nothing in stderr.
+
+**A `return` lost its value to the `return` enclosing it.** In
+
+```nim
+proc q(fs: seq[Field]; want: string; k: int): Ty =
+  case k                              # EXPRESSION case
+  of 1:
+    for f in fs:
+      if f.name == want: return f.typ
+    Ty(kind: kObj, name: "FELL-THROUGH")
+```
+
+native prints `kPtr P`; the tree-walker printed `kObj FELL-THROUGH`. The return was not dropped — it fired and set the frame's result correctly. The body lowers to `(ret <expression-case>)`, so the **outer** `ret` evaluates the case, the inner `return` runs during that evaluation, and then the outer `ret` overwrites the result with whatever the case expression produced: the branch's trailing fall-through value. `execRet` now leaves the result alone when a return or a raise already happened while its own expression was being evaluated. The VM was always correct, so this was also an engine divergence.
+
+That misdirection is why minimal repros kept passing. A `return` out of a nested `for`+`if` works on its own; the missing ingredient is the return value being computed *inside another return's expression*, which a statement body never does and an expression-`case` always does. Three hypotheses were disproved and re-adopted before measuring both engines on the real program settled it.
+
+It was not academic: this is [aowlsem](https://aoughwl.github.io/docs/aowlsem)'s `typeOfValue` shape exactly. The query answered `tyUnknown` instead of `ptr Node`, so the E0262 "field reached through a ptr" escape never fired and the checker reported a **false positive under interpretation only**. Anything type-derived through the tree-walker or a debug session was suspect; VM-derived results were not.
+
+**Second, independent:** the `(expr STMT… VALUE)` handler ran leading statements with `discard execStmt(...)`, throwing away `flReturn`/`flRaise`/`flBreak` and continuing to the trailing value.
+
+**Pointers into the interpreter's object tree had no addresses.** `cast[uint](p)` on a cell-backed pointer (`addr s[i]`, `addr obj.field`) returned **0**, because only flat-memory regions had an encoding. Zero is not a harmless default: every such pointer looked nil and equal to every other, and a later `cast[ptr T]` landed nowhere, so reads yielded 0 and writes vanished. Cells now get stable synthetic addresses — the same cell always encodes to the same address and decodes back to that cell, so the cast-to-int / stash / cast-back round trip preserves identity. Slots are spaced far apart, so an address produced by pointer arithmetic lands *inside* a slot instead of aliasing the next cell, and the decoder reports it. Stepping a cursor across a cell tree has no meaning — the elements are not contiguous bytes — so that case halts loudly instead of returning a number.
+
+A first attempt halted on *any* cast of a cell-backed pointer and regressed `sysbasics/tdistincts`: that program casts pointers legitimately and native exits 0. Only addresses the interpreter minted are provably arithmetic-damaged, so the failure is scoped to exactly those.
+
+**Two more holes surfaced making the VM agree.** The compiler emitted **no conversion op at all** for `cast[ptr T]` when `T` is not a scalar it can describe — `ptr Object`, the `Cursor` shape — so an integer operand stayed an integer and read as 0 through any field access. And the loud-halt path was **not byte-identical across engines**, which is the one property it documents: `doQuit` only records the exit and never suppresses writes, while the engines unwind by different amounts (the VM bails at the dispatch-loop top, the tree-walker finishes the statement it is in), so a halt reached mid-`echo` left an extra fragment on one stdout and not the other. Post-`quit` program stdout is now dropped at the sink both engines share; stderr still flows, because diagnostics are appended before the quit.
+
+**The hybrid boundary was failing open.** aowli can offload calls to real compiled code. A bare `ptr` parameter was declined, but an aggregate *containing* one classified as a flat POD and crossed **by value** — non-address pointer bits copied into a native frame and dereferenced. `--hybrid --build-native` **segfaulted** on the first test written for the `Cursor` shape. Fixed in [aowlabi](https://aoughwl.github.io/docs/aowlabi): `isPodAggregate` no longer counts a pointer as bit-copyable, the same argument that already rejects a GC ref. The call declines and falls back to interpreting.
+
+**Gates, including one that was measuring less than it appeared to.** `tests/run.sh` runs six categories out of ~45 and prints `PASSED 77 / TOTAL_RUNNABLE 77` with no indication it skipped `stdlib`, `nifcore`, `strings`, `arc` and forty others — the set that exercises flat memory, raw pointers and ARC lowering hardest. It now takes `all` and prints an explicit scope banner. The real figure for the day's changes is **414/414 across every category**, three-way crosscheck **0 divergences**, hybrid **6/6**.
+
+Three lanes are new. `tests/semantics.sh` runs local self-contained cases natively *and* under both engines, requiring all three to agree byte-for-byte — three-way because this bug sat in one engine only. `tests/dbg.sh` (**12/12**) covers the debugger itself, which nothing did: where a breakpoint fires and how a captured frame renders, both of which had regressed silently before. `tests/async.sh` (**9/9**) finally runs the coroutine expectations that had been checked in for months with no gate reading them.
+
+**Debugger diagnostics.** A breakpoint on a line carrying no executable statement produced the same output as one on a line that never ran: nothing. The usual cause is a call the compiler expanded away — the emitted code carries the callee's line info, so `echo x` is stamped `syncio.nim`, not the call site. The interpreter now records which lines actually executed, per file, and the driver reports every breakpoint that could never have fired, with the nearest lines that did. Same for an `--expand` path whose head local was never in scope. Separately, the frame renderer reported a plain **DAG** as `<cycle>`: the identity set was never popped, so a node reachable through two fields was replaced by a placeholder on its second visit. Tuples were unreachable by any `--expand` path, since their field names are the null symbol.
+
+**Build.** `build.sh` ended in `return 0` and so always exited 0 — a failed build was indistinguishable from a good one to any caller, which is how a stale binary gets tested. It now exits non-zero, keeps the linker lines its filter used to discard, and retries once into a clean nimcache on the intermittent `undefined reference to strlit_0_I<hash>_<module>` cross-module string-literal failure.
+
+**Where aowli stands.** Both engines agree on every runnable test in the corpus. Arena slices 1–5a are in: a growable block of real memory, object graphs materialized into it at native layout, coherence after native mutation, pointer-bearing parameters crossing by arena address, and a `seq[T]` object field crossing as a contiguous element block. **5b is the remaining blocker for the goal** — making aowlsem debuggable at near-native speed — and it is now stated precisely rather than estimated: a `Cursor` is an interior pointer into a `TokenBuf`'s element block, carried independently of the buffer, and it needs the arena to back those values so an address *is* a number. Building it on the flat-memory track rather than around it is the next step.
+
 ## 025 2026-07-31 - Friday, July 31st 2026
 
 **[aowlsem](https://aoughwl.github.io/docs/aowlsem) passed its 1000th commit today** — 16 days after the first one, on 2026-07-15. **65 landed today**, all of them in the checker, and commit **#1000** is a good summary of what that number is made of: *"a generic type's lifetime is decided STRUCTURALLY, not by emit order."* The checker is **~32.5k lines** of self-hosted Nimony; the byte-exact differential corpus moved **632 → 659** programs and the no-false-positive gate **23 → 35**.
