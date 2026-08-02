@@ -88,6 +88,17 @@ Between the frontend stages we use [AIF, which is NIF](https://aoughwl.github.io
 
 **Gates.** New `tests/run.sh` **35/35** over the cache decision itself: editing `lib/base.nim` re-runs its two dependents and leaves the third cached at 33.3%; restoring the bytes returns 100%.
 
+**[aowlrepl](https://github.com/aoughwl/aowlrepl) — new repo, 4 commits.** A nimony REPL on aowli. State persists because the session is one module, re-run from the top on every cell.
+
+- **Imports hoisted, everything else in entry order**, then `nimony c --nimcache:<dir>` and `aowli-interp` on the main `.s.nif` — stable across cells because its name hashes the module path. Cold 2.15s, warm 0.19s, run 1ms; only the stdout suffix the previous run did not produce is printed.
+- **Completion reads the session's own typed NIF**, which the REPL just compiled: `aowllens decls` per successful compile, `aowllens members <recv>` memoised — the two queries backing aowllsp. `xs.l` narrows to `len` because the NIF says `xs` is a `seq`. Raw-mode editor over `tcsetattr` (`std/terminal` stops at `isatty`), ghost text, menu, history.
+- **Highlighting and cell-completeness both ran on a hand-rolled scanner; both now use aowlparser `tokenize`**, so `echo "a:b"`, `echo '('` and `echo 1'u8` are complete and an unterminated literal is not. `aowlparser check` cannot answer completeness — `[]` for `type`, `if x > 1:`, `proc f(): int =`, and `expression-expected` sits in the driver's `collectDiags` (`aowlparser.nim:1188`), not the library. Filed.
+- **Three silent-wrong-answer defects.** `compile` counted a non-zero nimony exit with unparseable output as success, so the REPL ran the *previous* session's NIF; `snifIsFresh` now refuses a NIF older than the module just written. `:reset-cache` never worked — `std/dirs.removeDir` is `rmdir(2)`, ENOTEMPTY on a populated nimcache — which wedged a session once that guard fired.
+
+**Gates.** New `tests/run.sh` **8/8**: 5 golden transcripts, 22 reader verdicts (`--analyze`), the candidate set (`--complete`), and the stale-`.s.nif` guard put back with `NIMONY=/bin/true`.
+
+**Standing.** `~/nimony/nimcache_static` is shared by every nimony on the machine whatever `--nimcache:` says, so any concurrent build, test run or LSP deletes `static.o` mid-link; those processes take no lock, so `compile` and `build.sh` take the lock *and* retry on the signature. Installing to `~/.aowl/bin` leaves nothing on `PATH` — the build now symlinks into `~/.local/bin`.
+
 <br>
 
 ## 026 2026-08-01 - Saturday, August 1st 2026
