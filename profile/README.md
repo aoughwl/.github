@@ -68,6 +68,15 @@ Between the frontend stages we use [AIF, which is NIF](https://aoughwl.github.io
 
 **Standing.** `scanFeatures` has the same shape but only gates feature scanning. Upstream rejects `static:`, `of v():`, generic-routine const calls. `selectedWhenBody` can't call the evaluator (non-`var` context) but no longer disagrees with `semWhen`.
 
+**[aowlmony](https://aoughwl.github.io/docs/aowlmony) — 2 commits.** `verify` diffs native against interpreted off one front end, so a mismatch is a backend defect by construction.
+
+- **`aowlmony verify` added.** On a mismatch it re-runs the interpreted leg under `aowli --trace`, rebuilds stdout from the `write(stdout, …)` args, and names the op owning the first divergent byte. Exit 0 agree / 1 diverge / 2 leg failed.
+- **Two silent aowli defects, first run.** `s[2..5]` → `"a"`, native `"cdef"`; `7 div 0` → 0 and exit 0, native SIGFPE. Neither writes a diagnostic.
+- **`--native:aowlc` builds nothing touching `stdout`** — `'stdout_0_…' undeclared`, `unknown type name 'LongString_0_…'`; reported as a leg failure, never a divergence. Default `--native:nimony` reuses the binary `nimony c` already linked at `<nimcache>/<mainHash>/<srcStem>`, no extra build.
+- **`locateOp` walked ancestor frames only**, so a top-level `echo` — `write(stdout, …)` recorded at system's line, no user frame above it — had no location. Falls back to the last op run at a line in the entry module, a preceding sibling.
+
+**Gates.** `npm test` 25/25 → **39/39**; attribution asserted byte-exact against a real `--trace` run. Native/exec section flickers on shared `nimcache_static` — 36/39 once.
+
 <br>
 
 ## 026 2026-08-01 - Saturday, August 1st 2026
