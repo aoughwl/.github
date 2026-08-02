@@ -106,7 +106,7 @@ Between the frontend stages we use [AIF, which is NIF](https://aoughwl.github.io
 - **Mid-run JIT via aowlc.** `hybridgen` runs `nimony c --app:lib` — seconds, so startup-only. `aowlcjit.nim` emits the same uniform shim ABI from the `.c.nif` plus one `gcc -shared -fPIC`; `--jit:N` compiles on the first crossing. Scalar tier, own-module procs; everything else declines to interpret.
 - **`7 div 0` returned 0, exit 0** — the divisor reached `xint`, whose `div` answers NaN, which `mask` narrowed to an ordinary 0. `isDivByZero` raises in both engines, integer only. `build.sh` now verifies the artifact, not the exit status: a "clean-cache rebuild SUCCEEDED" had left no binary.
 
-**Gates.** New `demo/hotswap/test.sh` **9/9** and `demo/hotjit/test.sh` **6/6**. Both carry a negative control (`--frozen`, and `--jit` off) because the same-answer assertion passes even when nothing happened; hotjit also asserts `hybridNativeCalls > 0`. Collatz over 30k inputs: interpreted 3.467s, JIT **0.336s** including the mid-run compile, native 0.006s, output byte-identical.
+**Gates.** `tests/run.sh all` **449/449** with the raise in. New `demo/hotswap/test.sh` **9/9** and `demo/hotjit/test.sh` **6/6**; both carry a negative control (`--frozen`, `--jit` off) because the same-answer assertion passes even when nothing happened, and hotjit also asserts `hybridNativeCalls > 0`. Collatz over 30k inputs: interpreted 3.467s, JIT **0.336s** including the mid-run compile, native 0.006s, byte-identical.
 
 **[aowlc](https://aoughwl.github.io/docs/aowlc) — 3 commits.** `build`/`run` emitted one translation unit; nothing that touched stdout linked.
 
