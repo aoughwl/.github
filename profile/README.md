@@ -50,7 +50,7 @@ Between the frontend stages we use [AIF, which is NIF](https://aoughwl.github.io
 
 ## 027 2026-08-02 - Sunday, August 2nd 2026
 
-**[aowlsem](https://aoughwl.github.io/docs/aowlsem) — 23 commits.** Compile-time evaluation beyond const initialisers, then bounded by a capability policy. Four sites treated "cannot compute" as a definite answer; three miscompiled silently.
+**[aowlsem](https://aoughwl.github.io/docs/aowlsem) — 29 commits.** Compile-time evaluation beyond const initialisers, then bounded by a capability policy. Four sites treated "cannot compute" as a definite answer; three miscompiled silently.
 
 - `when big():` took the wrong branch, no diagnostic — `evalCond` returns unknown, an unknown `elif` is not taken, `else` is unconditional. Three sites: `semWhen` module-level, `semWhen` in-proc, `whenTakenBody` (type bodies — wrong field, so a wrong type). All now run the condition.
 - Enum explicit value kept the auto-increment ordinal unless a bare `IntLit`: `b = v()` → 2, nimony 7. `foldRawArrayDim` handles `1 + 4`; `c = K * 10` needs `ceEvalInt(force = true)` — the contains-a-call guard assumes cheaper folding, false here because the prescan precedes `constVals`.
@@ -63,12 +63,25 @@ Between the frontend stages we use [AIF, which is NIF](https://aoughwl.github.io
 - Earlier: a copied instance resolves an `ochoice` callee; an assignment spells its ref upcast; a range is iterable whatever its bounds resolved to.
 - **Compile-time code runs under aowli's policy.** `mpRun` and `ceRunInterp` pass `--allow: --allow-path:<nifcache>=fs.read,fs.write,fs.meta` — a plugin must read its input NIF and write its answer, and gets nothing else. `--ctfe-allow:PATH` grants one file; exit 77 becomes `STOPPED by the compile-time policy`; `--ctfe-policy:off` is the escape hatch.
 - **A granted read is recorded, not just permitted**: `<out>.s.nif.ctfe-reads` carries `read<TAB>path<TAB>hash<TAB>size`, and `aowlsem ctfe-check <out.s.nif>` exits 0 current / 1 stale (naming the changed file) / 2 no record — an exit code, so nifmake, aowltest and aowlmony need not parse the format.
+- **`--lens:<out.lens.nif>` publishes what the checker resolved.** `(d …)` declarations with position, type and signature; `(u …)` occurrences naming the symbol they bound; `(t …)` object/enum member tables with inheritance depth and visibility. Plain NIF.
+- **Positions are recorded during checking, not read back.** The `.s.nif` carries one only where a subtree was copied verbatim, so every minted symbol has none; `tests/diff.sh` canonicalises line info away, so nothing measured that gap. Seams: `define`, `lensAt`, `lensUse`.
+- **`(u …)` carries `owner` and `role`, `(d …)` carries `recv`**, so call edges and UFCS candidates are index filters, not tree walks. `owner` needed a routine stack `semProc` now pushes; `recv` came from `Sym.paramTypes`.
 
 **Gates.** diff 685/685 → **701/701**, check 400/400 → **401/401**. New `tests/consteval.sh` **18/18** in `all.sh`: both executors match the oracle and each other, and each actually evaluated — proved by the serialized value file, since the shape folds otherwise make a no-eval run look green. nofp 35/35, diag 175/175, explain 93/93, e2e 6/6. New `tests/ctfe.sh` **6/6**: an ungranted read traps and folds nothing, the same read granted folds, the hash moves when the file does, `ctfe-check` reads stale on the outdated compile and current on the fresh one.
 
 **Cost.** In-proc `when` nests to `--ceDepth`: 1 condition 20s, 4 → 32s, no per-condition branching (`ctfe_when_call_multi.nim`). `whenTakenBody` is in the prescan over every module; plain corpus file 1.78s → 1.82s — `when defined(…)`/`x is T` fold in `evalCond`.
 
-**Standing.** `scanFeatures` has the same shape but only gates feature scanning. Upstream rejects `static:`, `of v():`, generic-routine const calls. `selectedWhenBody` can't call the evaluator (non-`var` context) but no longer disagrees with `semWhen`.
+**Standing.** `scanFeatures` has the same shape but only gates feature scanning. Upstream rejects `static:`, `of v():`, generic-routine const calls. `selectedWhenBody` can't call the evaluator (non-`var` context) but no longer disagrees with `semWhen`. New `tests/lens.sh` **16/16**; corpus **705/705** on the `uncolored-async` branch with the index build.
+
+**[aowllens](https://aoughwl.github.io/docs/aowllens) — 2 commits.** Reads aowlsem's index instead of reconstructing it from the tree.
+
+- **`typeat` could not answer on an aowlsem artifact** — it reads positions off emitted tokens, which aowlsem mints without them. `lens.nim` parses the sidecar; the occurrence at a position already names its symbol, so shadowing is the checker's answer, not a guess.
+- **`members` takes fields from the index** (inheritance already flattened, per-member visibility) and UFCS candidates by `recv`; **`calls` reads edges** from `call`-role records paired with `owner`, carrying the call site.
+- Fallback is per-answer, not per-run: no sidecar, or nothing in it for this question, and the existing walk answers exactly as before.
+
+**Gates.** New `tests/lens.sh` **5/5**, including the negative control — hide the sidecar and 7:29 goes back to `{}`. `difftest.sh` 5/5 and `newcmds.sh` 15/15 unchanged.
+
+**Standing.** Nothing writes the sidecar in a normal build: nimony's driver invokes `nimsem`, aowllsp drives `nimony check`. Two implementations now answer the same questions with no differential between them.
 
 **[aowlmony](https://aoughwl.github.io/docs/aowlmony) — 3 commits.** `verify` diffs native against interpreted off one front end. Its first two findings were both artefacts of *which binary ran*, not backend defects.
 
