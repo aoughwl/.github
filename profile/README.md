@@ -48,6 +48,28 @@ Between the frontend stages we use [AIF, which is NIF](https://aoughwl.github.io
 
 <br>
 
+## 027 2026-08-02 - Sunday, August 2nd 2026
+
+**[aowlsem](https://aoughwl.github.io/docs/aowlsem) — 13 commits.** Compile-time evaluation beyond const initialisers. Four sites treated "cannot compute" as a definite answer; three miscompiled silently.
+
+- `when big():` took the wrong branch, no diagnostic — `evalCond` returns unknown, an unknown `elif` is not taken, `else` is unconditional. Three sites: `semWhen` module-level, `semWhen` in-proc, `whenTakenBody` (type bodies — wrong field, so a wrong type). All now run the condition.
+- Enum explicit value kept the auto-increment ordinal unless a bare `IntLit`: `b = v()` → 2, nimony 7. `foldRawArrayDim` handles `1 + 4`; `c = K * 10` needs `ceEvalInt(force = true)` — the contains-a-call guard assumes cheaper folding, false here because the prescan precedes `constVals`.
+- A `const` inside a proc forked aowlsem until killed. `ceDeclaresName` matched only top-level `(const …)`, so the copy never stopped, the enclosing proc came in whole still holding it, each child regenerated the evaluator; `ceBudget` is per-process. Recursive `ceDeclaresName` restored the stop, `--ceDepth:` (max 4) backstops.
+- `array[sz(), int]` emitted `(array (i 64) (call sz))`. `ceTypeNeedsEval` keeps a `var`/`let` whose own type awaits evaluation out of its evaluator — `varT` is in `ceIsDecl`, so it re-entered.
+- Const evaluator had one executor, macro plugins two; `--macros:interp|compiled` now drives both. Compiled path exposed: `std/writenif` import only in `.p.deps.nif` (`aowlsem m` reads deps, `nimony s` the body) → `undeclared identifier: 'setup'`; `-o:<nimcache>/<base>` collided with nimony's per-module directory.
+- Aggregate consts fold: `array[N,int]`/`array[N,float]` unrolled, `seq[int]` looped to `len`, all-`int` objects by field name. Value bound to a `let` so the initialiser runs once; caller rebuilds `(aconstr …)`/`(oconstr …)`. Wrong count fails rather than folding a partial.
+- Inferred `const` type named the bare generic: `const S = firstN(3)` → `(at seq (i 64))`, the same call under `let` → `seq.0.I·.`. `semConst` lacked `semLetVar`'s resolution; the seq materialisation keys off it, so folding was off too.
+- `writeNifInt(<a seq>)` semchecked clean — nimony: `expected: int64 but got: seq`. `reliable` declines any pair with a collection either side; mirror of `containerParam` added.
+- Earlier: a copied instance resolves an `ochoice` callee; an assignment spells its ref upcast; a range is iterable whatever its bounds resolved to.
+
+**Gates.** diff 685/685 → **701/701**, check 400/400 → **401/401**. New `tests/consteval.sh` **18/18** in `all.sh`: both executors match the oracle and each other, and each actually evaluated — proved by the serialized value file, since the shape folds otherwise make a no-eval run look green. nofp 35/35, diag 175/175, explain 93/93, e2e 6/6.
+
+**Cost.** In-proc `when` nests to `--ceDepth`: 1 condition 20s, 4 → 32s, no per-condition branching (`ctfe_when_call_multi.nim`). `whenTakenBody` is in the prescan over every module; plain corpus file 1.78s → 1.82s — `when defined(…)`/`x is T` fold in `evalCond`.
+
+**Standing.** `scanFeatures` has the same shape but only gates feature scanning. Upstream rejects `static:`, `of v():`, generic-routine const calls. `selectedWhenBody` can't call the evaluator (non-`var` context) but no longer disagrees with `semWhen`.
+
+<br>
+
 ## 026 2026-08-01 - Saturday, August 1st 2026
 
 **[aowli](https://aoughwl.github.io/docs/aowli-release) — 18 commits.** Every defect was a silent wrong answer: plausible output, exit 0, empty stderr.
