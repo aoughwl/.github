@@ -99,6 +99,20 @@ Between the frontend stages we use [AIF, which is NIF](https://aoughwl.github.io
 
 **Standing.** `~/nimony/nimcache_static` is shared by every nimony on the machine whatever `--nimcache:` says, so any concurrent build, test run or LSP deletes `static.o` mid-link; those processes take no lock, so `compile` and `build.sh` take the lock *and* retry on the signature. Installing to `~/.aowl/bin` leaves nothing on `PATH` — the build now symlinks into `~/.local/bin`.
 
+**[aowli](https://aoughwl.github.io/docs/aowli-release) — 6 commits.** Interpreted code is now replaceable *and* compilable while the process runs.
+
+- **Hot module swap.** `tryLoadSym` answers from `prog.mem` before touching a file, so `swapHot` re-reads the `.s.nif` and `publish`es each decl over the same SymIds. Clears `callCache` and the for/if/case layout caches — those key on a buffer *address*, which a reallocated buffer reuses.
+- **Module-level `var`s are not re-run**, so state survives the code change; a global *added* by the new version is never initialised. Demoed on a live aowlserve io_uring handler: same pid, same socket, `hits` keeps counting.
+- **Mid-run JIT via aowlc.** `hybridgen` runs `nimony c --app:lib` — seconds, so startup-only. `aowlcjit.nim` emits the same uniform shim ABI from the `.c.nif` plus one `gcc -shared -fPIC`; `--jit:N` compiles on the first crossing. Scalar tier, own-module procs; everything else declines to interpret.
+- **`7 div 0` returned 0, exit 0** — the divisor reached `xint`, whose `div` answers NaN, which `mask` narrowed to an ordinary 0. `isDivByZero` raises in both engines, integer only. `build.sh` now verifies the artifact, not the exit status: a "clean-cache rebuild SUCCEEDED" had left no binary.
+
+**Gates.** New `demo/hotswap/test.sh` **9/9** and `demo/hotjit/test.sh` **6/6**. Both carry a negative control (`--frozen`, and `--jit` off) because the same-answer assertion passes even when nothing happened; hotjit also asserts `hybridNativeCalls > 0`. Collatz over 30k inputs: interpreted 3.467s, JIT **0.336s** including the mid-run compile, native 0.006s, output byte-identical.
+
+**[aowlc](https://aoughwl.github.io/docs/aowlc) — 3 commits.** `build`/`run` emitted one translation unit; nothing that touched stdout linked.
+
+- **`unknown type name 'LongString_0_<system>'` on any program calling `echo`.** `compileModule` stubs missing externs, which covers a function and cannot cover a *type*. `build`/`run` now route through `compileProgram` over the sibling `.c.nif` files, entry module last; `--single` opts out. `exec --entry` was unaffected, so it read as a codegen bug.
+- **`--emit-only`** writes the linked C without running `cc` — what aowli's JIT consumes before appending shims. `test/driver.sh` covers `build`+`exec`; `test/single.sh` compiles one TU alone, separating a codegen failure from a missing link step.
+
 <br>
 
 ## 026 2026-08-01 - Saturday, August 1st 2026
