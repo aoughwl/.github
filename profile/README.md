@@ -125,6 +125,40 @@ Between the frontend stages we use [AIF, which is NIF](https://aoughwl.github.io
 - **`unknown type name 'LongString_0_<system>'` on any program calling `echo`.** `compileModule` stubs missing externs, which covers a function and cannot cover a *type*. `build`/`run` now route through `compileProgram` over the sibling `.c.nif` files, entry module last; `--single` opts out. `exec --entry` was unaffected, so it read as a codegen bug.
 - **`--emit-only`** writes the linked C without running `cc` — what aowli's JIT consumes before appending shims. `test/driver.sh` covers `build`+`exec`; `test/single.sh` compiles one TU alone, separating a codegen failure from a missing link step.
 
+**[web](https://aoughwl.github.io/docs/web) — 6 commits.** `component` gives a tree typed parameters; one lowering engine now backs both surfaces.
+
+- **`h1 title` rendered `<h1><title></title></h1>`.** A bare ident naming an HTML tag was read as an element, and `title`/`label`/`footer`/`data`/`form`/`summary`/`time`/`code` are tags *and* ordinary parameter names. Only `call`/`cmd` forms are elements now.
+- **`web:` and `component:` share `deps/weblower`** instead of two lowerings that drift; `web:` gained `for`/`if`/`while` and runtime children. A child's meaning comes from its type — overloaded `webAppend(string|HTMLNode|HTML)` — and a call is an element iff `html`'s registry knows its name.
+- **`[placeholder]:` lowered to `:placeholder`** — one colon on a pseudo-element selects nothing, so the rule silently never applied. `::` for placeholder/before/after/selection/marker/backdrop. `[hover]:`/`[disabled]:` get their own class, and the suffix joins the hash so a state and a base block with equal declarations stop colliding.
+- **`@style` with no enclosing element emitted nothing** and the page rendered unstyled; it now fails as `directiveNeedsAnEnclosingElement`. `document()` adds doctype/charset/viewport/embedded CSS, escapes the title, and emits `<` as `\3c ` so a declaration cannot close `<style>` early.
+
+**Gates.** New `tests/run.sh` **6/6** (tweb, tcomponent, tsheet, tescape, tdocument, tstates). `tescape` asserts a component input escaped in both positions it lands in — text child and attribute value — with `rawNode` the only opt-out.
+
+**[css](https://aoughwl.github.io/docs/css) — 2 commits.** Styling by value, not by property soup.
+
+- **`Style`** is an ordered set of validated declarations merged right-wins by `&`, so a theme is a proc returning a value and `theme & declare("color","red")` keeps every property it does not name.
+- **`Stylesheet`** maps selector → `Style`: declaring `.btn` twice merges rather than shadows, `sheet[".btn"]` returns a `Style` reusable per element, selectors go through `validateSelector`, and `useStylesheet` installs one process-wide.
+
+**[web-state](https://github.com/aoughwl/web-state) — 2 commits**, plus 1 in [js](https://github.com/aoughwl/js). Fine-grained DOM binding; the blocker was structural, not scheduling.
+
+- **An effect could not know which node to update.** `JsProc0`/`JsProc1` are `{.nimcall.}` and carry no captured environment, so an effect could only touch globals. `toJsWith(p, ctx)` — `_fnToJsCtx`, context captured by value — backs `effectWith`, then `web_state/dom`'s `bindText`.
+- **`tests/tdom` counts runs per binding**, not output: writing `count` leaves the name binding at 1 run and a no-op write re-runs neither, so a whole-tree re-render fails the test instead of passing it.
+- **`run.sh` hid its failures** — every compile error printed as `no .c.nif`, and a missing `.output` was a silent skip. Both now report what happened.
+
+**Gates.** 3/3 (tauto, tdom, treactive).
+
+**[aowlui](https://github.com/aoughwl/aowlui) — 3 commits.** The lab's 3055-line stylesheet and its page, as values, both gated.
+
+- **`tools/ingest` classifies 429 selectors → 195 components + 64 raw.** A selector the model does not explain becomes `stRaw` verbatim, so the raw count measures the model instead of hiding the gap.
+- **Trimming collapsed `.a .b` and `.a.b`**, ingesting every `.owner .part` as a modifier class — declaration counts matched exactly, 1739 = 1739, while the design broke. `tround` compares the declaration multiset both ways: 0 missing, 0 invented.
+- **`.aowl` → `.nim` and the pack compiles.** 144 errors were one: imports still named `aoughwl/web`, so every `web:` block was semchecked as ordinary code. The genuinely missing `field`, `name = value`, `webClass`, `webSlot` landed in `web`.
+- **`shell.nim` ports `index.html`**; `tshell` reads the kernel script order out of the reference at test time rather than transcribing it, so the gate cannot drift from what it checks.
+
+**Gates.** 3/3 (tround, tshell, tpage).
+
+**Standing.** `serve` does not build here: `~/nimony` combined-prs keeps the posix modules under `src/lib/posix/` where the transport deps expect `src/lib/`, and forcing that path pulls a second stdlib (`type mismatch: got string but wanted string`). Reproduced on an untouched `reactor_http.nim`, so `examples/web_page.nim` is committed unverified.
+
+
 <br>
 
 ## 026 2026-08-01 - Saturday, August 1st 2026
