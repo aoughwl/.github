@@ -68,14 +68,16 @@ Between the frontend stages we use [AIF, which is NIF](https://aoughwl.github.io
 
 **Standing.** `scanFeatures` has the same shape but only gates feature scanning. Upstream rejects `static:`, `of v():`, generic-routine const calls. `selectedWhenBody` can't call the evaluator (non-`var` context) but no longer disagrees with `semWhen`.
 
-**[aowlmony](https://aoughwl.github.io/docs/aowlmony) — 2 commits.** `verify` diffs native against interpreted off one front end, so a mismatch is a backend defect by construction.
+**[aowlmony](https://aoughwl.github.io/docs/aowlmony) — 3 commits.** `verify` diffs native against interpreted off one front end. Its first two findings were both artefacts of *which binary ran*, not backend defects.
 
-- **`aowlmony verify` added.** On a mismatch it re-runs the interpreted leg under `aowli --trace`, rebuilds stdout from the `write(stdout, …)` args, and names the op owning the first divergent byte. Exit 0 agree / 1 diverge / 2 leg failed.
-- **Two silent aowli defects, first run.** `s[2..5]` → `"a"`, native `"cdef"`; `7 div 0` → 0 and exit 0, native SIGFPE. Neither writes a diagnostic.
-- **`--native:aowlc` builds nothing touching `stdout`** — `'stdout_0_…' undeclared`, `unknown type name 'LongString_0_…'`; reported as a leg failure, never a divergence. Default `--native:nimony` reuses the binary `nimony c` already linked at `<nimcache>/<mainHash>/<srcStem>`, no extra build.
+- **`aowlmony verify` added.** On a mismatch it re-runs the interpreted leg under `aowli --trace`, rebuilds stdout from the `write(stdout, …)` args, and names the op owning the first divergent byte. Default `--native:nimony` reuses the binary `nimony c` already linked at `<nimcache>/<mainHash>/<srcStem>`.
+- **Reported `s[2..5]` → `"a"` as an aowli defect. It was a stale install.** The registry resolves interp to `~/.aowl/bin/aowli-interp` (07-26), shadowing a fixed `~/aowli/bin` (08-02); same `.s.aif`, different answer. Every verdict now names both realizers with build dates, and `newerBuildThan()` prints the newer build plus the `AOWLMONY_NIFI=` re-run.
+- **Exit 1 meant both "backends disagree" and "compile failed"**, so a shared `nimcache_static` link race read as a divergence. `COMPILE_FAIL_CODE=2` puts it with the could-not-run cases; 1 is now that one claim.
 - **`locateOp` walked ancestor frames only**, so a top-level `echo` — `write(stdout, …)` recorded at system's line, no user frame above it — had no location. Falls back to the last op run at a line in the entry module, a preceding sibling.
 
-**Gates.** `npm test` 25/25 → **39/39**; attribution asserted byte-exact against a real `--trace` run. Native/exec section flickers on shared `nimcache_static` — 36/39 once.
+**Gates.** `npm test` 25/25 → **41/41**, twice clean. The slice case asserted a stale-binary artefact and is gone; the `--native:aowlc` case asserts the invariant (never exit 1) since aowlc gained multi-module linking mid-session.
+
+**Standing.** Genuine: `7 div 0` returned 0 and exit 0, fixed in aowli, which now raises `division by zero`. Native SIGFPEs and loses buffered stdout, so it stays an expected divergence, not a match.
 
 **[aowltest](https://github.com/aoughwl/aowltest) — new repo, 2 commits.** Test results keyed by transitive input hash; an unchanged closure is never re-run.
 
