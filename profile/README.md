@@ -67,7 +67,7 @@ Between the frontend stages we use [AIF, which is NIF](https://aoughwl.github.io
 - **Positions are recorded during checking, not read back.** The `.s.nif` carries one only where a subtree was copied verbatim, so every minted symbol has none; `tests/diff.sh` canonicalises line info away, so nothing measured that gap. Seams: `define`, `lensAt`, `lensUse`.
 - **`(u …)` carries `owner` and `role`, `(d …)` carries `recv`**, so call edges and UFCS candidates are index filters, not tree walks. `owner` needed a routine stack `semProc` now pushes; `recv` came from `Sym.paramTypes`.
 
-**Gates.** diff 685/685 → **701/701**, check 400/400 → **401/401**. New `tests/consteval.sh` **18/18** in `all.sh`: both executors match the oracle and each other, and each actually evaluated — proved by the serialized value file, since the shape folds otherwise make a no-eval run look green. nofp 35/35, diag 175/175, explain 93/93, e2e 6/6. New `tests/ctfe.sh` **6/6**: an ungranted read traps and folds nothing, the same read granted folds, the hash moves when the file does, `ctfe-check` reads stale on the outdated compile and current on the fresh one.
+**Gates.** diff 685/685 → **701/701**, check 400/400 → **401/401**. New `tests/consteval.sh` **18/18** in `all.sh`: both executors match the oracle and each other, and each actually evaluated — proved by the serialized value file, since the shape folds otherwise make a no-eval run look green. nofp 35/35, diag 175/175, explain 93/93, e2e 6/6. New `tests/ctfe.sh` **7/7**: an ungranted read traps and folds nothing, the same read granted folds, the hash moves when the file does, `ctfe-check` reads stale on the outdated compile and current on the fresh one, and the digest aowli recorded equals what `aowltest --ctfe-hash` computes — three copies of FNV-1a/64 with nothing else asserting they agree.
 
 **Cost.** In-proc `when` nests to `--ceDepth`: 1 condition 20s, 4 → 32s, no per-condition branching (`ctfe_when_call_multi.nim`). `whenTakenBody` is in the prescan over every module; plain corpus file 1.78s → 1.82s — `when defined(…)`/`x is T` fold in `evalCond`.
 
@@ -128,7 +128,7 @@ Between the frontend stages we use [AIF, which is NIF](https://aoughwl.github.io
 
 **Gates.** `tests/run.sh all` **449/449** with the raise in. New `demo/hotswap/test.sh` **9/9** and `demo/hotjit/test.sh` **6/6**; both carry a negative control (`--frozen`, `--jit` off) because the same-answer assertion passes even when nothing happened, and hotjit also asserts `hybridNativeCalls > 0`. Collatz over 30k inputs: interpreted 3.467s, JIT **0.336s** including the mid-run compile, native 0.006s, byte-identical. New `tests/policy.sh` **11/11**, every grant paired with its denial control.
 
-**[aowlhost](https://github.com/aoughwl/aowlhost) — new repo, 3 commits.** Runs an aowl module as a plugin under a capability policy. Default grant is nothing.
+**[aowlhost](https://aoughwl.github.io/docs/aowlhost) — new repo, 4 commits.** Runs an aowl module as a plugin under a capability policy. Default grant is nothing.
 
 - **Embeds aowli as a library** rather than shelling out: parses the plugin `.s.nif`, replays imported modules in dependency order, installs the policy before any plugin code runs, and owns its stdout/stderr and exit code. A denied call exits **77**.
 - **`--allow-path:/etc/hostname=fs.read` reads that file while a sibling under the same policy is denied and named.** `plugins/snoop.nim` wraps its `readFile` in try/except and the except arm never runs — the halt is below the language.
