@@ -81,14 +81,16 @@ Between the frontend stages we use [AIF, which is NIF](https://aoughwl.github.io
 
 **Standing.** Genuine: `7 div 0` returned 0 and exit 0, fixed in aowli, which now raises `division by zero`. Native SIGFPEs and loses buffered stdout, so it stays an expected divergence, not a match.
 
-**[aowltest](https://github.com/aoughwl/aowltest) — new repo, 2 commits.** Test results keyed by transitive input hash; an unchanged closure is never re-run.
+**[aowltest](https://github.com/aoughwl/aowltest) — new repo, 3 commits.** Test results keyed by transitive input hash; an unchanged closure is never re-run, and a compile-time read counts as an input.
 
 - **Key is `sha1` of a sorted manifest**: `dep <path> <sha1>` per transitive local import, `ext <name>` for unresolved stdlib specs, `gdep` for `--dep` globals, the command line, `--salt`. Entry present ⇒ skip.
 - **Content-hashed, never mtime.** Restoring bytes restores the key, so a branch switch re-hits. `--explain` diffs a miss against `last/<sha1(testpath)>` and names the input that moved.
 - **`isFile` as "try `open`" called every directory a file** — glibc `fopen()` succeeds on directories, so the test root read as one test; 19 of 34 assertions failed at once. `std/private/oscommons.fileExists` stats; `std/files` resolves to Nim 2's lib, not nimony's.
 - **Import scan is lexical** — `std/[a,b]`, `from … import`, block and comma continuation, `include`; no `when` evaluation, so it over-approximates: costs a re-run, never a wrong skip.
 
-**Gates.** New `tests/run.sh` **35/35** over the cache decision itself: editing `lib/base.nim` re-runs its two dependents and leaves the third cached at 33.3%; restoring the bytes returns 100%.
+- **A compile-time read is an input no static scan can find.** `--ctfe-dir:DIR` merges the `*.ctfe-reads` aowlsem wrote into `disc/<key>` after a run; a later hit on the same static key re-hashes each one first, so a moved schema is a miss with identical source bytes. Off unless asked — a wrong guess at the sidecar location would silently skip a changed test.
+
+**Gates.** `tests/run.sh` **35/35 → 41/41** over the cache decision itself: editing `lib/base.nim` re-runs its two dependents and leaves the third cached at 33.3%; restoring the bytes returns 100%. The six CTFE cases carry the control that matters — **without** `--ctfe-dir` the same moved schema is invisible and the run hits, so the re-run is attributable to the record.
 
 **[aowlrepl](https://github.com/aoughwl/aowlrepl) — new repo, 4 commits.** A nimony REPL on aowli. State persists because the session is one module, re-run from the top on every cell.
 
