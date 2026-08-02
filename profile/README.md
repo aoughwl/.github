@@ -50,7 +50,7 @@ Between the frontend stages we use [AIF, which is NIF](https://aoughwl.github.io
 
 ## 027 2026-08-02 - Sunday, August 2nd 2026
 
-**[aowlsem](https://aoughwl.github.io/docs/aowlsem) — 13 commits.** Compile-time evaluation beyond const initialisers. Four sites treated "cannot compute" as a definite answer; three miscompiled silently.
+**[aowlsem](https://aoughwl.github.io/docs/aowlsem) — 23 commits.** Compile-time evaluation beyond const initialisers, then bounded by a capability policy. Four sites treated "cannot compute" as a definite answer; three miscompiled silently.
 
 - `when big():` took the wrong branch, no diagnostic — `evalCond` returns unknown, an unknown `elif` is not taken, `else` is unconditional. Three sites: `semWhen` module-level, `semWhen` in-proc, `whenTakenBody` (type bodies — wrong field, so a wrong type). All now run the condition.
 - Enum explicit value kept the auto-increment ordinal unless a bare `IntLit`: `b = v()` → 2, nimony 7. `foldRawArrayDim` handles `1 + 4`; `c = K * 10` needs `ceEvalInt(force = true)` — the contains-a-call guard assumes cheaper folding, false here because the prescan precedes `constVals`.
@@ -61,8 +61,10 @@ Between the frontend stages we use [AIF, which is NIF](https://aoughwl.github.io
 - Inferred `const` type named the bare generic: `const S = firstN(3)` → `(at seq (i 64))`, the same call under `let` → `seq.0.I·.`. `semConst` lacked `semLetVar`'s resolution; the seq materialisation keys off it, so folding was off too.
 - `writeNifInt(<a seq>)` semchecked clean — nimony: `expected: int64 but got: seq`. `reliable` declines any pair with a collection either side; mirror of `containerParam` added.
 - Earlier: a copied instance resolves an `ochoice` callee; an assignment spells its ref upcast; a range is iterable whatever its bounds resolved to.
+- **Compile-time code runs under aowli's policy.** `mpRun` and `ceRunInterp` pass `--allow: --allow-path:<nifcache>=fs.read,fs.write,fs.meta` — a plugin must read its input NIF and write its answer, and gets nothing else. `--ctfe-allow:PATH` grants one file; exit 77 becomes `STOPPED by the compile-time policy`; `--ctfe-policy:off` is the escape hatch.
+- **A granted read is recorded, not just permitted**: `<out>.s.nif.ctfe-reads` carries `read<TAB>path<TAB>hash<TAB>size`, and `aowlsem ctfe-check <out.s.nif>` exits 0 current / 1 stale (naming the changed file) / 2 no record — an exit code, so nifmake, aowltest and aowlmony need not parse the format.
 
-**Gates.** diff 685/685 → **701/701**, check 400/400 → **401/401**. New `tests/consteval.sh` **18/18** in `all.sh`: both executors match the oracle and each other, and each actually evaluated — proved by the serialized value file, since the shape folds otherwise make a no-eval run look green. nofp 35/35, diag 175/175, explain 93/93, e2e 6/6.
+**Gates.** diff 685/685 → **701/701**, check 400/400 → **401/401**. New `tests/consteval.sh` **18/18** in `all.sh`: both executors match the oracle and each other, and each actually evaluated — proved by the serialized value file, since the shape folds otherwise make a no-eval run look green. nofp 35/35, diag 175/175, explain 93/93, e2e 6/6. New `tests/ctfe.sh` **6/6**: an ungranted read traps and folds nothing, the same read granted folds, the hash moves when the file does, `ctfe-check` reads stale on the outdated compile and current on the fresh one.
 
 **Cost.** In-proc `when` nests to `--ceDepth`: 1 condition 20s, 4 → 32s, no per-condition branching (`ctfe_when_call_multi.nim`). `whenTakenBody` is in the prescan over every module; plain corpus file 1.78s → 1.82s — `when defined(…)`/`x is T` fold in `evalCond`.
 
@@ -99,14 +101,24 @@ Between the frontend stages we use [AIF, which is NIF](https://aoughwl.github.io
 
 **Standing.** `~/nimony/nimcache_static` is shared by every nimony on the machine whatever `--nimcache:` says, so any concurrent build, test run or LSP deletes `static.o` mid-link; those processes take no lock, so `compile` and `build.sh` take the lock *and* retry on the signature. Installing to `~/.aowl/bin` leaves nothing on `PATH` — the build now symlinks into `~/.local/bin`.
 
-**[aowli](https://aoughwl.github.io/docs/aowli-release) — 6 commits.** Interpreted code is now replaceable *and* compilable while the process runs.
+**[aowli](https://aoughwl.github.io/docs/aowli-release) — 11 commits.** Interpreted code is now replaceable *and* compilable while the process runs, and bounded by a capability policy.
 
 - **Hot module swap.** `tryLoadSym` answers from `prog.mem` before touching a file, so `swapHot` re-reads the `.s.nif` and `publish`es each decl over the same SymIds. Clears `callCache` and the for/if/case layout caches — those key on a buffer *address*, which a reallocated buffer reuses.
 - **Module-level `var`s are not re-run**, so state survives the code change; a global *added* by the new version is never initialised. Demoed on a live aowlserve io_uring handler: same pid, same socket, `hits` keeps counting.
 - **Mid-run JIT via aowlc.** `hybridgen` runs `nimony c --app:lib` — seconds, so startup-only. `aowlcjit.nim` emits the same uniform shim ABI from the `.c.nif` plus one `gcc -shared -fPIC`; `--jit:N` compiles on the first crossing. Scalar tier, own-module procs; everything else declines to interpret.
 - **`7 div 0` returned 0, exit 0** — the divisor reached `xint`, whose `div` answers NaN, which `mask` narrowed to an ordinary 0. `isDivByZero` raises in both engines, integer only. `build.sh` now verifies the artifact, not the exit status: a "clean-cache rebuild SUCCEEDED" had left no binary.
 
-**Gates.** `tests/run.sh all` **449/449** with the raise in. New `demo/hotswap/test.sh` **9/9** and `demo/hotjit/test.sh` **6/6**; both carry a negative control (`--frozen`, `--jit` off) because the same-answer assertion passes even when nothing happened, and hotjit also asserts `hybridNativeCalls > 0`. Collatz over 30k inputs: interpreted 3.467s, JIT **0.336s** including the mid-run compile, native 0.006s, byte-identical.
+- **A native is the only door out of the value model, so `nativeCall` is a complete capability boundary.** `iopolicy.nim` gates it on an int bitmask (`fs.read`/`fs.write`/`fs.meta`/`process`/`env`) plus `--allow-path:PREFIX=CAPS`; a denial halts through `doQuit`, so it is not catchable and never returns a substitute value. `--audit-reads:FILE` records each granted read as path + FNV-1a/64 + size, written by the driver. `policyOn()` is false until `restrictTo`, so an unrestricted run is unchanged.
+- **The `hostOpen` backstop demanded fs.read AND fs.write**, vetoing a `writeFile` under a write-only grant that `nativeCall` had already allowed. `capsDeniedOn(need, path)` is now the single decision the gate and the hostfd/hostdir backstops share, and the backstop asks for *either* — its job is catching a syscall that bypassed the gate, not re-deciding it.
+
+**Gates.** `tests/run.sh all` **449/449** with the raise in. New `demo/hotswap/test.sh` **9/9** and `demo/hotjit/test.sh` **6/6**; both carry a negative control (`--frozen`, `--jit` off) because the same-answer assertion passes even when nothing happened, and hotjit also asserts `hybridNativeCalls > 0`. Collatz over 30k inputs: interpreted 3.467s, JIT **0.336s** including the mid-run compile, native 0.006s, byte-identical. New `tests/policy.sh` **11/11**, every grant paired with its denial control.
+
+**[aowlhost](https://github.com/aoughwl/aowlhost) — new repo, 3 commits.** Runs an aowl module as a plugin under a capability policy. Default grant is nothing.
+
+- **Embeds aowli as a library** rather than shelling out: parses the plugin `.s.nif`, replays imported modules in dependency order, installs the policy before any plugin code runs, and owns its stdout/stderr and exit code. A denied call exits **77**.
+- **`--allow-path:/etc/hostname=fs.read` reads that file while a sibling under the same policy is denied and named.** `plugins/snoop.nim` wraps its `readFile` in try/except and the except arm never runs — the halt is below the language.
+
+**Gates.** New `tests/run.sh` **9/9**; every denial paired with its granted control, since a trap alone cannot be told from a read that never worked. The write case checks the filesystem afterwards: the absent file is what proves the syscall was never issued.
 
 **[aowlc](https://aoughwl.github.io/docs/aowlc) — 3 commits.** `build`/`run` emitted one translation unit; nothing that touched stdout linked.
 
