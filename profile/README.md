@@ -120,13 +120,19 @@ Between the frontend stages we use [AIF, which is NIF](https://aoughwl.github.io
 
 **[http](https://aoughwl.github.io/docs/net-stack/http) — 2 commits.** Added `parseResponse` (mirror of Request). Header count and body size now bounded (128 headers, 64 MiB).
 
-**[aowlsem](https://aoughwl.github.io/docs/aowlsem) — 56 commits.** Imported templates and `{.untyped.}` generics now re-semchecked at splice.
+**[aowlsem](https://aoughwl.github.io/docs/aowlsem) — 71 commits.** Macros and `const` initialisers stopped being matched by shape and started being run.
 
+- Macros were expanded by matching shapes. Now executed: the body is lowered to a plugin module, built, and run per call site with argument trees marshalled in and the expansion read back. Two executors for the same module — `--macros:interp` semchecks to `.s.nif` and runs it under aowli, `compiled` builds a host-native binary with `nimony s`. `tests/macros.sh` asserts each matches the nimsem oracle *and* that the two match each other.
+- A `const` no fold recognised was emitted unchanged inside its `(suf … "i64")` wrapper — a call where the wrapper promises a literal. Now evaluated by generating a module from the host's own declarations up to that const and running it; the value returns through `std/writenif`, not `echo`, which renders for a human and loses float digits. Covers int, bool, float, string; 64 evaluations per module.
+- The whole transitive import closure was one flat scope, so `bindSym("add")` in a module importing only std/syncio and std/macros froze std/paths' and std/strutils' `add` into the choice. Visibility is now a fixpoint over `(import (kv <suffix> "<path>") …)`, seeded from direct imports and extended across export edges.
+- A template selected itself; a module's own declarations, reached back through an import, counted as rivals; the imported-template merge skipped the self-import filter.
 - Untyped imported generics left dirty templates unexpanded; `emitInstanceUntyped` now semchecks body. Multiple template overloads kept. Hygienic rename of template locals.
+- A generic type argument was substituted only when bare, not recursively — `Table[string, int]`'s backing `seq[(K, V)]` kept std/tables' own typevars. Two instances of one generic differing only in hash are no longer a provable clash.
 - Concepts parsed/emitted but never enforced; requirements now checked at instantiation (E0282).
 - Nested generic instances drained at module level (enclosing locals missing); now spliced in place.
 - `build.sh` installed newest binary, not the one just linked; now asserts artifact newer than sources.
 - `typeof(expr)` copied as tree; now demands `typeOfValue` and emits answer. Macro bodies: parameterised stay raw, zero-arg semchecked.
+- A `try` body is a scope. An imported type's base class is recorded, so an upcast is recognised. User pragma-aliases kept and expanded at the use site. E0410 addr suppression narrowed to object-constructor field values; E0100 for a call-shaped type whose callee names nothing.
 
 **Gates.** diff.sh 677/677. check 400/400, beat 4/4, nofp 35/35, diag 175/175, explain 93/93, e2e 4/4. `defined()` byte-exact; `compiles()`/`declared()` still open.
 <br>
