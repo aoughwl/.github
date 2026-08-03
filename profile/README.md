@@ -48,6 +48,21 @@ Between the frontend stages we use [AIF, which is NIF](https://aoughwl.github.io
 
 <br>
 
+## 028 2026-08-03 - Monday, August 3rd 2026
+
+**[aowlsem](https://aoughwl.github.io/docs/aowlsem) — 12 commits.** Imported templates were invisible to overload resolution, and two compile-time magics answered in only one of the two positions they occur in.
+
+- **An imported template carries no scope overload entry**, so no call could select one. Merged into `cands` *after* the arity filter — imported templates have empty `paramTypes`, so an arity test drops them all — plus `semPrefix` expansion and `semIndex` selecting the `[]` overload by index type **and** receiver (system declares it three times).
+- **`declared()` and `compiles()` folded only as `when` conditions.** A const initialiser reaches neither `evalCond` nor `emitWhenCond`, so `const a = compiles(known(1))` folded to false — correct for every negative case, which is why it went unseen. `foldCompiles` in `calls.nim` now serves both positions; `isCompilesCall`/`cursorHasOchoice` moved there from `stmts.nim`.
+- **An imported generic's field type was unrecoverable at use.** `fieldsOf` drops an imported type's private fields, and `Field.typ` is resolved at LOAD time with typevars unbound, so `seq[(K, V)]` was recorded `tyUnknown`. `copyArgType` falls back to `allFieldsOf`, and `genericFieldType` re-reads the type from the decl and substitutes there.
+- **A const element of a set literal inlines to its value** inside another const's initialiser: `(setconstr (set (c 8)) '/' '\5C')`. Folding before the E0223 duplicate check made `DirSep`/`AltSep` — both `'/'` on POSIX — a false duplicate and stopped `std/private/ospaths2`.
+
+**Gates.** diff 701/701 → **713/713**, check 403/403, noabort 45/45, nofp 35/35, diag 175/175, explain 94/94, consteval 18/18, ctfe 7/7, lens 16/16, e2e 6/6. New `tests/imports.sh` **5/5**: `canon.py` prunes the `(import …)` node, so the import table was emitted by nobody while 708 cases stayed byte-exact.
+
+**Standing.** `imported_generic_tuple_elem` closed at 4 tokens, not fixed: the module segment of an instance symbol is what `typeToCanon` strips and DCE merges, and `newInstSymId` always stamps `thisModuleSuffix`. All 10 remote branches were already merged; deleted, repo is `main` only.
+
+<br>
+
 ## 027 2026-08-02 - Sunday, August 2nd 2026
 
 **[aowlsem](https://aoughwl.github.io/docs/aowlsem) — 29 commits.** Compile-time evaluation beyond const initialisers, then bounded by a capability policy. Four sites treated "cannot compute" as a definite answer; three miscompiled silently.
