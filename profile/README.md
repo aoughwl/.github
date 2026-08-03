@@ -73,6 +73,13 @@ Between the frontend stages we use [AIF, which is NIF](https://aoughwl.github.io
 
 **Standing.** 17 never-invoked commands hidden from the per-request listing (~435 tok/req); `trim-build-output` replaces its result instead of appending to it. Tool-surface consolidation (~1,898 tok/req for 10 tools never called) is planned, not shipped — `FIX-PLAN.md`.
 
+**aowltest — 1 commit. The gate was 35 assertions welded to one binary; it is now a corpus any implementation can be run against.**
+
+- **`tests/run.sh` shelled out to `$AOWLTEST` and parsed its human output inline.** Extracted to `conformance/`: nine `cases/*.case` in a step language (`use`/`append`/`save`/`restore`/`run`/`expect`), executed by a `run.sh` that knows no implementation.
+- **Everything implementation-specific sits behind a three-verb adapter** — `capabilities`, `run <root> <cache> <cmd> [neutral-opt…]`, `ctfe-sidecar` — over a neutral option vocabulary and a line-oriented observation record (`ran`/`cached`/`hitrate`, `test <path> <status>`, `explain <kind> <subject>`).
+- **35 → 72 assertions from the extraction alone.** Per-test status, `inputs=`/`external=` and key stability are record fields; grepping formatted output could not reach them. `requires` skips a case whose token the adapter does not declare.
+- **Negative control fixed in the README.** An adapter that silently drops `salt=`/`ctfe-dir=` must fail exactly `050-key-material` and `090-compile-time-reads`, nothing else.
+
 <br>
 
 ## 027 2026-08-02 - Sunday, August 2nd 2026
