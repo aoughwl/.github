@@ -50,16 +50,19 @@ Between the frontend stages we use [AIF, which is NIF](https://aoughwl.github.io
 
 ## 028 2026-08-03 - Monday, August 3rd 2026
 
-**[aowlsem](https://aoughwl.github.io/docs/aowlsem) — 12 commits.** Imported templates were invisible to overload resolution, and two compile-time magics answered in only one of the two positions they occur in.
+**[aowlsem](https://aoughwl.github.io/docs/aowlsem) — 17 commits.** Imported templates were invisible to overload resolution, and two compile-time magics answered in only one of the two positions they occur in. Then three type-classification defects, two of them the same `nil` guard in a classifier that is not `semType`.
 
 - **An imported template carries no scope overload entry**, so no call could select one. Merged into `cands` *after* the arity filter — imported templates have empty `paramTypes`, so an arity test drops them all — plus `semPrefix` expansion and `semIndex` selecting the `[]` overload by index type **and** receiver (system declares it three times).
 - **`declared()` and `compiles()` folded only as `when` conditions.** A const initialiser reaches neither `evalCond` nor `emitWhenCond`, so `const a = compiles(known(1))` folded to false — correct for every negative case, which is why it went unseen. `foldCompiles` in `calls.nim` now serves both positions; `isCompilesCall`/`cursorHasOchoice` moved there from `stmts.nim`.
 - **An imported generic's field type was unrecoverable at use.** `fieldsOf` drops an imported type's private fields, and `Field.typ` is resolved at LOAD time with typevars unbound, so `seq[(K, V)]` was recorded `tyUnknown`. `copyArgType` falls back to `allFieldsOf`, and `genericFieldType` re-reads the type from the decl and substitutes there.
 - **A const element of a set literal inlines to its value** inside another const's initialiser: `(setconstr (set (c 8)) '/' '\5C')`. Folding before the E0223 duplicate check made `DirSep`/`AltSep` — both `'/'` on POSIX — a false duplicate and stopped `std/private/ospaths2`.
+- **`nil ptr T` classified as unknown in both classifiers that are not `semType`.** `typeOfExpr` had no `infix` arm, so an `UncheckedArray` element emitted `.`; `registerTypeName`'s alias tag list omitted `infix`, so every use emitted the alias symbol. The plain `ptr T` spelling was right in both.
+- **`bitand`/`bitor`/`bitxor` took the wider operand, and an untyped literal's type is the default i64.** `s and 0xFF00` with `s: cint` widened `s` up instead of narrowing the literal; `shr` follows its shifted value, so `ashr` corrected with it. Operator slots also needed `withoutImportc`.
+- **An identical proc TYPE re-emitted its own param symdefs.** nimsem memoises the rendered `(proctype …)` under `typeToCanon`, which erases every SymbolDef, and consults it only for a param carrying a default. `procTypeStructKey`/`procTypeStructMem`; `std/lib/vfs`'s whole 2-token diff.
 
-**Gates.** diff 701/701 → **713/713**, check 403/403, noabort 45/45, nofp 35/35, diag 175/175, explain 94/94, consteval 18/18, ctfe 7/7, lens 16/16, e2e 6/6. New `tests/imports.sh` **5/5**: `canon.py` prunes the `(import …)` node, so the import table was emitted by nobody while 708 cases stayed byte-exact.
+**Gates.** diff 701/701 → **717/717**, check 403/403, noabort 45/45, nofp 35/35, diag 175/175, explain 94/94, consteval 18/18, ctfe 7/7, lens 16/16, e2e 6/6. New `tests/imports.sh` **5/5**: `canon.py` prunes the `(import …)` node, so the import table was emitted by nobody while 708 cases stayed byte-exact.
 
-**Standing.** `imported_generic_tuple_elem` closed at 4 tokens, not fixed: the module segment of an instance symbol is what `typeToCanon` strips and DCE merges, and `newInstSymId` always stamps `thisModuleSuffix`. All 10 remote branches were already merged; deleted, repo is `main` only.
+**Standing.** `imported_generic_tuple_elem` closed at 4 tokens, not fixed: the module segment of an instance symbol is what `typeToCanon` strips and DCE merges, and `newInstSymId` always stamps `thisModuleSuffix`. All 10 remote branches were already merged; deleted, repo is `main` only. On `tests/moddiff.sh` (23 byte-exact / 22 differing of 45) posix went 245 → 10 tokens and osproc 3552 → 1375; a `seq` alias still resolves to `(at seq (i 64))` where nimsem emits the instance symbol `seq.0.I·.`.
 
 **[aowlcode](https://aoughwl.github.io/docs/aowlcode) — 3 commits, 3 on the docs site. The thrift claim measured for the first time, then the defects that measuring exposed fixed.**
 
