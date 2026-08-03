@@ -80,6 +80,17 @@ Between the frontend stages we use [AIF, which is NIF](https://aoughwl.github.io
 - **35 → 72 assertions from the extraction alone.** Per-test status, `inputs=`/`external=` and key stability are record fields; grepping formatted output could not reach them. `requires` skips a case whose token the adapter does not declare.
 - **Negative control fixed in the README.** An adapter that silently drops `salt=`/`ctfe-dir=` must fail exactly `050-key-material` and `090-compile-time-reads`, nothing else.
 
+**[aowlmony](https://aoughwl.github.io/docs/aowlmony) — 3 commits.** `verify --memory` traps dangling pointers under `--fin`. The driver's own gate had been flickering because it compiled without the machine-wide lock.
+
+- **`--fin --trace` renders every object argument as `(object)`** — no identity, so it cannot say which storage died or who still points at it. The defect is found structurally in the `.s.nif`; the `--fin` run only *witnesses* it (a `=destroy` at the blamed scope, the use site reached), and each finding is labelled confirmed or structural.
+- **Needed a real NIF reader — the driver had only ever regexed `.nif`.** Line-info deltas are base62 and relative to the *enclosing parent node*, not the previous sibling; a filename makes the position absolute. A lowered `ret` carries none and inherits the routine's, so an escaping address anchors on the `addr`, not the `proc` header.
+- **`parseTrace` had silently stopped understanding aowli's traces.** aowli now emits `  <file>:<line>`, the regex matched only `  :<line>`, so every op parsed at line 0 and attribution degraded to "no source location" while claiming nothing was wrong. `locateOp` now decides user-code by file, not by line range.
+- **The driver shelled `nimony c` without `~/.aowl/bin/nimlock`.** `nimony c` regenerates `~/nimony/nimcache_static/static.o` whatever `--nimcache:` says, so it both suffered and caused the race — three consecutive gate runs gave 64/64, 62/64, 59/64, every failure `ld: cannot find .../static.o`.
+
+**Gates.** `npm test` 41/41 → **64/64** assertions. Verified directly: the use-after-free and escaping-address cases, two negative cases (same-scope borrow, pointer rebound after the scope), and six `addr`-using `nimony/tests` modules clean. The post-lock full run is still queued behind other sessions' builds.
+
+**Standing.** A clean verdict prints its coverage — `N address-taking sites · M bound to a named pointer` — because a sound program and a walk that never reached the module otherwise print the same tick. Those counters expose the limit: intraprocedural, so `tests/nimony/arc/tdup.nim` is 9 sites / 0 tracked. Filed to `aowli`: an address in trace args would make the check fully dynamic.
+
 <br>
 
 ## 027 2026-08-02 - Sunday, August 2nd 2026
