@@ -91,6 +91,17 @@ Between the frontend stages we use [AIF, which is NIF](https://aoughwl.github.io
 
 **Standing.** A clean verdict prints its coverage — `N address-taking sites · M bound to a named pointer` — because a sound program and a walk that never reached the module otherwise print the same tick. Those counters expose the limit: intraprocedural, so `tests/nimony/arc/tdup.nim` is 9 sites / 0 tracked. Filed to `aowli`: an address in trace args would make the check fully dynamic.
 
+**[aowli](https://aoughwl.github.io/docs/aowli) — 37 commits. An object could not live in `alloc`'d flat memory, which is the storage aowlsem's TokenBuf actually has. Now it can, and the interpreter grew record/replay, coverage and a sampling profiler.**
+
+- **An object stored into an `rkBytes` region read back as 0, both engines, exit 0.** `parsePtrElem` sizes an object pointee `sizeOfSym(T)*8`; `flScatterObj`/`flLoadObj` place fields at C-ABI offsets and `flFieldSlot` resolves `data[i].f` to its own bytes, retiring the one-ObjBox-per-region overlay that aliased every element. `isFlatPodType` keeps a `ref`/seq/string leaf on it.
+- **`sizeof` answered 4 for every variant object against native's 12.** `sizeAlignOfType` skipped `(case …)` whole, counting neither discriminator nor branch; it now emits the discriminator as an ordinary member and the branches as a union, `collectOwnFields` placing branch fields at their overlaid offsets by work list.
+- **A `distinct`-typed return came back as 0** — `scalarFromBits` had no `akDistinct` arm and fell to `vNil()`, while the same type crossed as a *parameter* correctly. `examples/hybrid_arenapeek` pins it: in one returned POD the plain field survives and the distinct field does not.
+- **`--record:FILE`/`--replay:FILE`, `--coverage`, `--profile-sample`, no instrumentation pass.** The journal serves fs/env/clock/argv/stdin from a portable text log (`<cwd>`/`<home>` folded, bytes `\xHH`-escaped); coverage and the sampler ride the existing per-statement site and `routineStack`.
+
+**Gates.** `tests/replay.sh` **19/19**, `tests/coverage.sh` **41/41**, `tests/dbg.sh` 21 → **40/40**, `tests/crosscheck.sh` over 16 categories **DIVERGE 0 / AGREE-PASS 189**, `tests/run.sh` 11 categories 146/146 (tree-walker only — the VM is `crosscheck.sh` alone).
+
+**Standing.** `tools/aowlsem-under-aowli.sh` runs the real compiler under the interpreter — `aowlsem/bin` is stripped of the `.s.idx.nif` sidecars, its build nimcache is not. First baseline: 20.9s interpreted against 0.013s native on a 3-line input, byte-identical, and 23.4s on a 57-line one — a startup floor, not a slope. `--trace-profile`: 5,726,833 calls over 319 routines, headed by `nifcore`'s `inc`/`[]`/`load`/`kind`/`cursorAt`.
+
 **[aowlabi](https://aoughwl.github.io/docs/aowlabi) — 12 commits. The canonical-layout claim was never checked against the compiler it speaks for; checking it found the engine placing every inherited field at the wrong offset.**
 
 - **`object of RootObj` started its own fields at 0, not `ptrSize`.** An `{.inheritable.}` root carries a hidden `ptr Rtti` word (hexer `lengcgen.addRttiField`), so every offset and size of every inheriting object was wrong. `TypeDesc.rtti` + `objectPrefix`.
