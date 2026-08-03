@@ -61,6 +61,15 @@ Between the frontend stages we use [AIF, which is NIF](https://aoughwl.github.io
 
 **Standing.** `imported_generic_tuple_elem` closed at 4 tokens, not fixed: the module segment of an instance symbol is what `typeToCanon` strips and DCE merges, and `newInstSymId` always stamps `thisModuleSuffix`. All 10 remote branches were already merged; deleted, repo is `main` only.
 
+**[aowlcode](https://aoughwl.github.io/docs/aowlcode) — 1 commit, 2 on the docs site. The thrift claim measured for the first time: 532.6M tokens avoided over 40 sessions, 40.6% of the raw-shell counterfactual, and the ledger backing it was wrong.**
+
+- **`aowl-ledger` over-counted `Edit` 515×.** `hooks/token-ledger.py` sizes the PostToolUse payload, which carries `originalFile`: 79.3KB/call recorded against 154B in context, hiding `Read` behind a cost that does not exist.
+- **`Read` is 52.9% of context drain, `Bash` 27.4%, all 26 `nimlang` tools 15.1%.** Aowl mode closed `grep`/`glob` and left `Read` ungated at 2,546B/call; results are re-read by every later request, amplification measured **355×**.
+- **10 of 26 tools were not called once in 40 sessions** yet cost ~1,898 tokens/request in schema — ~226M over 142 sessions. 17 of 23 slash commands add ~435 tokens/request in the listing.
+- **`terse` is documented as universal; 12 of 26 accept it.** `nif_outline` (0.3%) and `build` (0%) are inert, and `search` — 807 calls, 8.7% of drain — has none.
+
+**Standing.** Harness at `mcp/bench/` (4 scripts, transcript-derived, re-runnable); numbers at [token-budget](https://aoughwl.github.io/docs/aowlcode/token-budget). Gating `Read`/`Bash` is the open item — 80.3% of drain, untouched.
+
 <br>
 
 ## 027 2026-08-02 - Sunday, August 2nd 2026
