@@ -91,6 +91,17 @@ Between the frontend stages we use [AIF, which is NIF](https://aoughwl.github.io
 
 **Standing.** A clean verdict prints its coverage — `N address-taking sites · M bound to a named pointer` — because a sound program and a walk that never reached the module otherwise print the same tick. Those counters expose the limit: intraprocedural, so `tests/nimony/arc/tdup.nim` is 9 sites / 0 tracked. Filed to `aowli`: an address in trace args would make the check fully dynamic.
 
+**[aowlabi](https://aoughwl.github.io/docs/aowlabi) — 12 commits. The canonical-layout claim was never checked against the compiler it speaks for; checking it found the engine placing every inherited field at the wrong offset.**
+
+- **`object of RootObj` started its own fields at 0, not `ptrSize`.** An `{.inheritable.}` root carries a hidden `ptr Rtti` word (hexer `lengcgen.addRttiField`), so every offset and size of every inheriting object was wrong. `TypeDesc.rtti` + `objectPrefix`.
+- **`tests/run.sh` is a differential**: `oracle.nim` prints what nimony lays out, `model.nim` what `layout` computes from `TypeDesc`s with no `sizeof` anywhere. nimony implements neither `alignof` nor `offsetof` (`sem.nim:5325`), so alignment comes from an `object (c: char, t: T)` probe — the offset of `t` *is* `alignof(T)`. `objectDesc`'s `base: TypeDesc = nil` did not compile under nimony at all: nobody had ever called it.
+- **`set[T]`, `{.packed.}`, `{.union.}` and range types had no `AbiKind`.** A set is a bitset sized by the base's *range*, align 1 (`expreval.bitsetSizeInBytes`); `{.packed.}` is nimony's `maxAlign == 0` sentinel — no padding, no tail round-up, no alignment imposed on its container.
+- **String literals do not walk the runtime SSO tiers.** A runtime string flips to `StrHeapSlen` at 15; a literal inlines only to `StrAlwaysAvail`(7) and becomes a static `LongString` past that, so a 10-char value is medium if built and static if written. `heapspec` now says so, and asks `layout` for a size instead of restating it.
+
+**Gates.** `tests/run.sh` **88/88** layout (diffed against the compiler), **135/135** heapspec byte offsets, **826/826** marshal invariants, ~25s. Every rule was falsified before being trusted: removing `rtti` reddens `Base`/`Derived`, shifting `LongStringDataOffset` one word reddens the string checks, sizing a set by width instead of range reddens nine rows.
+
+**Standing.** No 32-bit oracle — `--passc:-m32` dies on missing multilib — so the width checks are invariance-only across 4/8/16, not verification against a 32-bit target. Filed to `aowli`: it computes layout twice, `sizeofcalc.sizeAlignOfType` over cursors and `aowlabi.sizeAlign` via `typeDescOf`, with nothing checking they agree; the range-less-enum descriptor `layout.validate` named was one instance and is already fixed there.
+
 <br>
 
 ## 027 2026-08-02 - Sunday, August 2nd 2026
