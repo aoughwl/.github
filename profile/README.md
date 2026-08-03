@@ -87,7 +87,7 @@ Between the frontend stages we use [AIF, which is NIF](https://aoughwl.github.io
 - **`parseTrace` had silently stopped understanding aowli's traces.** aowli now emits `  <file>:<line>`, the regex matched only `  :<line>`, so every op parsed at line 0 and attribution degraded to "no source location" while claiming nothing was wrong. `locateOp` now decides user-code by file, not by line range.
 - **The driver shelled `nimony c` without `~/.aowl/bin/nimlock`.** `nimony c` regenerates `~/nimony/nimcache_static/static.o` whatever `--nimcache:` says, so it both suffered and caused the race — three consecutive gate runs gave 64/64, 62/64, 59/64, every failure `ld: cannot find .../static.o`.
 
-**Gates.** `npm test` 41/41 → **64/64** assertions. Verified directly: the use-after-free and escaping-address cases, two negative cases (same-scope borrow, pointer rebound after the scope), and six `addr`-using `nimony/tests` modules clean. The post-lock full run is still queued behind other sessions' builds.
+**Gates.** `npm test` 41/41 → **64/64**, clean on the first full run after the lock, against 59–64 of 64 before it. Six `addr`-using `nimony/tests` modules report no finding; the two negative cases in the suite — same-scope borrow, pointer rebound after the scope — are what keep the check from being a noise generator.
 
 **Standing.** A clean verdict prints its coverage — `N address-taking sites · M bound to a named pointer` — because a sound program and a walk that never reached the module otherwise print the same tick. Those counters expose the limit: intraprocedural, so `tests/nimony/arc/tdup.nim` is 9 sites / 0 tracked. Filed to `aowli`: an address in trace args would make the check fully dynamic.
 
