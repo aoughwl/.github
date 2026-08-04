@@ -13,7 +13,7 @@
 
 
 <p align="center">
-  <a href="https://aoughwl.github.io/docs/aif"><strong>byte-for-byte compatible</strong></a>
+  <a href="https://aoughwl.github.io/docs/aif"><strong>🔗 byte-for-byte compatible</strong></a>
   ·
   <a href="https://aoughwl.github.io/playground/"><strong>▶️ try it online in the playground</strong></a>
 </p>
