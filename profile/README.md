@@ -92,14 +92,21 @@
 
 **Standing.** **All 18 gates green** — corpus 719/719, noabort 46/46 with 0 crashed, `--explain` 94/94, nofp 35/35. Remaining on the minimal repro: 125 tokens, all of it the routine instance, and the obvious symmetry with the type-side guard is measured false.
 
-**[aowli](https://aoughwl.github.io/aowli) — 32 commits.** The hybrid attest was per module while its grants are per crossing; two build gates never checked what they claimed to; `--fin` had three defects, one silent.
+**[aowli](https://aoughwl.github.io/aowli) — 35 commits.** The hybrid attest was per module while its grants are per crossing; two build gates never checked what they claimed to; `--fin` had three defects, one silent.
 
 - **One hook-bearing shim revoked every no-deref grant in the build.** `mayEmitArcHooks`/`buildShimGroups` give those candidates their own module and attest: whole-program aowlsem `honoured=0 revoked=334,381` → `270,800/0`, native calls 100,528 → 371,328, byte-identical.
 - **`tests/web.sh` proved the browser target compiled, never that it computed.** Its new node-vs-native case failed on the first run — `ReferenceError: environ is not defined` in `getEnvVarsC` at module init, so the shipped bundle was dead; `webtest/jsenv.js` supplies the empty browser environment.
 - **`(oconstr T)` naming no fields built an object with zero cells, so every field read `nil`.** `elimLambdas` builds closure envs empty and assigns captures after, which is why they vanished under `--fin`; now seeded from `defaultForType`.
 - **`--fin` ran a `finally` after the scope's destroys on `return`.** A `(discard FinMarkerBase+k)` marker plus an `execTry` discharge reproduces `leaveScope`'s order on the tree-walker; the VM keeps its handler stack, so the inlining is engine-scoped.
 
-**Standing.** hybrid 18/18, hybridsem 6/6, web 5/5, fin 12/12. Open: a consumed closure iterator under `--fin` — `stopping()` is true on the first `advance`, in the CPS `Continuation` form only `--fin` produces; default mode interprets the iterator natively and never builds one.
+**Standing.** hybrid 18/18, hybridsem 6/6, web 5/5, fin 12/12. The `--fin` closure iterator was a compiler bug, not an aowli one (below); fixing it took 0 iterations → 1 and exposed two defects it had masked — the yielded value reads 0, and the `while` variant still hangs.
+
+**[nimony-fork](https://aoughwl.github.io/docs/nimony-fork) — 1 commit.** A declared object field default never reached the object.
+
+- **`labelCounter: int = 1` evaluated to 0** in both `T(a: x)` and `default(T)`. Sem recorded the default on the `(fld …)` declaration and then filled the constructor from `std/system/defaults.nim`.
+- **`buildObjConstrField` called `callDefault(typ)` unconditionally**, never consulting `field.val`. One path serves the constructor and `default(T)`, so two symptoms were one fix.
+- **Guarded off the invoked-generic path**, where `instantiateExprIntoBuf` SIGSEGVs the post-sem validator on `tgenericconverter`. Baseline 587/594, substitution 585/594, guard 587/594 — those two the only delta.
+- **Only nimony-COMPILED programs were affected**, the compiler's own tools being Nim-2-built — so `coro_transform`'s label counter started at 0 inside aowli's partial hexer and minted two procs named `once.0.s0.`.
 
 <br>
 
