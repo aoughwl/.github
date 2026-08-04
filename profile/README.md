@@ -121,13 +121,6 @@
 - **A `static inline` proc copied in from another module names THIS module's string literals**, and the globals section was emitted after those bodies: `error: 'strlit_0_I…' undeclared`. The reverse dependency cannot occur — a global's initializer is a constant expression.
 - **A module-level const was `static`, and nimony references each strlit cross-module by `extern`.** Same four JIT units either way: `const` → dlopen ok, `static const` → `undefined symbol: strlit_0_I…`. `gcc -shared` links both silently, so only the consumer's dlopen fails.
 
-**[nimony-fork](https://aoughwl.github.io/docs/nimony-fork) — 1 commit.** A declared object field default never reached the object.
-
-- **`labelCounter: int = 1` evaluated to 0** in both `T(a: x)` and `default(T)`. Sem recorded the default on the `(fld …)` declaration and then filled the constructor from `std/system/defaults.nim`.
-- **`buildObjConstrField` called `callDefault(typ)` unconditionally**, never consulting `field.val`. One path serves the constructor and `default(T)`, so two symptoms were one fix.
-- **Guarded off the invoked-generic path**, where `instantiateExprIntoBuf` SIGSEGVs the post-sem validator on `tgenericconverter`. Baseline 587/594, substitution 585/594, guard 587/594 — those two the only delta.
-- **Only nimony-COMPILED programs were affected**, the compiler's own tools being Nim-2-built — so `coro_transform`'s label counter started at 0 inside aowli's partial hexer and minted two procs named `once.0.s0.`.
-
 <br>
 
 ## 028 2026-08-03 - Monday, August 3rd 2026
