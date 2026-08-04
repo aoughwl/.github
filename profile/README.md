@@ -48,6 +48,17 @@ Between the frontend stages we use [AIF, which is NIF](https://aoughwl.github.io
 
 <br>
 
+## 029 2026-08-04 - Tuesday, August 4th 2026
+
+**[aowlsem](https://aoughwl.github.io/docs/aowlsem) — 1 merge landing 5 commits.** `main` collects the diagnostic-hygiene branch: a JSON writer that emitted bytes JSON forbids, and two gates that could go green on nothing.
+
+- **`jsonEscape` passed every control byte below `0x20` through raw** except `\n`, `\t`, `\r`, so a diagnostic message carrying `\b`, `\f`, or `\x01` produced invalid JSON that any strict consumer of `--diagnostics:json` rejects. Now `src/diagutils.nim`, escaping the named five plus `\u00XX` for the rest.
+- **`tests/diag_gate.sh` accepted an `.expected` whose `.nim` fixture was gone.** Deleting a fixture silently deleted its assertion while leaving an authoritative-looking snapshot for reviewers to count. `orphan_snapshots` now fails both the compare run and `UPDATE=1`.
+- **`tests/diag.sh` shared a fixed `/tmp/diag_$NAME` and `rm -rf`'d the compiler-keyed `/tmp/diagsys-$STAMP` unlocked**, so a second worktree could delete another's half-built system module. `mktemp -d` per case; the seed builds under `nimlock` into a temp dir and is `mv`'d into place under `flock`.
+- **Four `worktree-agent-*` branches were already contained in `main`**; only `maintenance/diagnostic-hygiene` carried work. Corpus **719/719** after the merge.
+
+<br>
+
 ## 028 2026-08-03 - Monday, August 3rd 2026
 
 **[aowlsem](https://aoughwl.github.io/docs/aowlsem) — 36 commits.** Imported templates were invisible to overload resolution, and two compile-time magics answered in only one of the two positions they occur in. Then three type-classification defects, two of them the same `nil` guard in a classifier that is not `semType`. Then an audit of what the gates actually assert.
