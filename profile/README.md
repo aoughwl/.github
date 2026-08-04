@@ -107,7 +107,7 @@
 
 **Not done.** The last 4.06% is 48579 tokens and it is not evenly spread: `semcore.nim` alone holds 19737 of them (40.6%), and it is aowlsem's own source, so it moves whenever the compiler grows. The four open corpus cases are one shape — a missing `hderef` on the `pairs` tuple yield. `SHAPES.md` ranks the remainder by expected value and names the two structural causes (`semExpr` dispatched on statement nodes; `semExpr` not recognising its own resolved output); `FIXQUEUE.md` holds 26 items that each carry a verified repro and a named fix site.
 
-**[aowli](https://aoughwl.github.io/aowli) — 45 commits.** The hybrid attest was per module while its grants are per crossing; a destructor on the raise path never fired; the JIT's in-process route was three errors deep behind a silent fallback.
+**[aowli](https://aoughwl.github.io/aowli) — 47 commits.** The hybrid attest was per module while its grants are per crossing; a destructor on the raise path never fired; the JIT's in-process route was three errors deep behind a silent fallback.
 
 - **One hook-bearing shim revoked every no-deref grant in the build.** `mayEmitArcHooks`/`buildShimGroups` give those candidates their own module and attest: whole-program aowlsem `honoured=0 revoked=334,381` → `270,800/0`, native calls 100,528 → 371,328, byte-identical.
 - **A local left through a raising call was never destroyed.** eraiser lowers every `.raises` call to `if failed(tmp): <destroys>; raise tmp`, and both engines unwound through their own channel, so the destroyer's scope-exit `=destroy` was dead code — `OPEN.md` #2, closed with the finally/destroy ordering.
@@ -116,7 +116,7 @@
 
 **Standing.** `OPEN.md` items 1–8 all closed. hybrid 20/20, web 8/8, fin 15/15 both engines, crosscheck 78/78 DIVERGE 0, corpus 202/202 over 15 categories, hotjit 34/34.
 
-**[aowlc](https://aoughwl.github.io/docs/aowlc) — 1 commit, plus `session/jit` fast-forwarded into `main`.** A translation unit referenced a global before defining it.
+**[aowlc](https://aoughwl.github.io/docs/aowlc) — 2 commits, plus `session/jit` fast-forwarded into `main`.** A translation unit referenced a global before defining it.
 
 - **A `static inline` proc copied in from another module names THIS module's string literals**, and the globals section was emitted after those bodies: `error: 'strlit_0_I…' undeclared`. The reverse dependency cannot occur — a global's initializer is a constant expression.
 - **A module-level const was `static`, and nimony references each strlit cross-module by `extern`.** Same four JIT units either way: `const` → dlopen ok, `static const` → `undefined symbol: strlit_0_I…`. `gcc -shared` links both silently, so only the consumer's dlopen fails.
