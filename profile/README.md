@@ -59,6 +59,15 @@ Between the frontend stages we use [AIF, which is NIF](https://aoughwl.github.io
 
 **Standing.** **All 18 gates green** — corpus 719/719, noabort 46/46 with 0 crashed, `--explain` 94/94, nofp 35/35. Remaining on the minimal repro: 125 tokens, all of it the routine instance, and the obvious symmetry with the type-side guard is measured false.
 
+**aowli — 32 commits.** The hybrid attest was per module while its grants are per crossing; two build gates never checked what they claimed to; `--fin` had three defects, one silent.
+
+- **One hook-bearing shim revoked every no-deref grant in the build.** `mayEmitArcHooks`/`buildShimGroups` give those candidates their own module and attest: whole-program aowlsem `honoured=0 revoked=334,381` → `270,800/0`, native calls 100,528 → 371,328, byte-identical.
+- **`tests/web.sh` proved the browser target compiled, never that it computed.** Its new node-vs-native case failed on the first run — `ReferenceError: environ is not defined` in `getEnvVarsC` at module init, so the shipped bundle was dead; `webtest/jsenv.js` supplies the empty browser environment.
+- **`(oconstr T)` naming no fields built an object with zero cells, so every field read `nil`.** `elimLambdas` builds closure envs empty and assigns captures after, which is why they vanished under `--fin`; now seeded from `defaultForType`.
+- **`--fin` ran a `finally` after the scope's destroys on `return`.** A `(discard FinMarkerBase+k)` marker plus an `execTry` discharge reproduces `leaveScope`'s order on the tree-walker; the VM keeps its handler stack, so the inlining is engine-scoped.
+
+**Standing.** hybrid 18/18, hybridsem 6/6, web 5/5, fin 12/12. Open: a consumed closure iterator under `--fin` — `stopping()` is true on the first `advance`, in the CPS `Continuation` form only `--fin` produces; default mode interprets the iterator natively and never builds one.
+
 <br>
 
 ## 028 2026-08-03 - Monday, August 3rd 2026
