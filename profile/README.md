@@ -1,19 +1,19 @@
  ‎‎ ‎ ‎‎ ‎‎  ‎‎ ‎ ‎‎ ‎‎  ‎‎ ‎ ‎‎ ‎ ‎‎ ‎‎‎‎‎ ‎‎ ‎ ‎‎ ‎‎  ‎‎ ‎ ‎‎ ‎‎  ‎‎ ‎ ‎‎ ‎ ‎‎ ‎‎![aoughwl](https://i.postimg.cc/Pxp72hcT/aoughwl-white-transparent.png)<br>
 # `aowl` a from-scratch Nimony clone
-`.nim / .aowl → aowlparse → aowlsem* → aowlhexer* → { aowlc → C · aowljs → JS · aowli → interpret }`
 <br>
 <br>
 A rewrite of the entire [Nimony](https://github.com/nim-lang/nimony) ecosystem
 * parser, semantic checker, lowering
-* interpreter and runtime
-* standard library
-* LSP, MCP, vscode, claude plugin
-* code fix suggestions, formatter, obfuscator
+* interpreter, runtime, and ABI
+* native & faithful codegen for JS/TS/PY *.. and growing*
+* LSP, MCP, vscode, claude code plugin
+* suggestions, formatter, obfuscator
+* an awesome standard library
 * *and much, much, more...*
 
 <br>
 
-translates to:
+generates code to:
 * C
 * faithful *and* native JavaScript & TypeScript
 * Python
