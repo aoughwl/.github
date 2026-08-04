@@ -59,7 +59,7 @@ Between the frontend stages we use [AIF, which is NIF](https://aoughwl.github.io
 
 **Standing.** **All 18 gates green** — corpus 719/719, noabort 46/46 with 0 crashed, `--explain` 94/94, nofp 35/35. Remaining on the minimal repro: 125 tokens, all of it the routine instance, and the obvious symmetry with the type-side guard is measured false.
 
-**aowli — 32 commits.** The hybrid attest was per module while its grants are per crossing; two build gates never checked what they claimed to; `--fin` had three defects, one silent.
+**[aowli](https://aoughwl.github.io/docs/aowli) — 32 commits.** The hybrid attest was per module while its grants are per crossing; two build gates never checked what they claimed to; `--fin` had three defects, one silent.
 
 - **One hook-bearing shim revoked every no-deref grant in the build.** `mayEmitArcHooks`/`buildShimGroups` give those candidates their own module and attest: whole-program aowlsem `honoured=0 revoked=334,381` → `270,800/0`, native calls 100,528 → 371,328, byte-identical.
 - **`tests/web.sh` proved the browser target compiled, never that it computed.** Its new node-vs-native case failed on the first run — `ReferenceError: environ is not defined` in `getEnvVarsC` at module init, so the shipped bundle was dead; `webtest/jsenv.js` supplies the empty browser environment.
