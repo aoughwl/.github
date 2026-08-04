@@ -7,15 +7,19 @@
 </p>
 
 <h1 align="center">
-  <i>aowl</i> - a from-scratch Nimony clone
+  <i>aowl</i> - Nim 3 / Nimony from-scratch
 </h1>
 
 
 
+
+
 <p align="center">
-  <a href="https://aoughwl.github.io/docs/aif"><strong>🔗 byte-for-byte compatible</strong></a>
-  ·
-  <a href="https://aoughwl.github.io/playground/"><strong>▶️ try it online in the playground</strong></a>
+  ✓ drop-in replacement
+  &nbsp;&nbsp;·&nbsp;&nbsp;
+  ∞ written in itself.
+  &nbsp;&nbsp;·&nbsp;&nbsp;
+  ⇩ mostly private - requests welcome
 </p>
 
 <br>
@@ -68,8 +72,16 @@
 
 <br>
 
+
+
+<h3 align="center">
+  <a href="https://aoughwl.github.io/playground/">
+    ◦&nbsp; Try it all in the web IDE &nbsp;◦
+  </a>
+  <br>
+</h3>
 <p align="center">
- <i>- all self-hosted, written in itself</i>
+  ▸ <a href="https://discord.gg/nxa3W7w4rJ">Join the Discord</a>
 </p>
 
  
