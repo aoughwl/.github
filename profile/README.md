@@ -105,14 +105,19 @@
 
 **Standing.** All 18 gates green — corpus 719/719, noabort 46/46 with 0 crashed, `--explain` 94/94, nofp 35/35, diagnostics 176/176. Four gates were also scoring the wrong subject: `diff.sh` and `nofp.sh` read an oracle-side `static.o` race as a parity failure and a false positive, `check.sh` sat permanently red on two nimony C-backend bugs, and `explain_gate.sh` failed three articles for containing the words "no such" in their own prose.
 
-**[aowli](https://aoughwl.github.io/aowli) — 37 commits.** The hybrid attest was per module while its grants are per crossing; a build gate never checked what it claimed to; the `--fin` closure iterator was three separate defects.
+**[aowli](https://aoughwl.github.io/aowli) — 45 commits.** The hybrid attest was per module while its grants are per crossing; a destructor on the raise path never fired; the JIT's in-process route was three errors deep behind a silent fallback.
 
 - **One hook-bearing shim revoked every no-deref grant in the build.** `mayEmitArcHooks`/`buildShimGroups` give those candidates their own module and attest: whole-program aowlsem `honoured=0 revoked=334,381` → `270,800/0`, native calls 100,528 → 371,328, byte-identical.
-- **`tests/web.sh` proved the browser target compiled, never that it computed.** Its new node-vs-native case failed on the first run — `ReferenceError: environ is not defined` in `getEnvVarsC` at module init, so the shipped bundle was dead; `webtest/jsenv.js` supplies the empty browser environment.
-- **A whole-object store into an `alloc`'d block landed where nothing looks.** `isFlatPodType` rejects a type with a `ptr` field, so its field reads use the region's ObjBox overlay while `execAsgn` scattered the object into bytes; the coroutine frame's `result: ptr int` read back `nil`.
-- **`(dot (deref p) f)` could not create a missing overlay field.** The CPS frame constructor names `a`/`b`/`result` and lets the state procs assign `i`, so the loop counter's write had nowhere to land, `i <= b` stayed true and the iterator spun forever.
+- **A local left through a raising call was never destroyed.** eraiser lowers every `.raises` call to `if failed(tmp): <destroys>; raise tmp`, and both engines unwound through their own channel, so the destroyer's scope-exit `=destroy` was dead code — `OPEN.md` #2, closed with the finally/destroy ordering.
+- **The JIT's in-process route had three errors, each hidden by the previous.** aowlc's emitter caches outlived their reset, its globals were emitted after the cross-module inline bodies that reference them, and the string shim declared no `borrowCStringUnsafe`. Every gate assertion passed on either route; the gate now names the route.
+- **All four committed browser bundles predated `jsenv.js` and were dead**, and the playground ships them. Regenerated, 113 modules, 0 unsupported nodes, verified under node; two of the four had no build script at all, which is how they drifted.
 
-**Standing.** hybrid 18/18, hybridsem 6/6, web 5/5, fin 12/12 both engines, crosscheck 78/78, corpus 202/202 over 15 categories. A consumed closure iterator now reproduces native under `--fin` with and without a loop, closing `OPEN.md` #3. The hang was a symptom of a wrong value: bounding the consumer's `for` turned it into `yield 1..8, v = nil` and replaced every theory about the state machine.
+**Standing.** `OPEN.md` items 1–8 all closed. hybrid 20/20, web 5/5, fin 15/15 both engines, crosscheck 78/78 DIVERGE 0, corpus 202/202 over 15 categories, hotjit 34/34. Known and filed: `aowli_vm.js` does not run in a browser (`expected 'index' tag`) and `web.sh` has one behaviour case, which runs `webmain`.
+
+**[aowlc](https://aoughwl.github.io/docs/aowlc) — 1 commit, plus `session/jit` fast-forwarded into `main`.** A translation unit referenced a global before defining it.
+
+- **A `static inline` proc copied in from another module names THIS module's string literals**, and the globals section was emitted after those bodies: `error: 'strlit_0_I…' undeclared`. The reverse dependency cannot occur — a global's initializer is a constant expression.
+- **Only a consumer emitting a whole program as separate self-contained units reaches it.** The CLI's whole-program link puts every module in one TU, where the defining module's globals happen to come first.
 
 **[nimony-fork](https://aoughwl.github.io/docs/nimony-fork) — 1 commit.** A declared object field default never reached the object.
 
