@@ -114,12 +114,14 @@
 - **The JIT's in-process route had three errors, each hidden by the previous.** aowlc's emitter caches outlived their reset, its globals were emitted after the cross-module inline bodies that reference them, and the string shim declared no `borrowCStringUnsafe`. Every gate assertion passed on either route; the gate now names the route.
 - **All four committed browser bundles predated `jsenv.js` and were dead**, and the playground ships them. Regenerated, 113 modules, 0 unsupported nodes, verified under node; two of the four had no build script at all, which is how they drifted.
 
-**Standing.** `OPEN.md` items 1–8 all closed. hybrid 20/20, web 5/5, fin 15/15 both engines, crosscheck 78/78 DIVERGE 0, corpus 202/202 over 15 categories, hotjit 34/34. Known and filed: `aowli_vm.js` does not run in a browser (`expected 'index' tag`) and `web.sh` has one behaviour case, which runs `webmain`.
+- **`webtest/run.js` never set `__aowli_mods`, so the browser VFS was empty.** The tree-walker survives that — it resolves lazily and syncio's writes are native intercepts — while the VM's `compileModule` walks eagerly and died at module init on `expected 'index' tag`. `web.sh` now has a behaviour case per bundle, not one.
+
+**Standing.** `OPEN.md` items 1–8 all closed. hybrid 20/20, web 8/8, fin 15/15 both engines, crosscheck 78/78 DIVERGE 0, corpus 202/202 over 15 categories, hotjit 34/34.
 
 **[aowlc](https://aoughwl.github.io/docs/aowlc) — 1 commit, plus `session/jit` fast-forwarded into `main`.** A translation unit referenced a global before defining it.
 
 - **A `static inline` proc copied in from another module names THIS module's string literals**, and the globals section was emitted after those bodies: `error: 'strlit_0_I…' undeclared`. The reverse dependency cannot occur — a global's initializer is a constant expression.
-- **Only a consumer emitting a whole program as separate self-contained units reaches it.** The CLI's whole-program link puts every module in one TU, where the defining module's globals happen to come first.
+- **A module-level const was `static`, and nimony references each strlit cross-module by `extern`.** Same four JIT units either way: `const` → dlopen ok, `static const` → `undefined symbol: strlit_0_I…`. `gcc -shared` links both silently, so only the consumer's dlopen fails.
 
 **[nimony-fork](https://aoughwl.github.io/docs/nimony-fork) — 1 commit.** A declared object field default never reached the object.
 
