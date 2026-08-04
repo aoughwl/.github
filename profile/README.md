@@ -66,6 +66,7 @@
   <a href="https://aoughwl.github.io/">... and much, much more!</a>
 </p>
 
+<br>
 
 <p align="center">
  <i>- all self-hosted, written in itself</i>
@@ -75,7 +76,7 @@
  
  
  
-<br><br><br>
+<br><br><br><br>
 
 # Daily Blog
 
