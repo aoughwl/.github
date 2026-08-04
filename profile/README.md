@@ -1,7 +1,6 @@
  ‎‎ ‎ ‎‎ ‎‎  ‎‎ ‎ ‎‎ ‎‎  ‎‎ ‎ ‎‎ ‎ ‎‎ ‎‎‎‎‎ ‎‎ ‎ ‎‎ ‎‎  ‎‎ ‎ ‎‎ ‎‎  ‎‎ ‎ ‎‎ ‎ ‎‎ ‎‎![aoughwl](https://i.postimg.cc/Pxp72hcT/aoughwl-white-transparent.png)<br>
 # `aowl` a from-scratch Nimony clone
 <br>
-<br>
 A rewrite of the entire [Nimony](https://github.com/nim-lang/nimony) ecosystem
 * parser, semantic checker, lowering
 * interpreter, runtime, and ABI
