@@ -50,12 +50,14 @@ Between the frontend stages we use [AIF, which is NIF](https://aoughwl.github.io
 
 ## 029 2026-08-04 - Tuesday, August 4th 2026
 
-**[aowlsem](https://aoughwl.github.io/docs/aowlsem) — 1 merge landing 5 commits.** `main` collects the diagnostic-hygiene branch: a JSON writer that emitted bytes JSON forbids, and two gates that could go green on nothing.
+**[aowlsem](https://aoughwl.github.io/docs/aowlsem) — 8 commits.** An unbound typevar was being treated as an instantiation; and two gates were scoring the wrong thing — one naming infrastructure as a parity gap, one unable to see a regression at all.
 
-- **`jsonEscape` passed every control byte below `0x20` through raw** except `\n`, `\t`, `\r`, so a diagnostic message carrying `\b`, `\f`, or `\x01` produced invalid JSON that any strict consumer of `--diagnostics:json` rejects. Now `src/diagutils.nim`, escaping the named five plus `\u00XX` for the rest.
-- **`tests/diag_gate.sh` accepted an `.expected` whose `.nim` fixture was gone.** Deleting a fixture silently deleted its assertion while leaving an authoritative-looking snapshot for reviewers to count. `orphan_snapshots` now fails both the compare run and `UPDATE=1`.
-- **`tests/diag.sh` shared a fixed `/tmp/diag_$NAME` and `rm -rf`'d the compiler-keyed `/tmp/diagsys-$STAMP` unlocked**, so a second worktree could delete another's half-built system module. `mktemp -d` per case; the seed builds under `nimlock` into a temp dir and is `mv`'d into place under `flock`.
-- **Four `worktree-agent-*` branches were already contained in `main`**; only `maintenance/diagnostic-hygiene` carried work. Corpus **719/719** after the merge.
+- **`requestTypeInstance` refused an UNKNOWN type argument but not an unbound TYPEVAR.** Semchecking a generic's own body demands `seq[T]`'s lifetime hooks with `T` still open, so aowlsem minted `seq.0.I…` keyed on the typevar plus its whole hook bundle — `(func :=copy.1.I·. . . (at =copy.1.sysvq0asl T.0.) …)`, which nimsem never emits because it instantiates nothing inside a generic decl. One guard: **1515 → 125 tokens**.
+- **The repro went from std/tables to 6 lines by measuring neighbours, not reading.** `s[0]`, `s.len`, `s.high` on a `seq[T]` and the same assignment in a non-generic proc are all byte-exact; only `proc put[T](s: var seq[T]; v: T) = s[0] = v` differs. Neither "indexing a seq" nor "a generic routine" — the two together, on the assignment side.
+- **`tests/diff.sh` scored the shared `static.o` race as a parity failure.** A ctfe case builds its plugin through a child `nimony`; when that loses, the const stays silently unfolded and the case surfaces as a token DIFF. One run printed `FAILED: ctfe_const_object_call ctfe_const_seq_call` between two runs of the same binary printing 719/719. INFRA is now a third outcome — still in the denominator, still exit non-zero, but labelled INVALID.
+- **`moddiff.sh` computed per-module token counts and compared them to nothing.** A `requestInstance` typevar guard took its repro 125 → 3 with corpus 719/719 and noabort 46/46 — while moving `mat7cnfv21` 3060 → 3268, +56 overall. Measured, reverted, and written down; `tests/moddiff.baseline` (46 modules) now fails on any regression.
+
+**Standing.** Corpus **719/719**, noabort **46/46 with 0 crashed**, macros 6/6. `check.sh` is 401/403 — both are nimony's own build failing, the oracle side. Remaining on the minimal repro: 125 tokens, all of it the routine instance, and the obvious symmetry with the type-side guard is measured false.
 
 <br>
 
