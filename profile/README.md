@@ -112,9 +112,7 @@
 - **One hook-bearing shim revoked every no-deref grant in the build.** `mayEmitArcHooks`/`buildShimGroups` give those candidates their own module and attest: whole-program aowlsem `honoured=0 revoked=334,381` → `270,800/0`, native calls 100,528 → 371,328, byte-identical.
 - **A local left through a raising call was never destroyed.** eraiser lowers every `.raises` call to `if failed(tmp): <destroys>; raise tmp`, and both engines unwound through their own channel, so the destroyer's scope-exit `=destroy` was dead code — `OPEN.md` #2, closed with the finally/destroy ordering.
 - **The JIT's in-process route had three errors, each hidden by the previous.** aowlc's emitter caches outlived their reset, its globals were emitted after the cross-module inline bodies that reference them, and the string shim declared no `borrowCStringUnsafe`. Every gate assertion passed on either route; the gate now names the route.
-- **All four committed browser bundles predated `jsenv.js` and were dead**, and the playground ships them. Regenerated, 113 modules, 0 unsupported nodes, verified under node; two of the four had no build script at all, which is how they drifted.
-
-- **`webtest/run.js` never set `__aowli_mods`, so the browser VFS was empty.** The tree-walker survives that — it resolves lazily and syncio's writes are native intercepts — while the VM's `compileModule` walks eagerly and died at module init on `expected 'index' tag`. `web.sh` now has a behaviour case per bundle, not one.
+- **All four committed browser bundles were dead, and the glue was half a contract.** They predated `jsenv.js`; `run.js` never set `__aowli_mods`, so the VM bundle died on `expected 'index' tag`. `web.sh` now gates each bundle's behaviour.
 
 **Standing.** `OPEN.md` items 1–8 all closed. hybrid 20/20, web 8/8, fin 15/15 both engines, crosscheck 78/78 DIVERGE 0, corpus 202/202 over 15 categories, hotjit 34/34.
 
