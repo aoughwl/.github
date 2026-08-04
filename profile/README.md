@@ -1,46 +1,80 @@
- ‎‎ ‎ ‎‎ ‎‎  ‎‎ ‎ ‎‎ ‎‎  ‎‎ ‎ ‎‎ ‎ ‎‎ ‎‎‎‎‎ ‎‎ ‎ ‎‎ ‎‎  ‎‎ ‎ ‎‎ ‎‎  ‎‎ ‎ ‎‎ ‎ ‎‎ ‎‎![aoughwl](https://i.postimg.cc/Pxp72hcT/aoughwl-white-transparent.png)<br>
-# `aowl` a from-scratch Nimony clone
-<br>
-A rewrite of the entire [Nimony](https://github.com/nim-lang/nimony) ecosystem
-* parser, semantic checker, lowering
-* interpreter, runtime, and ABI
-* native & faithful codegen for JS/TS/PY *.. and growing*
-* LSP, MCP, vscode, claude code plugin
-* suggestions, formatter, obfuscator
-* an awesome standard library
-* *and much, much, more...*
+<p align="center">
+  <img
+    src="https://i.postimg.cc/Pxp72hcT/aoughwl-white-transparent.png"
+    alt="aoughwl"
+    width="330"
+  >
+</p>
+
+<h1 align="center">
+  <i>aowl</i> - a from-scratch Nimony clone
+</h1>
+
+
+
+<p align="center">
+  <a href="https://aoughwl.github.io/docs/aif"><strong>byte-for-byte compatible</strong></a>
+  ·
+  <a href="https://aoughwl.github.io/playground/"><strong>▶️ try it online in the playground</strong></a>
+</p>
 
 <br>
 
-generates code to:
-* C
-* faithful *and* native JavaScript & TypeScript
-* Python
+<p align="center">
+  <a href="https://aoughwl.github.io/docs/aowlparser">parser</a>
+  ·
+  <a href="https://aoughwl.github.io/docs/aowlsem">semantic checker</a>
+  ·
+  <a href="https://aoughwl.github.io/docs/aowlsem/lowering">lowering</a>
+  ·
+  <a href="https://aoughwl.github.io/aowli">interpreter</a>
+  ·
+  <a href="https://aoughwl.github.io/aowli/debugging">debugger</a>
+  <br>
+  <a href="https://aoughwl.github.io/docs/aowlc">C</a>
+  ·
+  <a href="https://aoughwl.github.io/docs/aowljs">native JavaScript</a>
+  ·
+  <a href="https://aoughwl.github.io/docs/aowlweb">faithful JavaScript / WASM</a>
+  ·
+  <a href="https://aoughwl.github.io/docs/aowlts">TypeScript</a>
+  ·
+  <a href="https://aoughwl.github.io/docs/aowlpy">Python</a>
+  <br>
+  <a href="https://aoughwl.github.io/docs/aowllib">runtime</a>
+  ·
+  <a href="https://aoughwl.github.io/docs/aowlabi">ABI</a>
+  ·
+  <a href="https://aoughwl.github.io/docs/aowllsp">LSP / VS Code</a>
+  ·
+  <a href="https://aoughwl.github.io/docs/aowlmcp">MCP</a>
+  ·
+  <a href="https://aoughwl.github.io/docs/aowlcode">Claude Code</a>
+  <br>
+  <a href="https://aoughwl.github.io/docs/aowlsuggest">suggestions</a>
+  ·
+  <a href="https://aoughwl.github.io/docs/aowlfmt">formatter</a>
+  ·
+  <a href="https://aoughwl.github.io/docs/obfuscate">obfuscator</a>
+  ·
+  <a href="https://aoughwl.github.io/">standard library</a>
+  ·
+  <a href="https://aoughwl.github.io/docs/net-stack">net stack</a>
+  ·
+  <a href="https://aoughwl.github.io/docs/web">typed HTML / CSS</a>
+  <br>
+  <a href="https://aoughwl.github.io/">... and much, much more!</a>
+</p>
 
-<br><br>
-*— all self-hosted, written in itself*
 
+<p align="center">
+ <i>- all self-hosted, written in itself</i>
+</p>
 
-<br>
-
-Between the frontend stages we use [AIF, which is NIF](https://aoughwl.github.io/docs/aif), byte for byte, so ***any part you find here is compatabile with Nim or Nimony.***
-
-
-<sub>*The big projects are private for now, but the docs are public and **anything private is yours if you just ask** — message me on Discord (**timbuktu_guy**) and I'll add you, no hoops. The playground moves onto the new sem + hexing shortly.*</sub>
-| Project | Docs |
-|---|---|
-| **aowl toolchain** — `aowlparse` · `aowlsem` · `aowlhexer` · `aowlc` · `aowljs` · `aowli` | [AIF ≡ NIF](https://aoughwl.github.io/docs/aif) |
-| **aowlup** — `rustup` for the stack: installs / versions / selects the toolchain (variants · profiles) | [repo ↗](https://github.com/aoughwl/aowlup) |
-| **aowlabi** — the stack's shared value-representation / ABI: one canonical per-type layout + marshal matrix, read by `aowlc` · `aowljs` · `aowli` instead of each keeping its own copy | [docs](https://aoughwl.github.io/docs/aowlabi) · [repo ↗](https://github.com/aoughwl/aowlabi) |
-| **aowlcode** — Claude Code plugin + MCP server (trace/debug, `/land`, cheap-applier fan-out) | [docs](https://aoughwl.github.io/docs/aowlcode) |
-| **aowllsp** — Language Server + VSCode extension | [docs](https://aoughwl.github.io/docs/aowllsp) |
-| **aowli-release** — public, binary-only distribution of `aowli` (the `aowli` source is private); runs a nimony program's typed NIF; prebuilt `aowli-interp` + `aowli-dbg`, [GitHub Release v0.3.1](https://github.com/aoughwl/aowli-release/releases/tag/v0.3.1), hardened (obfnif IR + licence gate + stripped), SHA256 + VirusTotal per binary | [docs](https://aoughwl.github.io/docs/aowli-release) |
-| **net stack** — `tcp`·`net`·`tls`·`http`·`compress`·`serve`·`ws`·`requests` — TLS 1.3, HTTP/1.1 · 2 · 3, QUIC + WebTransport, Autobahn WebSocket, single-thread async reactor | [docs](https://aoughwl.github.io/docs/net-stack) |
-| **web / html / css** — typed HTML5 + MDN CSS engine + DSL | [docs](https://aoughwl.github.io/docs/web) |
-| **aowljs / aowlts / aowlpy / aowlhl** — idiomatic JS/TS/PY backends + shared HL-IR | [ts](https://aoughwl.github.io/docs/aowlts) · [py](https://aoughwl.github.io/docs/aowlpy) · [hl](https://aoughwl.github.io/docs/aowlhl) |
-
- ‎‎· **[and more, here](https://aoughwl.github.io/)**
-
+ 
+ 
+ 
+ 
 <br><br><br>
 
 # Daily Blog
