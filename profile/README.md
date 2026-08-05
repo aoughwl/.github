@@ -97,14 +97,15 @@
 
 ## 030 2026-08-05 - Wednesday, August 5th 2026
 
-**[aowlsem](https://aoughwl.github.io/docs/aowlsem) — 23 commits.** One class dominated the night: a component of a type's identity dropped, so two distinct types shared a generic instance.
+**[aowlsem](https://aoughwl.github.io/docs/aowlsem) — 26 commits.** One class dominated the night: a component of a type's identity dropped, so two distinct types shared a generic instance.
 
 - **Eight identity components were missing from `typeKey`/`sameType`** — float WIDTH, tuple FIELD NAMES, importc C-spelling, array `lo`, array INDEX BASE, proc SHAPE. `readFloat64` read 4 bytes, `array[Color,int]`/`array[Shade,int]` shared a body, and the dropped `lo` produced a **false E0203 on valid code**. `FIXQUEUE.md` Q28, eight landed of nine.
 - **Two segfaults, both masked until moddiff stopped retrying wide.** sequtils' `foldl`/`allIt` runnableExamples call the template itself — a 3239-frame overflow, bounded at `c.inImportedTmpl <= 8`; and a bound callee symbol re-routed through the by-NAME imported-template table re-expanded system's `[]`. sig11 → DIFF for both.
 - **`S = ref SObj` declared before `SObj` emitted an `=destroy_Aref` holding only `deallocFixed`** — a leaked destructor, hit for real by `StringStream`. `queueRefAliasHooks` reads `instDestroyHook` eagerly; the alias now reserves its slots and rebuilds at module flush.
 - **`args: openArray[string] = []` never inferred T, and an opaque `{.importc.}` object zeroed as `(suf 0 "")`.** The `[]` gap fill exists at three sites, and fixing one regressed osproc 119 → 330 by emitting a third `toOpenArray` converter; all three now share a helper. 119 → 39.
+- **Two lookups keyed on a name that was never a key.** `sizeof(<proc-type alias>)` measured a tyProc carrying `typeOfExpr`'s placeholder `"proctype"`, not the alias mangle `procTypeAt` files it under; and a deferred `+` in a generic body listed 11 of system's 17 overloads, omitting the six unary TEMPLATES. std/math 3050 → 3026.
 
-**Standing.** Corpus 745/745 → **761/761**, `noabort.sh` 46/46 with 0 crashed, reference modules flat. Open: `sizeof(CB)` on a typedesc still emits a bare `.` — two guards tried and measured inert, written up in `tests/pending/sizeof_proctype_typedesc.diagnosis.md`.
+**Standing.** Corpus 745/745 → **762/762**; moddiff total 48579 → **42190** after a `--fresh` re-baseline (5084 of it was 08-04 work that landed without lowering the file, headroom a regression could have reoccupied); parity 95.94% → **96.54%** of 1220605 oracle tokens. `moddiff.sh --only math` matched nothing and printed a green `(of 0 modules)` twice before the suffix rule was re-read — it now floors the set and exits 2. Next: `FIXQUEUE.md` Q29, the `seq[T]` instance family, wrong in both directions (math misses 18, tables emits ~3200 tokens of extra).
 
 **[aowli](https://aoughwl.github.io/docs/aowli) — 33 commits.** Gates and docstrings that were green or confident about regions they never entered.
 
