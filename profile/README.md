@@ -97,15 +97,14 @@
 
 ## 030 2026-08-05 - Wednesday, August 5th 2026
 
-**[aowlsem](https://aoughwl.github.io/docs/aowlsem) — 26 commits.** One class dominated the night: a component of a type's identity dropped, so two distinct types shared a generic instance.
+**[aowlsem](https://aoughwl.github.io/docs/aowlsem) — 33 commits.** Instance emission: what a generic's examples demand, what a composite type argument may key, and how little of its own output sem can read.
 
-- **Eight identity components were missing from `typeKey`/`sameType`** — float WIDTH, tuple FIELD NAMES, importc C-spelling, array `lo`, array INDEX BASE, proc SHAPE. `readFloat64` read 4 bytes, `array[Color,int]`/`array[Shade,int]` shared a body, and the dropped `lo` produced a **false E0203 on valid code**. `FIXQUEUE.md` Q28, eight landed of nine.
-- **Two segfaults, both masked until moddiff stopped retrying wide.** sequtils' `foldl`/`allIt` runnableExamples call the template itself — a 3239-frame overflow, bounded at `c.inImportedTmpl <= 8`; and a bound callee symbol re-routed through the by-NAME imported-template table re-expanded system's `[]`. sig11 → DIFF for both.
-- **`S = ref SObj` declared before `SObj` emitted an `=destroy_Aref` holding only `deallocFixed`** — a leaked destructor, hit for real by `StringStream`. `queueRefAliasHooks` reads `instDestroyHook` eagerly; the alias now reserves its slots and rebuilds at module flush.
-- **`args: openArray[string] = []` never inferred T, and an opaque `{.importc.}` object zeroed as `(suf 0 "")`.** The `[]` gap fill exists at three sites, and fixing one regressed osproc 119 → 330 by emitting a third `toOpenArray` converter; all three now share a helper. 119 → 39.
-- **Two lookups keyed on a name that was never a key.** `sizeof(<proc-type alias>)` measured a tyProc carrying `typeOfExpr`'s placeholder `"proctype"`, not the alias mangle `procTypeAt` files it under; and a deferred `+` in a generic body listed 11 of system's 17 overloads, omitting the six unary TEMPLATES. std/math 3050 → 3026.
+- **Eight identity components were missing from `typeKey`/`sameType`, and two `runnableExamples` segfaulted.** `readFloat64` read 4 bytes; a dropped array `lo` gave a **false E0203**; sequtils' self-calling examples overflowed 3239 frames, bounded at `c.inImportedTmpl <= 8`.
+- **Two ways an instance demand went wrong.** A generic's `runnableExamples` make TWO demands — nimsem types the body, minting `seq[float64]` and its hooks, and instantiates none of its calls; and `openTypeArg` now refuses a key like `seq[(tuple K.19. V.19.)]`. std/math 3026 → **1512**, std/tables 3244 → **166**.
+- **sem could not read its own output.** A copy-lowered `{.untyped.}` instance body carries `(hderef x)` and `(call (i 64) 0)` — no rule for either, so a local lost its type and `T(0)` its callee. `typeOfResolved`, never `semType`.
+- **Five of six `_Aref` hook bodies were named in a type's pragmas and never defined.** The demander is a VALUE object (`CursorOwnerObj`) and the flush loop walks `refTypeOrder`, so the demand was dropped. nifcore 4503 → **3441**.
 
-**Standing.** Corpus 745/745 → **762/762**; moddiff total 48579 → **42190** after a `--fresh` re-baseline (5084 of it was 08-04 work that landed without lowering the file, headroom a regression could have reoccupied); parity 95.94% → **96.54%** of 1220605 oracle tokens. `moddiff.sh --only math` matched nothing and printed a green `(of 0 modules)` twice before the suffix rule was re-read — it now floors the set and exits 2. Next: `FIXQUEUE.md` Q29, the `seq[T]` instance family, wrong in both directions (math misses 18, tables emits ~3200 tokens of extra).
+**Standing.** Corpus 745/745 → **766/766**; moddiff total 48579 → **36375**, parity 95.94% → **97.03%** of 1222208 oracle tokens. Two oracle caches keyed on the probed .nim alone and served stale answers when a SIBLING changed — `probe.sh` and `diff.sh` now fold relative imports into the key, each verified by putting the bug back. Six inert variations on the `_Aref` demand and four on `T(0)` were all reasoning about state nobody had dumped; one `AOWLSEM_DUMP_*` write closed each in a single build.
 
 **[aowli](https://aoughwl.github.io/docs/aowli) — 50 commits.** Gates confident about regions they never entered, and the last FFI exclusion, which was a design decision rather than a rung.
 
