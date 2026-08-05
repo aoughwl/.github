@@ -107,14 +107,14 @@
 
 **Standing.** Corpus 745/745 → **762/762**; moddiff total 48579 → **42190** after a `--fresh` re-baseline (5084 of it was 08-04 work that landed without lowering the file, headroom a regression could have reoccupied); parity 95.94% → **96.54%** of 1220605 oracle tokens. `moddiff.sh --only math` matched nothing and printed a green `(of 0 modules)` twice before the suffix rule was re-read — it now floors the set and exits 2. Next: `FIXQUEUE.md` Q29, the `seq[T]` instance family, wrong in both directions (math misses 18, tables emits ~3200 tokens of extra).
 
-**[aowli](https://aoughwl.github.io/docs/aowli) — 33 commits.** Gates and docstrings that were green or confident about regions they never entered.
+**[aowli](https://aoughwl.github.io/docs/aowli) — 50 commits.** Gates confident about regions they never entered, and the last FFI exclusion, which was a design decision rather than a rung.
 
 - **Same-arity hot-swap drift answered instead of raising.** `greet(x: int)`/`greet(x: string)` renumber identically, so `bases` and `hotArity` both miss it; `swapHot` now arms drifted syms and `callRoutine` raises. `demo/hotswap` gen7 had been serving HTTP 200 with a string bound to `int`.
-- **`fixture_nat_prune` never entered the subdirectory it claimed to empty** — `-maxdepth 1` skips `nc/<mainstem>/`, and its "most of the 1.8 GB" was wrong 5.6×. 481 MB reclaimed; `fixture_snif_prune` makes it durable.
-- **That keep-rule's stated argument was false for 23 of 490 entries.** nifmake leaves a macro-plugin `macro_NNNN.s.nif` at depth 2 with no depth-1 twin — a front-end artifact, not a backend phase. `fixture_snif_prunable` refuses those entries whole.
-- **The shipped browser bundles died on any float literal and could not read stdin.** `strtod` was missing from the NIF reader; `resolveSymbol` special-cased `stdout`/`stderr` only, while `evalSymbol` handled all three.
+- **`fixture_nat_prune` never entered the subdirectory it claimed to empty, and its keep-rule argument was false for 23 of 490 entries.** `-maxdepth 1` skips `nc/<mainstem>/` — 481 MB reclaimed; nifmake leaves a depth-2 `macro_NNNN.s.nif` with no depth-1 twin.
+- **A `cstring` returned by a shim had no region to land in** — every `RegionKind` was interpreter-owned bytes or a Cell lens. `values.rkForeign` carries the foreign ADDRESS and compares by it; copying the bytes instead would have made `f() == f()` answer false where native answers true.
+- **`web.sh`'s SHIPS check compared against a build input in a dirty sibling repo.** `webtest/build.sh` cats `$JSFFI/runtime.js` from `~/nimony-web`; the staleness half is now `gate_infra` with a do-not-regenerate warning, while runs-as-committed stays a real assertion.
 
-**Standing.** `OPEN.md` O1 closed for scalar-vs-string; the VM cannot host a swap (`vm.nim` never names `Interp`). O5 open: a stale caller `.s.nif` answers wrong with **rc 0** on both engines, because arming happens at swap time, not drift time. The fixture key covers transitive imports — an unimported sibling does not move it — so the store cannot produce that state; hand-managed nifcaches can.
+**Standing.** `OPEN.md` O2, O3 and O5 all closed. `ffi/temit` was the last open FFI exclusion and now crosses (`nativeCalls=3`); `isForeignPtr` is RETURN position only, and a `cstring` param and `var cstring` decline by name. hybrid 24/24 over 22 directories, hybridffi 10/10, corpus 460/460 across 53 of 53 categories, crosscheck DIVERGE 0, fin 18/18 both engines, web 28/0 with 4 infra. `hybrid.sh`'s own coverage line was the literal `(21 of 21)`, so a 22nd directory *with* a case still printed 21 and passed — computed now.
 
 **[aowlcode](https://aoughwl.github.io/docs/aowlcode) — 2 commits.**
 
