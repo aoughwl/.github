@@ -17,7 +17,7 @@
 <p align="center">
   ✓ drop-in replacement
   &nbsp;&nbsp;·&nbsp;&nbsp;
-  ∞ written in itself.
+  ∞ written in itself
   &nbsp;&nbsp;·&nbsp;&nbsp;
   ⇩ mostly private - requests welcome
 </p>
@@ -82,6 +82,7 @@
 </h3>
 <p align="center">
   ▸ <a href="https://discord.gg/nxa3W7w4rJ">Join the Discord</a>
+  ▸ <a href="https://aoughwl.com/">Visit our website</a>
 </p>
 
  
