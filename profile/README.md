@@ -106,6 +106,20 @@
 
 **Standing.** Corpus 745/745 → **761/761**, `noabort.sh` 46/46 with 0 crashed, reference modules flat. Open: `sizeof(CB)` on a typedesc still emits a bare `.` — two guards tried and measured inert, written up in `tests/pending/sizeof_proctype_typedesc.diagnosis.md`.
 
+**[aowli](https://aoughwl.github.io/docs/aowli) — 33 commits.** Gates and docstrings that were green or confident about regions they never entered.
+
+- **Same-arity hot-swap drift answered instead of raising.** `greet(x: int)`/`greet(x: string)` renumber identically, so `bases` and `hotArity` both miss it; `swapHot` now arms drifted syms and `callRoutine` raises. `demo/hotswap` gen7 had been serving HTTP 200 with a string bound to `int`.
+- **`fixture_nat_prune` never entered the subdirectory it claimed to empty** — `-maxdepth 1` skips `nc/<mainstem>/`, and its "most of the 1.8 GB" was wrong 5.6×. 481 MB reclaimed; `fixture_snif_prune` makes it durable.
+- **That keep-rule's stated argument was false for 23 of 490 entries.** nifmake leaves a macro-plugin `macro_NNNN.s.nif` at depth 2 with no depth-1 twin — a front-end artifact, not a backend phase. `fixture_snif_prunable` refuses those entries whole.
+- **The shipped browser bundles died on any float literal and could not read stdin.** `strtod` was missing from the NIF reader; `resolveSymbol` special-cased `stdout`/`stderr` only, while `evalSymbol` handled all three.
+
+**Standing.** `OPEN.md` O1 closed for scalar-vs-string; the VM cannot host a swap (`vm.nim` never names `Interp`). O5 open: a stale caller `.s.nif` answers wrong with **rc 0** on both engines, because arming happens at swap time, not drift time. The fixture key covers transitive imports — an unimported sibling does not move it — so the store cannot produce that state; hand-managed nifcaches can.
+
+**[aowlcode](https://aoughwl.github.io/docs/aowlcode) — 2 commits.**
+
+- **The msgbus volley guard counted a session's own sends,** and `FROM` is cwd-derived so `last-from-*` could never exist — a long session eventually refused to send. Refusals now stash `<id>.blocked`.
+- **aowl-mode read grep's regex as a path**: in `grep -q .` the only non-flag token is the pattern, and `.` resolves to the cwd. The POSIX positional is skipped unless `-e`/`-f` supplied it. `hooks/scope` 30 → 35.
+
 <br>
 
 ## 029 2026-08-04 - Tuesday, August 4th 2026
