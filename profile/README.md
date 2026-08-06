@@ -121,6 +121,32 @@
 - **The message-bus loop guard counted a session's own sends,** so a long-running session would eventually refuse to send anything at all.
 - **The tool gate read `grep`'s regex as a file path**: in `grep -q .` the only non-flag token is the pattern, and `.` resolves to the current directory. Scope tests 30 → 35.
 
+**[aowljs](https://aoughwl.github.io/docs/aowljs) — 30 commits.** Mapping nimony onto native JS values is lossy wherever the target's semantics differ, and every such place was silently wrong.
+
+- **Objects, tuples, arrays and seqs assigned by reference where nimony copies, and compared by reference where nimony compares by value.** 6 of 12 aliasing answers and 9 of 16 equality answers were wrong; `in`/`find` inherited it. `__cp`/`__eq`/`__has` are type-gated, and `__ref` on `newobj` stops both at a `ref object`, whose identity semantics are the mirror bug.
+- **`method`, `block`, `discard`, `incl`/`excl` and `dec` had no branch in emitStmt** and were dropped whole. A `block outer:` fixture had passed because dropping the block and taking the `break` skip the same `echo`.
+- **A nimony string is bytes and a JS string is UTF-16**, so `"h\xC3\xA9llo".len` answered 5. Literals emit one code unit per byte; `jsFlush` decodes once at the end.
+- **`bin/aowljs` was a commit behind `src/`** — no build script existed, so every green run measured an unrebuilt emitter. `build.sh` now runs first.
+
+**Gates.** Corpus 18 → **102/102**, 0 failed, 2 blocked (51 single-module + 2 multi-module × 2 modes); faithful **6/6**. BLOCKED is a third outcome for what nimony itself cannot run.
+
+**Standing.** Three nimony defects filed to `aowlsem`: `x of T` is true when echoed and false when bound or branched on; a nested proc containing a `defer` crashes `derefs.nim trTry`; two `defer`s in one proc emit C that does not compile.
+
+**[aowlc](https://aoughwl.github.io/docs/aowlc) — 21 commits.** Three miscompiles, all invisible because the gate could not hear gcc.
+
+- **`gcc … 2>&1 | head -1` killed gcc with SIGPIPE**, so two lines of *warnings* produced no binary and reported COMPILE-FAIL. The first defect below had been in that output all along.
+- **`(ret .)` emitted a bare `return;` from a non-void function** — undefined behaviour, survived only because a struct return goes through a hidden pointer.
+- **An uninitialised local was indeterminate where nimony says zero**, and **`{.packed.}` was dropped entirely**, so a packed object was 24 bytes against nimony's 10 with every field after the first at a different offset.
+
+**Gates.** e2e 8/12 → **54/58** compared against nimony's own output, 4 vacuous, now under `-Wall -Wextra`; units 5/5, staticinit 10/10, npm 24/24.
+
+**[aowlabi](https://aoughwl.github.io/docs/aowlabi) — 5 commits.** Every existing gate measured nimony's sem-level `sizeof`, not the struct that reaches a binary.
+
+- **`tests/cbackend.sh` diffs the layout model against gcc's `sizeof`/`offsetof` on the C aowlc emits** — 22 rows covering padding, variants (anonymous union), packed, union, a 3-deep chain, sets, refs, proc fields, ranges, distinct and empty fields. It found the `{.packed.}` bug on its first extended run.
+- **Falsified from both sides, and two attempts proved nothing**: reordering a variant's common fields and swapping a `set` for `array[4, char]` both leave every number identical. A perturbation that does not move the expected output is not a test.
+
+**Gates.** 122/122 layout, 208/208 heapspec, 1269/1269 marshal, **22/22 C-backend** (new), 21/21 at 32 bits.
+
 <br>
 
 ## 029 2026-08-04 - Tuesday, August 4th 2026
