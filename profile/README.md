@@ -125,6 +125,16 @@
 
 **Where it stands.** Corpus **124/124**, 0 failed, 3 blocked by the reference toolchain itself; the `sizeof` fixture is 26/26 in both modes against nimony's own folded answer.
 
+**[aowli](https://aoughwl.github.io/docs/aowli) — 8 commits.** A released wrong-answer fix, two gates that scored real failures as noise, and the load check's last rule that was still written out once per engine.
+
+- **The public binary returned the wrong substring for an open-ended slice.** `s[a .. ^k]` — from index `a` to `k` characters before the end — read the raw `k` as the upper bound instead of counting from the end, silently dropping or keeping the wrong characters; fixed and released as v0.3.5.
+- **A gate scored a failed C compile and a crashed interpreter as the same "eligible but didn't cross" verdict** its own header calls a real defect, because it threw away the exit code and the marker printed on the very line it read. Both are now distinct results — build-failed and crash — each carrying the tail of the log.
+- **Another gate classified every non-zero exit of the interpreter as infrastructure noise,** so a run that executed 52,186 native calls and then crashed would never count as a failure. Only a timeout or a missing measurement is infrastructure now; anything that ran and then exited non-zero is a failure.
+- **The stale-artifact load check had its type-mismatch rule written out once per engine,** so the two interpreters could drift on whether to reject a correct program. Pulled into one shared function — the argument-count half was already shared.
+- **Cutting the release copied 7.1 GB to compile 1.6 MB of source, and the build overwrote the release's public README with a ten-line stub.** The copy is now 218 MB; the stub goes to its own file and an existing README is never touched.
+
+**Where it stands.** v0.3.5 is public; both engines re-verified against the reference compiler at 461/461 across all 53 categories, zero divergences.
+
 <br>
 
 ## 030 2026-08-05 - Wednesday, August 5th 2026
