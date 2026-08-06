@@ -97,6 +97,17 @@
 
 ## 031 2026-08-06 - Thursday, August 6th 2026
 
+**[aowlsem](https://aoughwl.github.io/docs/aowlsem) — 37 commits.** Five wrong-output bugs with one shape: a type or a field the checker could see but could not look up, so it quietly picked the wrong thing instead of failing.
+
+- **A generic type's own fields were unreachable from the module that instantiated it,** so `len(t.keys)` on a field of a `var` parameter resolved to the *set cardinality* builtin and emitted a spurious function for it. Field tables for instances of a generic with private fields were filed where the field lookup never looked.
+- **An instance created in the current module never recorded which generic it came from,** so overload resolution saw a bare symbol and fell back to matching on argument count — the exact mechanism two earlier fixes had each switched on for *imported* instances only. One line; **1,133 fewer differing tokens** across three standard-library modules.
+- **`.len` on an `openArray` called a function where the reference compiler reads the view's length field.** An `openArray` is a pointer plus a length, so the length is already present; the call also instantiated a `len` the reference emits but never calls.
+- **Two generic bodies emitted the wrong thing:** `var s: seq[T] = @[]` produced an empty expression node — not a zero-length seq, nothing at all — and comparing two objects field by field left the loop in place where the reference unrolls it one block per field. **449 fewer differing tokens.**
+- **Re-baselining deleted 130 of the baseline file's 189 lines** — every recorded reason a number is what it is, including one that deliberately absorbs a known regression — and exited 0. Separately, two comments cited a test file that had never existed; a new check fails on any test file named in a comment but absent, and found five.
+
+**Where it stands.** Differential corpus **772/772** against the reference checker's own output; no standard-library module falls back to aborting, **46/46**; std/envvars is now byte-identical. Two thirds of what remains is the checker compiling its *own* source, so ranking work by which construct differs most keeps pointing at that one file rather than at the standard library.
+
+
 **[aowlc](https://aoughwl.github.io/docs/aowlc) — 20 commits.** This backend has two C printers and nothing had ever compared them, so a fix could land in one and leave the other wrong with every gate still green.
 
 - **Three miscompiles lived only in the hand-written printer**, each already fixed in the other: `{.packed.}` dropped, an unpadded octal escape so `"\n7"` printed as `W`, and strings walked by code point where a nimony string is bytes. Both are now compared against nimony's own output, so the gate says which one is wrong rather than only that they differ — **73/73**, exemption list empty.
