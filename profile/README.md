@@ -95,6 +95,38 @@
 
 <br>
 
+## 031 2026-08-06 - Thursday, August 6th 2026
+
+**[aowlc](https://aoughwl.github.io/docs/aowlc) — 20 commits.** This backend has two C printers and nothing had ever compared them, so a fix could land in one and leave the other wrong with every gate still green.
+
+- **Three miscompiles lived only in the hand-written printer**, each already fixed in the other: `{.packed.}` dropped, an unpadded octal escape so `"\n7"` printed as `W`, and strings walked by code point where a nimony string is bytes. Both are now compared against nimony's own output, so the gate says which one is wrong rather than only that they differ — **73/73**, exemption list empty.
+- **The end-to-end gate's `-Wall -Wextra` was switched off by the C it was compiling.** An in-file `#pragma GCC diagnostic ignored` beats the command line, so the warnings those flags asked for could never appear; it now also compiles a copy with the pragmas stripped.
+- **An `{.importc.}` global got no declaration,** so a module referencing one did not compile. Per-module output now emits prototypes for procs a sibling module defines, and every translation unit compiles *and* links on its own.
+- **`npm test` read committed artifacts and never the sources beside them,** so fixtures could drift unnoticed; a skipped case also shrank the denominator, which reads exactly like a pass.
+- **Seven `nimony` invocations ran without the machine-wide compile lock.** Two compiles at once corrupt each other's link through a shared object that a private cache does not cover — never a false green, but a red could be someone else's build, and no run was repeatable.
+
+**Where it stands.** Printers agree 73/73; end-to-end 73/77 against nimony's own output with 4 declared vacuous; every module compiles alone 77/77; npm 24/24, units 5/5, static initialisers 10/10.
+
+**[aowlabi](https://aoughwl.github.io/docs/aowlabi) — 20 commits.** An ABI is only canonical if the things that re-spell it are checked against it. Three were not.
+
+- **The JavaScript backend's value representation is now gated against the matrix that specifies it** — one probe per abstract type kind, classified structurally rather than by matching the emitter's own output text, **20/20** in both modes. The pointer row had no probe at all despite being the kind the matrix describes most precisely.
+- **The C runtime hand-copies the same heap offsets and five bare magic numbers,** and nothing compared the two. It does now, along with a third spelling — the struct definitions the driver injects at build time. Including that runtime's header beside the backend's prelude worked in only one of the two orders; both compile.
+- **Two 32-bit sizes had never been checked against anything,** held out precisely because the one available oracle disagreed with them. `gcc -m32 -fsyntax-only` against a freestanding header shim settles both: the ABI is right and the compiler's constant folder is wrong. **11/11.**
+- **One row is held out on purpose:** `-m32` means i386, which aligns `double` to 4 where every other 32-bit target uses 8, so gcc is answering for a different target than the question asked. The exemption is written as an *inverted* assertion — if the row ever starts agreeing, the build fails and says to drop it.
+
+**Where it stands.** 122/122 layout, 208/208 heap layout, 1269/1269 marshalling, 26/26 against gcc on each of the two C printers, 21/21 at 32 bits plus 11/11 against `gcc -m32`, 20/20 JavaScript representation.
+
+**[aowljs](https://aoughwl.github.io/docs/aowljs) — 9 commits.** `sizeof` of anything that was not a scalar refused to answer, and the engine that could answer it already existed.
+
+- **`sizeof` of an object, tuple, array, variant or packed type now comes from the ABI layout engine,** mapped from the compiler's own typed IR — this backend holds no layout arithmetic of its own. The alternative was a third implementation of C struct layout, which is the shape that lets a padding bug be fixed in one place and survive in two.
+- **Deleting the scalar-width table it replaced fixed a wrong answer.** `sizeof(cstring)` returned 16 where nimony says 8, because `cstring` sat with `string` on the two-word arm: not an aggregate, never reported, an ordinary expression silently wrong.
+- **The two backends' corpora are cross-checked by running each program through the other backend,** rather than by a name map asserting that two fixtures test the same thing. Three outcomes, a declared denominator, a deterministic sample.
+- **The README called the hand-written JavaScript seed a differential oracle; measured, it agrees on 15 of 61 programs** — it predates methods, exceptions, iterators, variant objects, value semantics and byte strings.
+
+**Where it stands.** Corpus **124/124**, 0 failed, 3 blocked by the reference toolchain itself; the `sizeof` fixture is 26/26 in both modes against nimony's own folded answer.
+
+<br>
+
 ## 030 2026-08-05 - Wednesday, August 5th 2026
 
 **[aowlsem](https://aoughwl.github.io/docs/aowlsem) — 26 commits.** One class of bug dominated the day: parts of a type's identity were being ignored, so two genuinely different types could end up sharing a single generic instance.
