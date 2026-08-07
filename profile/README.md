@@ -95,6 +95,24 @@
 
 <br>
 
+## 032 2026-08-07 - Friday, August 7th 2026
+
+**[aowlsem](https://aoughwl.github.io/docs/aowlsem) — 17 commits.** The one gate that compiles our output past the checker had never run the checker, and fixing that exposed four defects in a row that byte-comparison structurally cannot see.
+
+- **The end-to-end gate passed with the checker replaced by `/bin/false`.** Its harness symlinked the toolchain into a scratch directory, but a compiler locates its sibling tools through `/proc/self/exe`, which the kernel resolves through the symlink and back into the real tree — so the reference checker ran and reported on ours. Rebuilt with hard links, it reports **0/6** and stays red.
+- **Every dependency sidecar we wrote was empty**, so the next phase received 2 modules where the reference gives it 4 and asserted. Include expansion rebuilt the module buffer and opened the new root without its source path, so the checker fed itself an empty path one module later. Zero tokens moved — the corpus comparison strips line-info and drops import lists before diffing, deleting both halves of the defect.
+- **`echo "a", 1` was emitted unexpanded**, with an unresolved nine-way overload set inside it, and the next phase asserted on every program that calls `echo`. `echo` is a varargs template whose body loops over the arguments; our unroller existed but its detection assumed that loop is the template's first statement — true when the checker is invoked directly, false when the real driver invokes it.
+- **Objects owning an imported `ref` field got no cycle-collection hooks**, because the guard asked whether the type had a destroy hook when it needed to ask whether we had built the helper family for it. **415 fewer differing tokens**, measured against the pre-fix binary over the same source — comparing against the recorded baseline instead credited it with 3,897 that belonged to a different change.
+- **Two modules of the compiler's own library were rejected outright**, code the reference compiles: one intersected the initialised-variable state of a branch ending in a call that never returns, the other knew `{.raises.}` but not `.canRaise.`, its own alias.
+
+**Where it stands.** Differential corpus **785/785**. Per-module comparison now covers **54 modules, up from 46** at 30,979 differing tokens — the growth is a module set that was never measured before, including one 4,509-token module absent from every previous total, so the number is not comparable to yesterday's. One library module is still rejected, diagnosed to an overload chosen without binding its type parameters. End-to-end stays **0/6**: two cases now reach the linker.
+
+**aowli — 1 commit.** A build holding the machine-wide compile lock could not spawn a child that needed it.
+
+- **A nested lock acquisition waited out the full 900-second timeout and then ran unserialised.** The lock had no marker saying it was already held, so a descendant contended for a lock its own ancestor was holding and could not release until the descendant returned. Two lines; the end-to-end gate went from over 400 seconds to 146.
+
+<br>
+
 ## 031 2026-08-06 - Thursday, August 6th 2026
 
 **[aowlsem](https://aoughwl.github.io/docs/aowlsem) — 37 commits.** Five wrong-output bugs with one shape: a type or a field the checker could see but could not look up, so it quietly picked the wrong thing instead of failing.
