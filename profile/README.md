@@ -95,6 +95,20 @@
 
 <br>
 
+## 033 2026-08-08 - Saturday, August 8th 2026
+
+**[aowlcode](https://aoughwl.github.io/docs/aowlcode) — 1 commit.** The phone-side control for a fleet of overnight Claude Code sessions reported a twelve-hour-dead worker as running, and the view meant to show what a session is doing carried no times at all.
+
+- **The status view called a session up on a flag the supervisor writes and nothing clears when the supervisor dies.** The process table is the authority now; the first attempt reported everything alive, because the check shells out and the shell's own command line contained the pattern it was searching for.
+- **The activity view printed a list of tool names with no timestamps,** so a session mid-command and one that stopped an hour ago rendered identically. Every line now carries its own age spelled out — "~25 seconds ago" — read from the timestamp on each record of the session's output stream.
+- **Anyone in a group chat could drive the fleet.** Pairing recorded the channel a message arrived in, which is a property of a place rather than a person; it now records the account, and every message, command and button press is checked against it.
+- **The bot's API token sat in a world-readable file,** on a machine where the process list is world-readable too. A permission set once at creation had already been lost, because the file is rewritten at pairing and at startup and a rewrite takes the process umask.
+- **Starting work is a sentence now, and a session is started once.** "work on aowlsem" starts one and "3 agents on aowlsem" widens it; asking again reports how long it has been up instead of restarting it. Every boot begins with zero sessions — except one whose process is still alive, which is adopted, since the supervisor's children outlive it.
+
+**Where it stands.** Gates **33/33** and **25/25**, both asserting the negative direction: sentences that must *not* become commands ("the aowlsem gate is flaking, can you stop that from happening" is not a stop command), and a boot that must *not* drop a worker still running. The sentence layer fails silently by construction — anything it declines goes to a chat session and comes back with a plausible answer — so the negative cases run first.
+
+<br>
+
 ## 032 2026-08-07 - Friday, August 7th 2026
 
 **[aowlsem](https://aoughwl.github.io/docs/aowlsem) — 35 commits.** The one gate that compiles our output past the checker had never run the checker, and fixing that exposed a run of defects that byte-comparison structurally cannot see.
