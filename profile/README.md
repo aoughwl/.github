@@ -112,18 +112,12 @@
 - **Four programs run end to end for the first time — 0/6 to 4/6.** The blocker was a single node naming the C file the runtime needs compiled in: the `{.compile.}` pragma travels only in the dependency sidecar, never in the main output, so every program reached the linker and died on an undefined `mi_malloc`.
 - **A cached result was published even when the run that produced it failed,** so a second run of the differential gate scored lower than the first — 787, then 786, then 785, on unchanged input. Publishing only on success makes it 787 three times.
 
-**master — 15 commits.** The substrate-hosted editor stopped being Nim that draws HTML and became data the substrate evaluates.
-
-- **Switching documents: 500ms → 270ms, and a revisit is now free.** Measured, not guessed: naming an atom scanned every stored claim, once per atom on screen.
-- **Reaching a fixed point was quadratic in anything built by recursion — 270ms → 231ms.** Normalisation re-walked the whole result after each rule fired, so a list assembled one element at a time re-walked a growing tree on every step.
-- **Every list in the editor's chrome is a template now, not a loop that concatenates strings**, and the file explorer lost 75 lines of Nim doing it by hand. The view language gained iteration to make that possible; the evaluator is now the slower half.
-
-**aowli — 4 commits.** The interpreter can run the networking stack, TLS included.
+**[aowli](https://aoughwl.github.io/docs/aowli) — 4 commits.** The interpreter can run the networking stack, TLS included.
 
 - **A signature-driven foreign-function crossing replaced hand-written bindings**, so a C library call is described once rather than wrapped; TLS now runs interpreted, and future bindings cost nothing.
 - **The POSIX socket, `fcntl` and `poll` constants were missing,** which is why the net stack could not be debugged interpreted at all.
 
-**aoughwl/discord · colors · [aowljson](https://aoughwl.github.io/docs/aowljson) · [aowlmcp](https://aoughwl.github.io/docs/aowlmcp) — 8 commits.** A Discord bot client written in Nimony, and the JSON bug it exposed.
+**[discord](https://aoughwl.github.io/docs/discord) · [colors](https://aoughwl.github.io/docs/colors) · [json](https://aoughwl.github.io/docs/aowljson) · [mcp](https://aoughwl.github.io/docs/aowlmcp) — 8 commits.** A Discord bot client written in Nimony, and the JSON bug it exposed.
 
 - **A Discord client on our own network stack** — gateway WebSocket in, REST out, slash commands with the deferred acknowledgement Discord requires within three seconds, and a typing indicator.
 - **A missing JSON key returned a non-nil null,** so every `!= nil` guard written against it was dead code. In the bot that meant every plain chat message took the button-press branch and was answered with nothing, while the read position still advanced.
@@ -142,7 +136,7 @@
 
 **Where it stands.** **1,531 commits**, 42,567 lines of Nim across 19 files. Against the reference checker, **31 of 52 library modules are byte-identical — 59.6%** — with 30,916 differing tokens across the other 21; byte-identity is the strictest measure available and says nothing about whether a differing module is *wrong*, only that it is not the same. Differential corpus **785/785** across our own cases. Two of the 52 are aowlsem's own source, so they move whenever we add code. The five rejections above are fixed on branches and the last module now produces output; the full-gate confirmation is pending. End-to-end stays **0/6**: two cases now reach the linker.
 
-**aowli — 1 commit.** A build holding the machine-wide compile lock could not spawn a child that needed it.
+**[aowli](https://aoughwl.github.io/docs/aowli) — 1 commit.** A build holding the machine-wide compile lock could not spawn a child that needed it.
 
 - **A nested lock acquisition waited out the full 900-second timeout and then ran unserialised.** The lock had no marker saying it was already held, so a descendant contended for a lock its own ancestor was holding and could not release until the descendant returned. Two lines; the end-to-end gate went from over 400 seconds to 146.
 
