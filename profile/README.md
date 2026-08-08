@@ -97,15 +97,36 @@
 
 ## 033 2026-08-08 - Saturday, August 8th 2026
 
-**[aowlcode](https://aoughwl.github.io/docs/aowlcode) — 1 commit.** The phone-side control for a fleet of overnight Claude Code sessions reported a twelve-hour-dead worker as running, and the view meant to show what a session is doing carried no times at all.
+**[aowlcode](https://aoughwl.github.io/docs/aowlcode) — 21 commits.** Steering a fleet of long-running Claude Code sessions from a phone, and then finding that the thing reporting on them was lying about what they were doing.
 
-- **The status view called a session up on a flag the supervisor writes and nothing clears when the supervisor dies.** The process table is the authority now; the first attempt reported everything alive, because the check shells out and the shell's own command line contained the pattern it was searching for.
+- **Sessions running overnight had no supervision and no way to reach a human.** A supervisor now restarts them, caps the restarts so a crashing one becomes a message rather than a fork bomb, and hands them anything queued for them; a chat bot carries the items that need a person, filtered to five kinds so the channel does not get muted. Everything rides an on-disk mailbox, so nothing is lost while the bot is down.
+- **The status view called a session up on a flag the supervisor writes and nothing clears when the supervisor dies** — a session whose last output was twelve hours old rendered green. The process table is the authority now; the first attempt reported everything alive, because the check shells out and the shell's own command line contained the pattern it was searching for.
 - **The activity view printed a list of tool names with no timestamps,** so a session mid-command and one that stopped an hour ago rendered identically. Every line now carries its own age spelled out — "~25 seconds ago" — read from the timestamp on each record of the session's output stream.
-- **Anyone in a group chat could drive the fleet.** Pairing recorded the channel a message arrived in, which is a property of a place rather than a person; it now records the account, and every message, command and button press is checked against it.
-- **The bot's API token sat in a world-readable file,** on a machine where the process list is world-readable too. A permission set once at creation had already been lost, because the file is rewritten at pairing and at startup and a rewrite takes the process umask.
+- **Anyone in a group chat could drive the fleet, and the bot's API token sat in a world-readable file.** Pairing recorded the channel a message arrived in, which is a property of a place rather than a person; it now records the account. The token's permissions were set once at creation and lost on the next rewrite, which takes the process umask.
 - **Starting work is a sentence now, and a session is started once.** "work on aowlsem" starts one and "3 agents on aowlsem" widens it; asking again reports how long it has been up instead of restarting it. Every boot begins with zero sessions — except one whose process is still alive, which is adopted, since the supervisor's children outlive it.
 
-**Where it stands.** Gates **33/33** and **25/25**, both asserting the negative direction: sentences that must *not* become commands ("the aowlsem gate is flaking, can you stop that from happening" is not a stop command), and a boot that must *not* drop a worker still running. The sentence layer fails silently by construction — anything it declines goes to a chat session and comes back with a plausible answer — so the negative cases run first.
+**Where it stands.** Gates **33/33** and **25/25**, both asserting the negative direction: sentences that must *not* become commands ("the aowlsem gate is flaking, can you stop that from happening" is not a stop command), and a boot that must *not* drop a session still running. The sentence layer fails silently by construction — anything it declines goes to a chat session and comes back with a plausible answer — so the negative cases run first.
+
+**[aowlsem](https://aoughwl.github.io/docs/aowlsem) — 6 commits.** Programs checked by our checker now compile, link and run.
+
+- **Four programs run end to end for the first time — 0/6 to 4/6.** The blocker was a single node naming the C file the runtime needs compiled in: the `{.compile.}` pragma travels only in the dependency sidecar, never in the main output, so every program reached the linker and died on an undefined `mi_malloc`.
+- **A cached result was published even when the run that produced it failed,** so a second run of the differential gate scored lower than the first — 787, then 786, then 785, on unchanged input. Publishing only on success makes it 787 three times.
+
+**master — 15 commits.** The substrate-hosted editor stopped being Nim that draws HTML and became data the substrate evaluates.
+
+- **Switching documents: 500ms → 270ms, and a revisit is now free.** Measured, not guessed: naming an atom scanned every stored claim, once per atom on screen.
+- **Reaching a fixed point was quadratic in anything built by recursion — 270ms → 231ms.** Normalisation re-walked the whole result after each rule fired, so a list assembled one element at a time re-walked a growing tree on every step.
+- **Every list in the editor's chrome is a template now, not a loop that concatenates strings**, and the file explorer lost 75 lines of Nim doing it by hand. The view language gained iteration to make that possible; the evaluator is now the slower half.
+
+**aowli — 4 commits.** The interpreter can run the networking stack, TLS included.
+
+- **A signature-driven foreign-function crossing replaced hand-written bindings**, so a C library call is described once rather than wrapped; TLS now runs interpreted, and future bindings cost nothing.
+- **The POSIX socket, `fcntl` and `poll` constants were missing,** which is why the net stack could not be debugged interpreted at all.
+
+**aoughwl/discord · colors · [aowljson](https://aoughwl.github.io/docs/aowljson) · [aowlmcp](https://aoughwl.github.io/docs/aowlmcp) — 8 commits.** A Discord bot client written in Nimony, and the JSON bug it exposed.
+
+- **A Discord client on our own network stack** — gateway WebSocket in, REST out, slash commands with the deferred acknowledgement Discord requires within three seconds, and a typing indicator.
+- **A missing JSON key returned a non-nil null,** so every `!= nil` guard written against it was dead code. In the bot that meant every plain chat message took the button-press branch and was answered with nothing, while the read position still advanced.
 
 <br>
 
