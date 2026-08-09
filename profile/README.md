@@ -95,6 +95,24 @@
 
 <br>
 
+## 034 2026-08-09 - Sunday, August 9th 2026
+
+**[aowlsem](https://aoughwl.github.io/docs/aowlsem) — 46 commits.** Eight fixes closing the gap between our checker's output and the reference compiler's, and about as many hypotheses that turned out to be wrong.
+
+- **The same generic type was instantiated twice under two spellings.** `uint64` is a name for a primitive, so `seq[uint64]` and `seq[uint64]`-by-primitive keyed as two separate instances here and one there — each surplus instance dragging a whole hook family (`=copy`/`=destroy`/`=dup`/`=wasMoved`/allocation) behind it. Keying on the primitive, refusing instance requests made before their type arguments are known, and resolving a mangled generic head cut **3,779, 1,926 and 432 tokens** of divergence; one module went 693 → 85.
+- **`try` used as a value was never type-checked.** The expression path had no `try` arm at all, so a `let f = try: open(x) except: …` was copied through verbatim — callee unresolved, the `when defined(debug)` inside the `except` never evaluated, no type on the `let`. Downstream that unresolved callee is an assertion failure, not an error message; the module now compiles end to end.
+- **`=destroy(x)` always lowered to the built-in**, even for a type that declares its own destructor — so hand-refcounted objects were never actually destroyed, and the argument was passed by value where a declared hook takes `var T`.
+- **Three places passed a resolved symbol through where the reference emits a value.** A `true` arriving from a template expansion stayed a symbol instead of the boolean literal (**−228 across six modules**); an enum member converted to a numeric distinct type stayed a symbol instead of its ordinal; and an array constructor for `array[Mode, char]` discarded the declared index type, coming out indexed by a plain `0..2`. That last one takes a module byte-exact.
+- **Comments were forwarded where the reference drops them** — 59 nodes against 5 for `std/math`, four of them ours. Separately, a guard excluding iterators from instance requests was re-measured and removed: it had been priced against a compiler that no longer exists, and including them takes one module 728 → 272.
+
+**Where it stands.** Differing tokens across the corpus **31,170 → 30,391** over the day; differential corpus **799/799** cold, diagnostics **416/418**, end-to-end **4/6**, nothing rejected. Roughly half the day's commits record a refuted hypothesis rather than a fix, including two retractions of our own: a reported missing-conversion defect withdrawn after a misread diff, and a refutation retracted twice because the check meant to decide it never ran.
+
+**[aowli](https://aoughwl.github.io/docs/aowli) — 1 commit.** A run that could not open its inputs said so, five layers too late.
+
+- **Reading a missing file returns `""` here rather than raising**, because the primitives sit under a no-exceptions floor — so a run handed 22 nonexistent paths parsed 22 empty strings and died deep inside whatever consumed them, reported as an assertion failure in the parser. Every driver now counts failed reads and prints them ahead of the abort, saying in one line that the failure below is downstream of them.
+
+<br>
+
 ## 033 2026-08-08 - Saturday, August 8th 2026
 
 **[aowlcode](https://aoughwl.github.io/docs/aowlcode) — 27 commits.** Running long-lived Claude Code sessions unattended, and repeatedly finding that the thing reporting on them was wrong about what they were doing.
