@@ -96,8 +96,12 @@
 <br>
 
 ## 035 2026-08-10 - Monday, August 10th 2026
-- Updated [aoughwlcode](https://aoughwl.github.io/docs/aoughwlcode)<br>
+- Updated [aoughwl](https://aoughwl.github.io/docs/aoughwl)<br>
 - Updated [aoughwli](https://aoughwl.github.io/docs/aoughwli)<br>
+- Updated [aoughwlup](https://aoughwl.github.io/docs/aoughwlup)<br>
+- Updated [aoughwlcode](https://aoughwl.github.io/docs/aoughwlcode)<br>
+
+ 
 
 
 **[aowlsem](https://aoughwl.github.io/docs/aowlsem) — 6 commits.** Two fixes closing 737 tokens of divergence from the reference compiler, and a third that was built, measured, and left out of the tree.
