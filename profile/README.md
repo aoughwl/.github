@@ -95,6 +95,19 @@
 
 <br>
 
+## 035 2026-08-10 - Monday, August 10th 2026
+
+**[aowlsem](https://aoughwl.github.io/docs/aowlsem) — 6 commits.** Two fixes closing 737 tokens of divergence from the reference compiler, and a third that was built, measured, and left out of the tree.
+
+- **A `.len` read on a nested field inside a generic came out with the whole overload set parked where the field name belongs** — `t.vals.len` emitted seven candidate `len` symbols instead of the field, which is not valid IR rather than merely different. The type of a nested field access could not be computed at all while copying a generic body: the helper that answers it handles a variable, a dereference and an index, and has no case for a field access, so it gave up one line before the field lookup. Deferring to the helper that does handle it took **644 tokens off seven library modules**, and the test case from 29 tokens to 3.
+- **A comparison with one untyped operand instantiated a generic `<` instead of using the built-in**, minting a whole function body the reference compiler never emits. A comparison's two operands share a type, so the resolved side supplies it — **93 tokens** across three modules. Requiring that side to be a primitive is load-bearing, not caution: without it the rule invents a built-in for a `string` comparison the reference resolves to a real routine.
+- **A third change is worth 450 tokens and is not in the tree.** It also made the checker mint six generic comparisons over a type argument it had lost, and made one module worse; the first fix above supersedes it, because resolving the field inside the copy beats handing the node back for a second checking pass — and is worth more.
+- **Six attempted fixes, in six different places, each changed the output by exactly zero bytes.** The answer came from stopping the checker on the line where it gave up and reading the two values it held: the field name was correct, the receiver's type was empty. A change that moves the number by nothing is evidence about which code runs, not about the condition you wrote.
+
+**Where it stands.** Differential corpus **829/829** on a cold cache, no library module falling back to abort (**54/54**), and the module comparison passing with nothing raised. One caveat on today's numbers: the baseline they are measured against was re-verified by rebuilding the unmodified tree, because the first reading of a run was taken through `tail` and silently hid fourteen of the modules — the two regressions in it were found only after the full output was kept.
+
+<br>
+
 ## 034 2026-08-09 - Sunday, August 9th 2026
 
 **[aowlsem](https://aoughwl.github.io/docs/aowlsem) — 46 commits.** Eight fixes closing the gap between our checker's output and the reference compiler's, and about as many hypotheses that turned out to be wrong.
