@@ -97,9 +97,11 @@
 
 ## 036 2026-08-11 - Tuesday, August 11th 2026
 
-🎉 **[aowlsem](https://aoughwl.github.io/docs/aowlsem) passed its 2,000th commit today** — 27 days after the first, **147 of them today**. **45,679 lines** of Nimony, checking the language it is itself written in.
+🎉 **[aowlsem](https://aoughwl.github.io/docs/aowlsem) passed its 2,000th commit today** — 27 days after the first, **165 of them today**. **45,679 lines** of Nimony, checking the language it is itself written in.
 
-**[aowlsem](https://aoughwl.github.io/docs/aowlsem) — 147 commits.** Overload resolution, enum handling and generic instantiation. Divergence from the reference compiler fell **31% on the day, 11,244 → 7,736 tokens**, and two more standard-library modules are now byte-identical; three of the day's fixes were wrong-output bugs rather than formatting differences. Differential corpus **869/869** on a cold cache, diagnostics 176/176, no library module falling back to abort 54/54.
+**[aowlsem](https://aoughwl.github.io/docs/aowlsem) — 165 commits.** Overload resolution, enum handling and generic instantiation. Divergence from the reference compiler fell **31% on the day, 11,244 → 7,736 tokens**, and two more standard-library modules are now byte-identical; three of the day's fixes were wrong-output bugs rather than formatting differences. Differential corpus **869/869** on a cold cache, diagnostics 176/176, no library module falling back to abort 54/54.
+
+**[aowlparser](https://aoughwl.github.io/docs/aowlparser) — 16 commits.** YAML and ini/nim.cfg take the byte-exact set to ten languages, and a new JSON reader runs at **2,343 MB/s** where V8 manages 621 and CPython 225 on the same 9.9MB document. Every parser is now held to an outside implementation rather than to its own expectations — CPython's `json` over **10,029 files and 494,373 truncated prefixes**, CPython's `tokenize` over 3,492 Python files, the official yaml-test-suite over 402 cases — which surfaced 27 disagreements in the YAML dialect alone that reproducing the input byte for byte cannot see. CSS, HTML and `<style>` markup inside it now fail the build when they are invalid, through a Nimony plugin; unclosed HTML elements report at the opening tag, with 3 reports across 400 real pages and all three genuine.
 
 <br>
 
