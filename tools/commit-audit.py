@@ -46,6 +46,12 @@ CANDIDATES = [
     os.path.join('.claude', 'plugins', 'marketplaces', '{n}'),
 ]
 
+# Projects the blog names by their PUBLIC docs name while the checkout still
+# carries the pre-rename one (`aif*` predates the `aowl*` rename).
+# `colors` also disambiguates an unrelated 2025 repo of that name at ~/colors
+RENAMES = {'aowlparser': 'aifparser', 'aowljs': 'aifjs',
+           'colors': 'aoughwl-colors', 'discord': 'aoughwl-discord'}
+
 ENTRY_RE = re.compile(r'^## (\d+) (\d{4}-\d{2}-\d{2})', re.M)
 SECTION_RE = re.compile(
     r'^\*\*(?P<names>\[[^\]]+\]\([^)]*\)(?:\s*·\s*\[[^\]]+\]\([^)]*\))*)'
@@ -55,6 +61,10 @@ NAME_RE = re.compile(r'\[([^\]]+)\]')
 
 def candidate_dirs(project):
     out = []
+    if project in RENAMES:
+        d = os.path.join(REPO_ROOT, RENAMES[project])
+        if os.path.isdir(os.path.join(d, '.git')):
+            out.append(d)
     for pat in CANDIDATES:
         d = os.path.join(REPO_ROOT, pat.format(n=project))
         if os.path.isdir(os.path.join(d, '.git')):
@@ -63,18 +73,22 @@ def candidate_dirs(project):
 
 
 def best_count(project, day):
-    """Commits on `day` in the most plausible checkout, or None if none has any.
+    """Commits on `day` in the most plausible checkout; None if no checkout exists.
 
     Counted on HEAD including merges — the same question the entries were
     written with (`git log --since=midnight | wc -l`), verified to agree with
     an all-refs no-merges count on the two days that were spot-checked.
+
+    ⚠️ ZERO IS A REAL ANSWER and is NOT "not found": a merged section
+    (`discord · colors · json · mcp`) has members that were untouched on the day,
+    and treating those as unresolved made the whole section unverifiable. The
+    protection against the `~/serve` trap — a same-named repo that is not the one
+    meant — lives in `audit`, which refuses to rewrite a positive count to 0.
     """
-    best = None
-    for d in candidate_dirs(project):
-        n = commits_on(d, day)
-        if n and (best is None or n > best):
-            best = n
-    return best
+    dirs = candidate_dirs(project)
+    if not dirs:
+        return None
+    return max(commits_on(d, day) or 0 for d in dirs)
 
 
 def commits_on(repo, day):
@@ -104,6 +118,10 @@ def audit(text):
             # ONE unresolved project makes the whole section unresolved: a
             # partial sum silently under-reports a merged section.
             actual = None if any(c is None for c in counts) else sum(counts)
+            # Never trust a 0 against a positive claim: that is the signature of
+            # having resolved the WRONG repository, not of an idle day.
+            if actual == 0 and recorded > 0:
+                actual = None
             rows.append((m.group(1), day, projects, recorded, actual,
                          (m.start() + s.start('n'), m.start() + s.end('n'))))
     return rows
@@ -119,6 +137,38 @@ def main():
     if a.day and a.repo:
         n = best_count(a.repo, a.day)
         print(f'{a.repo} {a.day}: {n if n is not None else "repo not found"}')
+        return 0
+
+    if a.day:
+        # SURVEY: every checkout with commits that day, busiest first. This is
+        # what you want when writing up a day whose entry does not already name
+        # its repos — the alternative is guessing which ones were touched.
+        # ⚠️ COLLAPSE DUPLICATE CLONES. `aoughwl` and `new-aoughwl` are the same
+        # repository under two paths, as are the two blog checkouts; summing a
+        # survey without this double-counts every one of their commits. Identity
+        # is the ROOT COMMIT, which is stable across clones and renames.
+        rows, seen = [], {}
+        for name in sorted(os.listdir(REPO_ROOT)):
+            d = os.path.join(REPO_ROOT, name)
+            if not os.path.isdir(os.path.join(d, '.git')):
+                continue
+            n = commits_on(d, a.day)
+            if not n:
+                continue
+            root = subprocess.run(['git', '-C', d, 'rev-list', '--max-parents=0',
+                                   'HEAD'], capture_output=True,
+                                  text=True).stdout.strip().split('\n')[-1]
+            if root and root in seen:
+                seen[root][1].append(name)
+                continue
+            entry = [n, [name]]
+            seen[root] = entry
+            rows.append(entry)
+        for n, names in sorted(rows, key=lambda r: -r[0]):
+            dup = f'   (= {", ".join(names[1:])})' if len(names) > 1 else ''
+            print(f'{n:5}  {names[0]}{dup}')
+        print(f'-- {sum(n for n, _ in rows)} commits across {len(rows)} repos '
+              f'(duplicate clones collapsed)')
         return 0
 
     text = open(README, encoding='utf-8').read()
