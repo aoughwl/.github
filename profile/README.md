@@ -97,9 +97,9 @@
 
 ## 036 2026-08-11 - Tuesday, August 11th 2026
 
-🎉 **[aowlsem](https://aoughwl.github.io/docs/aowlsem) passed its 2,000th commit today** — 27 days after the first, **146 of them today**. **45,679 lines** of Nimony, checking the language it is itself written in.
+🎉 **[aowlsem](https://aoughwl.github.io/docs/aowlsem) passed its 2,000th commit today** — 27 days after the first, **147 of them today**. **45,679 lines** of Nimony, checking the language it is itself written in.
 
-**[aowlsem](https://aoughwl.github.io/docs/aowlsem) — 146 commits.** Overload resolution, enum handling and generic instantiation. Divergence from the reference compiler fell **31% on the day, 11,244 → 7,742 tokens**, and two more standard-library modules are now byte-identical; three of the day's fixes were wrong-output bugs rather than formatting differences. Differential corpus **869/869** on a cold cache, diagnostics 176/176, no library module falling back to abort 54/54.
+**[aowlsem](https://aoughwl.github.io/docs/aowlsem) — 147 commits.** Overload resolution, enum handling and generic instantiation. Divergence from the reference compiler fell **31% on the day, 11,244 → 7,736 tokens**, and two more standard-library modules are now byte-identical; three of the day's fixes were wrong-output bugs rather than formatting differences. Differential corpus **869/869** on a cold cache, diagnostics 176/176, no library module falling back to abort 54/54.
 
 <br>
 
