@@ -214,6 +214,7 @@
 **[serve](https://aoughwl.github.io/docs/net-stack/serve) — 29 commits.** h2spec 95/146 → **146/146** over both h2c and TLS; 128 MiB streamed byte-exact at 6 MB peak memory.
 
 <br>
+
 ## 025 2026-07-31 - Friday, July 31st 2026
 
 🎉 **[aowlsem](https://aoughwl.github.io/docs/aowlsem) passed its 1,000th commit** — 16 days after the first, **98 of them today**, **~32,500 lines** of self-hosted Nimony.
