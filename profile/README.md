@@ -95,403 +95,125 @@
 
 <br>
 
+## 036 2026-08-11 - Tuesday, August 11th 2026
+
+🎉 **[aowlsem](https://aoughwl.github.io/docs/aowlsem) passed its 2,000th commit today** — 27 days after the first, **146 of them today**. **45,679 lines** of Nimony, checking the language it is itself written in.
+
+**[aowlsem](https://aoughwl.github.io/docs/aowlsem) — 146 commits.** Overload resolution, enum handling and generic instantiation. Divergence from the reference compiler fell **31% on the day, 11,244 → 7,742 tokens**, and two more standard-library modules are now byte-identical; three of the day's fixes were wrong-output bugs rather than formatting differences. Differential corpus **869/869** on a cold cache, diagnostics 176/176, no library module falling back to abort 54/54.
+
+<br>
+
 ## 035 2026-08-10 - Monday, August 10th 2026
-- Updated [aoughwl](https://aoughwl.github.io/docs/aoughwl)<br>
-- Updated [aoughwli](https://aoughwl.github.io/docs/aoughwli)<br>
-- Updated [aoughwlup](https://aoughwl.github.io/docs/aoughwlup)<br>
-- Updated [aoughwlcode](https://aoughwl.github.io/docs/aoughwlcode)<br>
 
- 
+**[aowlsem](https://aoughwl.github.io/docs/aowlsem) — 74 commits.** Overload resolution and generic-body copying: **737 tokens** of divergence closed, one of them a call bound to the wrong module's function. Corpus **839/839** cold, no-abort 54/54, all 46 library rows at baseline.
 
+**[aowlparser](https://aoughwl.github.io/docs/aowlparser) · [css](https://aoughwl.github.io/docs/css) — 11 commits.** A Nim-only parser became a library covering eight languages, each checked by reproducing its input byte for byte: **11,556** JavaScript files, 5,920 Markdown, 4,326 JSON, 2,885 Python, 1,224 CSS grammars and 150 HTML pages. Stylesheets now validate against the CSS specification's own value grammars — Bootstrap, **4,368 declarations, none invalid**.
 
-**[aowlsem](https://aoughwl.github.io/docs/aowlsem) — 43 commits.** Fixes closing 737 tokens of divergence from the reference compiler, one that stopped the checker calling the wrong module's function, and a week-old diagnosis that turned out to be wrong in every particular.
-
-- **A `.len` read on a nested field inside a generic came out with the whole overload set parked where the field name belongs** — `t.vals.len` emitted seven candidate `len` symbols instead of the field, which is not valid IR rather than merely different. The type of a nested field access could not be computed at all while copying a generic body: the helper that answers it handles a variable, a dereference and an index, and has no case for a field access, so it gave up one line before the field lookup. Deferring to the helper that does handle it took **644 tokens off seven library modules**, and the test case from 29 tokens to 3.
-- **A comparison with one untyped operand instantiated a generic `<` instead of using the built-in**, minting a whole function body the reference compiler never emits. A comparison's two operands share a type, so the resolved side supplies it — **93 tokens** across three modules. Requiring that side to be a primitive is load-bearing, not caution: without it the rule invents a built-in for a `string` comparison the reference resolves to a real routine.
-- **A third change is worth 450 tokens and is not in the tree.** It also made the checker mint six generic comparisons over a type argument it had lost, and made one module worse; the first fix above supersedes it, because resolving the field inside the copy beats handing the node back for a second checking pass — and is worth more.
-- **A generic function imported from another module could be compiled into a call to the wrong function entirely** — same name, different module, different parameter types. A helper expanded a template used as a *value* and then reported its type as "no value at all"; the enclosing call matched its arguments against every candidate, none matched exactly, the candidates tied, and the tie went to declaration order. The correct one was in the candidate list the whole time. It is nearly free on any measure of output size, which is why it survived: the emitted program is the same length, it just calls something else.
-
-**Where it stands.** Differential corpus **839/839** on a cold cache, no library module falling back to abort (**54/54**), and the module comparison passing with **all 46 rows identical** to their baseline — the wrong-module fix changes no library output at all, which is exactly why a size measurement could never have found it.
-
-**[aowlparser](https://aoughwl.github.io/docs/aowlparser) · [css](https://aoughwl.github.io/docs/css) — 11 commits.** A Nim-only parser became a parsing library covering eight languages, checked against every file of each kind on this machine.
-
-- **The parser could only ever go one way — source in, compiler IR out, with no route back.** It now reproduces the source from that IR byte for byte, which is what makes six new languages checkable at all: none of them has a reference implementation to compare against, so reproducing the input exactly *is* the correctness criterion. CSS, HTML, Python, JavaScript, JSON and Markdown now parse this way alongside Nim.
-- **The parse tree is checked for shape, not only for bytes** — node counts per kind and nesting depth, because a reproduction test passes just as happily when every byte is present under the wrong node. That is how the HTML tokenizer's `</script>` handling was caught treating the rest of the document as opaque text.
-- **Each language declares its node vocabulary once, and both the writer and the reader are driven by that one declaration** — so a reader that disagrees with its writer about whether a byte gets emitted is no longer expressible. Two hand-written readers were deleted; they had been the same algorithm twice, differing only in which tags carried text.
-- **Byte-exact on every file of its kind on this machine**: **11,556** JavaScript files (557MB, including minified bundles), **5,920** Markdown, **4,326** JSON, **2,885** Python, plus **1,224** of MDN's published CSS value grammars and 150 real HTML pages. The Nim side is unchanged and still measured the old way, against the reference `nifler`: **172/172**, 156 byte-identical.
-- **A stylesheet can now be checked against the CSS specification's own value grammars** — the parser handles syntax, the CSS library matches values against MDN's rules, and neither had to absorb the other. Bootstrap: **4,368 declarations, none invalid**; the three that first read as invalid were our defect, a CSS comment inside a value being handed to the validator as part of the value.
-
-**Where it stands.** One command runs everything: 10 language gates, **792,846 bytes** reproduced byte for byte across 28 files, and the Nim differential unchanged. Two caveats worth the space. The first whole-corpus JavaScript run was killed at the 560-second mark and measured nothing — the fuzzer bounded its work by file count rather than by size, so one 25.8MB bundle generated roughly 63,000 re-parses; bounded properly the same corpus takes 100 seconds. And a reverted experiment left a stale test binary reporting **1286/1290** against already-fixed source, which is why the runner now rebuilds anything older than its source.
-
-**[aowlcode](https://aoughwl.github.io/docs/aowlcode) — 1 commit.** A conditional breakpoint reported a condition as false when it had never really been tested.
-
-- **A quoted value in a conditional breakpoint was searched for *with its quote marks*.** `x ~ "int"` looked for the five characters `"int"`, both quotes included, matched nothing, and the run reported "the condition was evaluated and never held" — a statement about the program, produced by punctuation. Every example in the tool's own documentation is written that way. `==` folded its second `=` into the value, and `!=` left a variable name of `x !`, which nothing is called, so it failed the same silent way instead of saying it is unsupported.
-- **Quotes are now stripped, `==` accepted, and an operator that cannot be honoured is rejected outright** — a rejected filter is recoverable, a silently unsatisfiable one is not, because "the condition never held" is indistinguishable from evidence about the program. Six new assertions, five of which fail against the previous parser.
-
-**Across the org: 54 repositories, 4,042 commits, 187,000 lines of Nim** plus 48,000 lines of tests. Scope, since a number without one is decoration: hand-written `.nim` under the org's public repositories, excluding generated output, our forks of the Nim-language compiler this builds on, and `aowlhexer`, whose 18,000 lines are seeded from Andreas Rumpf's `hexer` and progressively rewritten. The three largest are the semantic checker (**45,000**), the interpreter (**39,000**) and the parser (**12,000**).
+**[aowlcode](https://aoughwl.github.io/docs/aowlcode) — 2 commits.** Conditional breakpoints in the debugger.
 
 <br>
 
 ## 034 2026-08-09 - Sunday, August 9th 2026
 
-**[aowlsem](https://aoughwl.github.io/docs/aowlsem) — 46 commits.** Eight fixes closing the gap between our checker's output and the reference compiler's, and about as many hypotheses that turned out to be wrong.
+**[aowlsem](https://aoughwl.github.io/docs/aowlsem) — 171 commits.** Generic instantiation, `try` as an expression, and lifetime hooks. Library divergence 31,170 → **30,391 tokens**; corpus **799/799** cold, diagnostics 416/418, end-to-end 4/6.
 
-- **The same generic type was instantiated twice under two spellings.** `uint64` is a name for a primitive, so `seq[uint64]` and `seq[uint64]`-by-primitive keyed as two separate instances here and one there — each surplus instance dragging a whole hook family (`=copy`/`=destroy`/`=dup`/`=wasMoved`/allocation) behind it. Keying on the primitive, refusing instance requests made before their type arguments are known, and resolving a mangled generic head cut **3,779, 1,926 and 432 tokens** of divergence; one module went 693 → 85.
-- **`try` used as a value was never type-checked.** The expression path had no `try` arm at all, so a `let f = try: open(x) except: …` was copied through verbatim — callee unresolved, the `when defined(debug)` inside the `except` never evaluated, no type on the `let`. Downstream that unresolved callee is an assertion failure, not an error message; the module now compiles end to end.
-- **`=destroy(x)` always lowered to the built-in**, even for a type that declares its own destructor — so hand-refcounted objects were never actually destroyed, and the argument was passed by value where a declared hook takes `var T`.
-- **Three places passed a resolved symbol through where the reference emits a value.** A `true` arriving from a template expansion stayed a symbol instead of the boolean literal (**−228 across six modules**); an enum member converted to a numeric distinct type stayed a symbol instead of its ordinal; and an array constructor for `array[Mode, char]` discarded the declared index type, coming out indexed by a plain `0..2`. That last one takes a module byte-exact.
-- **Comments were forwarded where the reference drops them** — 59 nodes against 5 for `std/math`, four of them ours. Separately, a guard excluding iterators from instance requests was re-measured and removed: it had been priced against a compiler that no longer exists, and including them takes one module 728 → 272.
-
-**Where it stands.** Differing tokens across the corpus **31,170 → 30,391** over the day; differential corpus **799/799** cold, diagnostics **416/418**, end-to-end **4/6**, nothing rejected. Roughly half the day's commits record a refuted hypothesis rather than a fix, including two retractions of our own: a reported missing-conversion defect withdrawn after a misread diff, and a refutation retracted twice because the check meant to decide it never ran.
-
-**[aowli](https://aoughwl.github.io/docs/aowli) — 29 commits.** A staleness check that made the shipping engine answer wrong, and the first measured cut to what interpretation costs on a real compile.
-
-- **The check that refuses stale compiled artifacts made the engine give a wrong answer.** It resolved a routine's body from disk before the module had run and cached that, but in destructor-running mode the code actually executed is a lowered rewrite — so a reference-count increment ran a body no longer containing it, and the program's own assertion read the true 0. Turning the check off gave the right answer; the debugger, which never had the check at all, was correct for that reason and now has it.
-- **String hashing was interpreted one byte at a time.** Implementing it as a single primitive cut interpreter work on a real compile by **18.7%** (19,406,395 → 15,783,822 steps), output byte-identical. The sampling profile that found it also overturned our recorded target list, which had been built from call counts: the most-called routine is 4.2% of the time.
-- **`getpid` had no implementation, so a whole-program compile died mid-run.** Refusing to invent a value is the intended behaviour and the gap was that nothing implemented it — a gate had been reporting 3 of 6 for days on that one halt; it now runs to byte-identical output.
-- **Writing to an element of an object field allocated with `alloc` was silently dropped** and read back as nothing, so a test program printed 1 where a native build printed 300000. Both engines now refuse it loudly instead; the underlying support is still missing, and a second shape one level down is still silent.
-- **Reading a missing file returns `""` here rather than raising**, because the primitives sit under a no-exceptions floor — so a run handed 22 nonexistent paths parsed 22 empty strings and died deep inside whatever consumed them, reported as an assertion failure in the parser. Every driver now counts failed reads and prints them ahead of the abort.
-
-**Where it stands.** Corpus **460/460 across 53 of 53 categories**, and the two engines agree with a native build on **461 cases with zero divergences**. Three gates were found asserting nothing: one had checked a counter was zero for its whole life without ever enabling the mode that makes it non-zero, another counted the editor's language server as a competing build and so had never produced a timing at all, and 28 of the browser lane's 32 checks were reporting "tool missing" because of how it looked for `node`. Two of our own measurements were retracted the same day we published them, both after a control we built to strengthen them refuted them instead.
+**[aowli](https://aoughwl.github.io/docs/aowli) — 39 commits.** The foreign-function boundary, and the first measured cut to what interpretation costs: string hashing as a primitive took **18.7%** off interpreter work on a real compile, output byte-identical.
 
 <br>
 
 ## 033 2026-08-08 - Saturday, August 8th 2026
 
-**[aowlcode](https://aoughwl.github.io/docs/aowlcode) — 27 commits.** Running long-lived Claude Code sessions unattended, and repeatedly finding that the thing reporting on them was wrong about what they were doing.
+**[aowlsem](https://aoughwl.github.io/docs/aowlsem) — 89 commits.** Lifetime hooks for reference fields, overload arity, and overload-set ordering. **Four programs run end to end for the first time, 0/6 → 4/6**; corpus **797/797** cold, **31 of 54** library modules byte-identical.
 
-- **Sessions running overnight had no supervision and no way to reach a human.** A supervisor restarts them, caps restarts per hour so a crashing one becomes a message rather than a fork bomb, and everything rides an on-disk mailbox, so nothing is lost while the phone-side bot is down. Pairing records the account rather than the channel a message arrived in — a property of a person, not of a place — and the bot's API token no longer inherits whatever permissions the process umask hands out.
-- **Every session now runs in a terminal you can attach to and type into.** One window per repo, so watching a session and taking it over are the same act. There is nothing to attach *to*: the client already writes every turn to a transcript on disk, so the views read that rather than needing the output redirected — which also means a session started by hand can be adopted and read without interfering with it.
-- **A restarted worker came back with no memory of the hours before it.** The session id was minted per restart and the transcript to resume is named after that id, so the context was discarded by construction — and from the outside it looked exactly like healthy supervision. Sessions are resumed now, and one that talks itself into stopping ("never stop" eventually reads as an unreachable goal) is put back to work with a fresh budget rather than left quiet.
-- **A supervisor killed a session four minutes into a test run because of arithmetic on an uninitialised field.** The stall check compared the clock against zero and reported "no output for 29770413 minutes" — fifty-six years — nudged instantly, then killed the session a tick later for ignoring the nudge. A worker adopted from config rather than spawned by that process always started with that zero.
-- **Two views could not distinguish the failure from the normal case.** The activity view rendered a six-minute compile and a wedged session identically, because it never checked whether a tool call had *returned*; and a commit feed advanced its position after a channel refused the post, so every commit it failed to deliver was consumed rather than retried. Both now hold the evidence they were throwing away.
+**[aowlcode](https://aoughwl.github.io/docs/aowlcode) — 30 commits.** Running long-lived sessions unattended: supervision, restart limits, an on-disk mailbox, and attachable terminals. Gates **72/72** and **39/39**, negative cases first.
 
-**Where it stands.** Gates **72/72** and **39/39**, negative cases first: a message that is not a command must spawn **nothing**, an idle session that ended its turn must not be restarted (counted in spawns, since a respawn loop looks healthy in every view), and a commit that could not be delivered must still be there next tick. A free-text assistant answering anything typed at it was removed rather than fixed — what it mostly produced was a confident paragraph about work nobody had started.
+**[aowli](https://aoughwl.github.io/docs/aowli) — 10 commits.** Foreign-function crossings generated from signatures rather than hand-written bindings; TLS now runs interpreted.
 
-**[aowlsem](https://aoughwl.github.io/docs/aowlsem) — 88 commits.** Four programs run end to end for the first time, and a family of five defects that all decided a reference field's fate by asking about the wrong type.
-
-- **Four programs run end to end for the first time — 0/6 to 4/6.** The blocker was a single node naming the C file the runtime needs compiled in: the `{.compile.}` pragma travels only in the dependency sidecar, never in the main output, so every program reached the linker and died on an undefined `mi_malloc`.
-- **An object with a `ref` field got no cleanup code at all.** Every test along the path asked whether the object the field points *at* was managed, rather than whether the field is a reference — so a `ref` to a plain object was never collected and its heap cell never freed, and an imported type's cycle hooks were read four kinds out of six. Five sites, **1,375 tokens across four programs**, all now byte-identical to the reference compiler.
-- **Overload resolution never checked argument count** — a one-argument call matched a two-parameter generic. Instantiating an `{.untyped.}` body re-sems its own output, and the second pass discarded the callee the first had already resolved and looked the name up again in a module that imports none of the real candidates, leaving exactly one wrong candidate that nothing rejects. Corpus **790 → 794**, both repros promoted.
-- **A whole module's overload sets could come out in the wrong order**, because our simulation of Nim's hash table started at 32 slots where Nim allocates 64 — one growth step behind, so any set whose members collide differently at the two sizes was misordered. Settled by pushing the same 20 keys through a real `Table` in stock Nim rather than by reading the source; four modules improved.
-- **Two silent wrong-accepts, neither of which a byte-comparison can see.** A macro that takes a parameter and calls a sibling macro made the macro host fail non-fatally, so compilation continued and emitted a call to an unbound identifier; and errors inside an instantiated generic body are accepted outright, three of three cases the reference compiler rejects. The first is the repo's first requirements gate rather than a differential one.
-
-**Where it stands.** Differential corpus **797/797** on a cold cache; against the reference checker, **31 of 54 library modules byte-identical**, 23 differing, none rejected; diagnostics **416/418**; end-to-end **4/6**. Two of today's numbers were corrections to our own reporting: a 656-line "regression" was manufactured by the gate's own baseline, and a recorded 19-minute cost for one gate group turned out to be two concurrent runs — the group is under three minutes on an idle machine, and reading that figure as cost left an overload-resolution change several turns without the gates that covered it most.
-
-**[aowli](https://aoughwl.github.io/docs/aowli) — 10 commits.** The debugger and the shipping engine disagreed about what a pointer is.
-
-- **A signature-driven foreign-function crossing replaced hand-written bindings**, so a C library call is described once rather than wrapped; TLS now runs interpreted, and future bindings cost nothing.
-- **An object read through a byte pointer answered 0** — in both engines, by two different mechanisms, so neither could be used to check the other.
-- **The debugger rendered a live pointer as nil** whenever it had no cell behind it, and the shipping engine answers a reference's address as 0 while the debug build does not. A value that is wrong only in the tool you inspect it with is worse than one that is wrong everywhere.
-- **`--repl` runs a growing module a cell at a time**, landed and gated, and the two REPLs are no longer documented as one thing.
-- **Conditional breakpoints were accepted and ignored in the interactive session** — parsed, printed as ignored, and then stopped on every hit anyway, so finding one frame in forty cost a pause, a render and a resume each. The conditions now live in the engine's own hook: a hit that fails them never reports a pause. Answering a question that needed a specific one of 34 hits above took a single call.
-
-**[discord](https://aoughwl.github.io/docs/discord) · [colors](https://aoughwl.github.io/docs/colors) · [json](https://aoughwl.github.io/docs/aowljson) · [mcp](https://aoughwl.github.io/docs/aowlmcp) — 8 commits.** A Discord bot client written in Nimony, and the JSON bug it exposed.
-
-- **A Discord client on our own network stack** — gateway WebSocket in, REST out, slash commands with the deferred acknowledgement Discord requires within three seconds, and a typing indicator.
-- **A missing JSON key returned a non-nil null,** so every `!= nil` guard written against it was dead code. In the bot that meant every plain chat message took the button-press branch and was answered with nothing, while the read position still advanced.
+**[discord](https://aoughwl.github.io/docs/discord) · [colors](https://aoughwl.github.io/docs/colors) · [json](https://aoughwl.github.io/docs/aowljson) · [mcp](https://aoughwl.github.io/docs/aowlmcp) — 8 commits.** A Discord bot client on our own network stack — gateway WebSocket, REST, slash commands.
 
 <br>
 
 ## 032 2026-08-07 - Friday, August 7th 2026
 
-**[aowlsem](https://aoughwl.github.io/docs/aowlsem) — 35 commits.** The one gate that compiles our output past the checker had never run the checker, and fixing that exposed a run of defects that byte-comparison structurally cannot see.
+**[aowlsem](https://aoughwl.github.io/docs/aowlsem) — 41 commits.** End-to-end compilation, module rejection and cycle-collection hooks; five library modules the reference compiles were being rejected outright. **31 of 52** modules byte-identical, corpus **785/785**. A shared test cache took one gate from 49.4s to **1.8s**.
 
-- **The end-to-end gate passed with the checker replaced by `/bin/false`.** Its harness symlinked the toolchain into a scratch directory, but a compiler locates its sibling tools through `/proc/self/exe`, which the kernel resolves through the symlink and back into the real tree — so the reference checker ran and reported on ours. Rebuilt with hard links, it reports **0/6** and stays red.
-- **Two defects existed only when the real driver invoked us, not when we were invoked directly.** Every dependency sidecar we wrote was empty, so the next phase received 2 modules where the reference gives it 4 and asserted; and `echo "a", 1` came out unexpanded, with an unresolved nine-way overload set inside it. `echo` is a varargs template whose body loops over its arguments, and our unroller assumed that loop is the template's first statement — true direct, false under the driver.
-- **Objects owning an imported `ref` field got no cycle-collection hooks**, because the guard asked whether the type had a destroy hook when it needed to ask whether we had built the helper family for it. **415 fewer differing tokens**, measured against the pre-fix binary over the same source — comparing against the recorded baseline instead credited it with 3,897 that belonged to a different change.
-- **Five modules of the compiler's own library were rejected outright**, code the reference compiles. The causes were unrelated: a branch ending in a call that never returns was still intersected into the initialised-variable state; `{.raises.}` was known but not `.canRaise.`, its own alias; a generic that could not bind its type parameters outranked the concrete overloads; `nifstreams.open` bound to `nifreader.open` because a module qualifier was dropped whenever both modules export the name; and **`c.p[].info = x` was rejected on an immutable parameter** — before typing, `x[]` and `x[i]` are the same node, told apart only by child count, so a write *through* a pointer field read as a write *to* it.
-- **A test cache kept per working copy made every parallel checkout recompile what another already had.** Cold versus shared, same file and same verdict: **49.4s → 1.8s, with 1.7s of user CPU either way** — all of the difference was waiting on the machine-wide compile lock to redo finished work. One gate had been taking 24 minutes for the same reason.
-
-**Where it stands.** **1,531 commits**, 42,567 lines of Nim across 19 files. Against the reference checker, **31 of 52 library modules are byte-identical — 59.6%** — with 30,916 differing tokens across the other 21; byte-identity is the strictest measure available and says nothing about whether a differing module is *wrong*, only that it is not the same. Differential corpus **785/785** across our own cases. Two of the 52 are aowlsem's own source, so they move whenever we add code. The five rejections above are fixed on branches and the last module now produces output; the full-gate confirmation is pending. End-to-end stays **0/6**: two cases now reach the linker.
-
-**[aowli](https://aoughwl.github.io/docs/aowli) — 1 commit.** A build holding the machine-wide compile lock could not spawn a child that needed it.
-
-- **A nested lock acquisition waited out the full 900-second timeout and then ran unserialised.** The lock had no marker saying it was already held, so a descendant contended for a lock its own ancestor was holding and could not release until the descendant returned. Two lines; the end-to-end gate went from over 400 seconds to 146.
+**[aowli](https://aoughwl.github.io/docs/aowli) — 4 commits.** Nested acquisition of the machine-wide compile lock; one gate went from over 400 seconds to **146**.
 
 <br>
 
 ## 031 2026-08-06 - Thursday, August 6th 2026
 
-**[aowlsem](https://aoughwl.github.io/docs/aowlsem) — 37 commits.** Five wrong-output bugs with one shape: a type or a field the checker could see but could not look up, so it quietly picked the wrong thing instead of failing.
+**[aowlsem](https://aoughwl.github.io/docs/aowlsem) — 93 commits.** Generic instances and field lookup — five wrong-output bugs of one shape. Corpus **772/772**, no-abort **46/46**.
 
-- **A generic type's own fields were unreachable from the module that instantiated it,** so `len(t.keys)` on a field of a `var` parameter resolved to the *set cardinality* builtin and emitted a spurious function for it. Field tables for instances of a generic with private fields were filed where the field lookup never looked.
-- **An instance created in the current module never recorded which generic it came from,** so overload resolution saw a bare symbol and fell back to matching on argument count — the exact mechanism two earlier fixes had each switched on for *imported* instances only. One line; **1,133 fewer differing tokens** across three standard-library modules.
-- **`.len` on an `openArray` called a function where the reference compiler reads the view's length field.** An `openArray` is a pointer plus a length, so the length is already present; the call also instantiated a `len` the reference emits but never calls.
-- **Two generic bodies emitted the wrong thing:** `var s: seq[T] = @[]` produced an empty expression node — not a zero-length seq, nothing at all — and comparing two objects field by field left the loop in place where the reference unrolls it one block per field. **449 fewer differing tokens.**
-- **Re-baselining deleted 130 of the baseline file's 189 lines** — every recorded reason a number is what it is, including one that deliberately absorbs a known regression — and exited 0. Separately, two comments cited a test file that had never existed; a new check fails on any test file named in a comment but absent, and found five.
+**[aowlabi](https://aoughwl.github.io/docs/aowlabi) — 20 commits.** The ABI is now gated against everything that re-spells it: the JavaScript value representation, the C runtime's hand-copied offsets, and gcc at 32 bits. **122/122** layout, 208/208 heap, **1269/1269** marshalling.
 
-**Where it stands.** Differential corpus **772/772** against the reference checker's own output; no standard-library module falls back to aborting, **46/46**; std/envvars is now byte-identical. Two thirds of what remains is the checker compiling its *own* source, so ranking work by which construct differs most keeps pointing at that one file rather than at the standard library.
+**[aowlc](https://aoughwl.github.io/docs/aowlc) — 20 commits.** The C backend's two printers are compared against each other and against the reference — **73/73**, exemption list empty; every module compiles and links alone, **77/77**.
 
+**[aowli](https://aoughwl.github.io/docs/aowli) — 25 commits.** A public wrong-answer fix, released as v0.3.5. Both engines **461/461** across 53 categories, zero divergences.
 
-**[aowlc](https://aoughwl.github.io/docs/aowlc) — 20 commits.** This backend has two C printers and nothing had ever compared them, so a fix could land in one and leave the other wrong with every gate still green.
-
-- **Three miscompiles lived only in the hand-written printer**, each already fixed in the other: `{.packed.}` dropped, an unpadded octal escape so `"\n7"` printed as `W`, and strings walked by code point where a nimony string is bytes. Both are now compared against nimony's own output, so the gate says which one is wrong rather than only that they differ — **73/73**, exemption list empty.
-- **The end-to-end gate's `-Wall -Wextra` was switched off by the C it was compiling.** An in-file `#pragma GCC diagnostic ignored` beats the command line, so the warnings those flags asked for could never appear; it now also compiles a copy with the pragmas stripped.
-- **An `{.importc.}` global got no declaration,** so a module referencing one did not compile. Per-module output now emits prototypes for procs a sibling module defines, and every translation unit compiles *and* links on its own.
-- **`npm test` read committed artifacts and never the sources beside them,** so fixtures could drift unnoticed; a skipped case also shrank the denominator, which reads exactly like a pass.
-- **Seven `nimony` invocations ran without the machine-wide compile lock.** Two compiles at once corrupt each other's link through a shared object that a private cache does not cover — never a false green, but a red could be someone else's build, and no run was repeatable.
-
-**Where it stands.** Printers agree 73/73; end-to-end 73/77 against nimony's own output with 4 declared vacuous; every module compiles alone 77/77; npm 24/24, units 5/5, static initialisers 10/10.
-
-**[aowlabi](https://aoughwl.github.io/docs/aowlabi) — 20 commits.** An ABI is only canonical if the things that re-spell it are checked against it. Three were not.
-
-- **The JavaScript backend's value representation is now gated against the matrix that specifies it** — one probe per abstract type kind, classified structurally rather than by matching the emitter's own output text, **20/20** in both modes. The pointer row had no probe at all despite being the kind the matrix describes most precisely.
-- **The C runtime hand-copies the same heap offsets and five bare magic numbers,** and nothing compared the two. It does now, along with a third spelling — the struct definitions the driver injects at build time. Including that runtime's header beside the backend's prelude worked in only one of the two orders; both compile.
-- **Two 32-bit sizes had never been checked against anything,** held out precisely because the one available oracle disagreed with them. `gcc -m32 -fsyntax-only` against a freestanding header shim settles both: the ABI is right and the compiler's constant folder is wrong. **11/11.**
-- **One row is held out on purpose:** `-m32` means i386, which aligns `double` to 4 where every other 32-bit target uses 8, so gcc is answering for a different target than the question asked. The exemption is written as an *inverted* assertion — if the row ever starts agreeing, the build fails and says to drop it.
-
-**Where it stands.** 122/122 layout, 208/208 heap layout, 1269/1269 marshalling, 26/26 against gcc on each of the two C printers, 21/21 at 32 bits plus 11/11 against `gcc -m32`, 20/20 JavaScript representation.
-
-**[aowljs](https://aoughwl.github.io/docs/aowljs) — 9 commits.** `sizeof` of anything that was not a scalar refused to answer, and the engine that could answer it already existed.
-
-- **`sizeof` of an object, tuple, array, variant or packed type now comes from the ABI layout engine,** mapped from the compiler's own typed IR — this backend holds no layout arithmetic of its own. The alternative was a third implementation of C struct layout, which is the shape that lets a padding bug be fixed in one place and survive in two.
-- **Deleting the scalar-width table it replaced fixed a wrong answer.** `sizeof(cstring)` returned 16 where nimony says 8, because `cstring` sat with `string` on the two-word arm: not an aggregate, never reported, an ordinary expression silently wrong.
-- **The two backends' corpora are cross-checked by running each program through the other backend,** rather than by a name map asserting that two fixtures test the same thing. Three outcomes, a declared denominator, a deterministic sample.
-- **The README called the hand-written JavaScript seed a differential oracle; measured, it agrees on 15 of 61 programs** — it predates methods, exceptions, iterators, variant objects, value semantics and byte strings.
-
-**Where it stands.** Corpus **124/124**, 0 failed, 3 blocked by the reference toolchain itself; the `sizeof` fixture is 26/26 in both modes against nimony's own folded answer.
-
-**[aowli](https://aoughwl.github.io/docs/aowli) — 8 commits.** A released wrong-answer fix, two gates that scored real failures as noise, and the load check's last rule that was still written out once per engine.
-
-- **The public binary returned the wrong substring for an open-ended slice.** `s[a .. ^k]` — from index `a` to `k` characters before the end — read the raw `k` as the upper bound instead of counting from the end, silently dropping or keeping the wrong characters; fixed and released as v0.3.5.
-- **A gate scored a failed C compile and a crashed interpreter as the same "eligible but didn't cross" verdict** its own header calls a real defect, because it threw away the exit code and the marker printed on the very line it read. Both are now distinct results — build-failed and crash — each carrying the tail of the log.
-- **Another gate classified every non-zero exit of the interpreter as infrastructure noise,** so a run that executed 52,186 native calls and then crashed would never count as a failure. Only a timeout or a missing measurement is infrastructure now; anything that ran and then exited non-zero is a failure.
-- **The stale-artifact load check had its type-mismatch rule written out once per engine,** so the two interpreters could drift on whether to reject a correct program. Pulled into one shared function — the argument-count half was already shared.
-- **Cutting the release copied 7.1 GB to compile 1.6 MB of source, and the build overwrote the release's public README with a ten-line stub.** The copy is now 218 MB; the stub goes to its own file and an existing README is never touched.
-
-**Where it stands.** v0.3.5 is public; both engines re-verified against the reference compiler at 461/461 across all 53 categories, zero divergences.
+**[aowljs](https://aoughwl.github.io/docs/aowljs) — 9 commits.** `sizeof` of aggregates now comes from the ABI layout engine rather than a table of its own. Corpus **124/124**.
 
 <br>
 
 ## 030 2026-08-05 - Wednesday, August 5th 2026
 
-**[aowlsem](https://aoughwl.github.io/docs/aowlsem) — 26 commits.** One class of bug dominated the day: parts of a type's identity were being ignored, so two genuinely different types could end up sharing a single generic instance.
+**[aowlsem](https://aoughwl.github.io/docs/aowlsem) — 62 commits.** Type identity: eight details were missing from it, so genuinely different types could share one generic instance. Corpus 745 → **762/762**; library divergence 48,579 → **42,190 tokens**, **96.54%** of 1,220,605 matching byte for byte — about 5,000 of that drop a re-baseline rather than new ground.
 
-- **Eight details were missing from the type-identity check** — float width, tuple field names, the C name given by `{.importc.}`, an array's lower bound and its index type, a proc's calling convention. Effects ranged from a 64-bit read taking four bytes, to `array[Color, int]` and `array[Shade, int]` sharing one body, to valid code being *rejected*. Eight of the nine known cases are closed.
-- **Two crashes, both masked until the harness stopped retrying around them.** `sequtils`' own documentation examples call the templates they document, recursing 3,239 frames deep; separately, a resolved symbol was re-routed through a name-keyed table and re-expanded `system`'s `[]`. Both now surface as a reportable difference rather than a signal 11.
-- **A `ref` alias declared before its object type got a destructor that freed the box but not its contents** — a real leak, hit by `StringStream`. The alias now reserves its lifetime hooks and fills them in when the module closes.
-- **A proc taking `openArray[string] = []` never inferred its element type.** That gap exists at three separate sites, and fixing one in isolation made `osproc` three times worse; all three now share one implementation. `osproc` divergence 119 → 39 tokens.
-- **Two lookups were keyed on a name that is never used as a key** — `sizeof` on a proc-type alias, and a deferred `+` inside a generic body that saw 11 of `system`'s 17 overloads and silently dropped the six unary ones.
+**[aowli](https://aoughwl.github.io/docs/aowli) — 54 commits.** Hot-swapping, the foreign-function boundary and cache tooling. Hybrid **24/24**, corpus **460/460** across 53 categories, destructor mode 18/18 on both engines.
 
-**Where it stands.** Differential corpus 745 → **762/762**. Divergence from the reference compiler across the 46 standard-library modules fell 48,579 → **42,190 tokens**, so **96.54%** of 1,220,605 tokens now match byte for byte. About 5,000 of that drop is a re-baseline of the previous day's work rather than new ground. Next is the `seq[T]` instance family, which is wrong in both directions.
+**[aowljs](https://aoughwl.github.io/docs/aowljs) — 30 commits.** Value semantics on a reference-semantics target — assignment, equality, `in`/`find`, byte strings, and five statement kinds that had been dropped whole. Corpus 18 → **102/102**.
 
-**[aowli](https://aoughwl.github.io/docs/aowli) — 50 commits.** Gates that were confident about code they had never actually entered, and the last remaining exclusion in the foreign-function boundary.
+**[aowlc](https://aoughwl.github.io/docs/aowlc) — 31 commits.** Three miscompiles that survived because the gate could not hear what gcc was reporting.
 
-- **Hot-swapping a module could bind an argument to the wrong type and answer anyway.** Two overloads of the same arity renumber identically, so neither drift check caught it — a live demo server had been serving HTTP 200 with a string bound to an `int` parameter. The swap now refuses, and the call raises.
-- **A cache-pruning tool never entered the directory it claimed to empty,** and its keep-rule was wrong for 23 of 490 entries. 481 MB reclaimed once it did.
-- **A `cstring` returned from native code had nowhere to live** — every memory region the interpreter models is either interpreter-owned bytes or a view onto them. Foreign pointers now carry the foreign address and compare by it; copying the bytes instead would have made `f() == f()` answer false where a native build answers true.
-- **A gate's freshness check was reading a build input out of a sibling repository's working tree,** so it measured the machine rather than the commit. Split into a real assertion and an infrastructure warning.
-
-**Where it stands.** Every open interpreter issue is closed, and the last foreign-function exclusion now crosses the boundary. Hybrid mode 24/24 over 22 directories, foreign-function hybrid 10/10, corpus 460/460 across all 53 categories, cross-engine divergences 0, destructor mode 18/18 on both engines, browser bundles 28 passing. One gate printed its own coverage from a hard-coded literal, so a 22nd directory could be added and still read "21 of 21" — computed now.
-
-**[aowlcode](https://aoughwl.github.io/docs/aowlcode) — 2 commits.**
-
-- **The message-bus loop guard counted a session's own sends,** so a long-running session would eventually refuse to send anything at all.
-- **The tool gate read `grep`'s regex as a file path**: in `grep -q .` the only non-flag token is the pattern, and `.` resolves to the current directory. Scope tests 30 → 35.
-
-**[aowljs](https://aoughwl.github.io/docs/aowljs) — 30 commits.** Mapping nimony onto native JS values is lossy wherever the target's semantics differ, and every such place was silently wrong.
-
-- **Objects, tuples, arrays and seqs assigned by reference where nimony copies, and compared by reference where nimony compares by value.** 6 of 12 aliasing answers and 9 of 16 equality answers were wrong; `in`/`find` inherited it. `__cp`/`__eq`/`__has` are type-gated, and `__ref` on `newobj` stops both at a `ref object`, whose identity semantics are the mirror bug.
-- **`method`, `block`, `discard`, `incl`/`excl` and `dec` had no branch in emitStmt** and were dropped whole. A `block outer:` fixture had passed because dropping the block and taking the `break` skip the same `echo`.
-- **A nimony string is bytes and a JS string is UTF-16**, so `"h\xC3\xA9llo".len` answered 5. Literals emit one code unit per byte; `jsFlush` decodes once at the end.
-- **`bin/aowljs` was a commit behind `src/`** — no build script existed, so every green run measured an unrebuilt emitter. `build.sh` now runs first.
-
-**Gates.** Corpus 18 → **102/102**, 0 failed, 2 blocked (51 single-module + 2 multi-module × 2 modes); faithful **6/6**. BLOCKED is a third outcome for what nimony itself cannot run.
-
-**Standing.** Three nimony defects filed to `aowlsem`: `x of T` is true when echoed and false when bound or branched on; a nested proc containing a `defer` crashes `derefs.nim trTry`; two `defer`s in one proc emit C that does not compile.
-
-**[aowlc](https://aoughwl.github.io/docs/aowlc) — 21 commits.** Three miscompiles, all invisible because the gate could not hear gcc.
-
-- **`gcc … 2>&1 | head -1` killed gcc with SIGPIPE**, so two lines of *warnings* produced no binary and reported COMPILE-FAIL. The first defect below had been in that output all along.
-- **`(ret .)` emitted a bare `return;` from a non-void function** — undefined behaviour, survived only because a struct return goes through a hidden pointer.
-- **An uninitialised local was indeterminate where nimony says zero**, and **`{.packed.}` was dropped entirely**, so a packed object was 24 bytes against nimony's 10 with every field after the first at a different offset.
-
-**Gates.** e2e 8/12 → **54/58** compared against nimony's own output, 4 vacuous, now under `-Wall -Wextra`; units 5/5, staticinit 10/10, npm 24/24.
-
-**[aowlabi](https://aoughwl.github.io/docs/aowlabi) — 5 commits.** Every existing gate measured nimony's sem-level `sizeof`, not the struct that reaches a binary.
-
-- **`tests/cbackend.sh` diffs the layout model against gcc's `sizeof`/`offsetof` on the C aowlc emits** — 22 rows covering padding, variants (anonymous union), packed, union, a 3-deep chain, sets, refs, proc fields, ranges, distinct and empty fields. It found the `{.packed.}` bug on its first extended run.
-- **Falsified from both sides, and two attempts proved nothing**: reordering a variant's common fields and swapping a `set` for `array[4, char]` both leave every number identical. A perturbation that does not move the expected output is not a test.
-
-**Gates.** 122/122 layout, 208/208 heapspec, 1269/1269 marshal, **22/22 C-backend** (new), 21/21 at 32 bits.
+**[aowlabi](https://aoughwl.github.io/docs/aowlabi) — 6 commits.** The gates measured the checker's `sizeof` rather than the struct that reaches a binary.
 
 <br>
 
 ## 029 2026-08-04 - Tuesday, August 4th 2026
 
-**[aowlsem](https://aoughwl.github.io/docs/aowlsem) — 121 commits.** Divergence across the 46 standard-library modules fell **73,809 → 48,579 tokens (−34%)**; **30 modules are now byte-exact**, up from 20.
+**[aowlsem](https://aoughwl.github.io/docs/aowlsem) — 150 commits.** Library divergence fell **73,809 → 48,579 tokens (−34%)**, and **30 modules are byte-exact**, up from 20.
 
-- **The checker's own source file accounted for a third of the remaining gap.** Two causes: a resolved field access came back out degraded when it passed through the checker a second time, and a `var` template parameter arrived as a value rather than as a location. 32,104 → 19,737 tokens.
-- **Merging a parallel 33-commit branch silently dropped fixes while importing their tests.** Git merged cleanly, no conflict markers, in favour of the wrong side — it kept a lookup table and deleted every line that filled it, and kept a comment describing a guard it had removed. Recovered against the failing tests, which were the only reliable evidence of what had survived.
-- **The expression checker is called on statements 11,500+ times per run, and fails to recognise its own output 8,300+ times.** Instrumenting every fall-through recorded 24,349 such events across 46 modules. That is a dispatch problem, which is why adding more expression rules kept not fixing it.
-- **The module-scale harness computed per-module numbers and compared them to nothing.** It now judges each module against a recorded baseline, and immediately caught four changes that were green on the 741-case corpus while regressing whole modules.
+**[aowli](https://aoughwl.github.io/docs/aowli) — 81 commits.** Capability grants, destructors on the error path, and the just-in-time compiler's in-process route.
 
-**How done is it.** **1,312 commits**; **40,147 lines** of Nim across 19 source files, plus 12,376 lines of test cases and 5,351 of harness. Against the reference checker on the 46 standard-library modules, aowlsem emits **1,146,554 of 1,195,133 tokens byte-identically — 95.94%** — with **30 of 46 modules (65%)** exact end to end. That figure is agreement with one frozen reference build, and presumes it correct in all 48,579 differing tokens; two cases are already recorded where it is not. Accept/reject agreement 407/409, corpus 737/741, no module crashes.
-
-**What is not done.** The remaining 4% is not evenly spread: aowlsem's own source holds 40% of it, and that file grows as the compiler does. The four open corpus cases are all one shape. A ranked list of the remainder, and 26 items each carrying a verified reproduction and a named fix site, are checked in.
-
-**[aowli](https://aoughwl.github.io/aowli) — 47 commits.** Capability grants applied at the wrong granularity, a destructor that never ran on the error path, and a just-in-time compiler whose in-process route was three bugs deep behind a silent fallback.
-
-- **One shim revoked every no-dereference grant in the build.** Giving those candidates their own module took whole-program checking from 334,381 revoked / 0 honoured to 270,800 honoured / 0 revoked, and native calls from 100,528 to 371,328 — byte-identical output.
-- **A local passed through a raising call was never destroyed.** Both engines unwound through their own error channel, which made the scope-exit destructor dead code.
-- **The JIT's in-process route had three bugs, each hidden by the one before it** — emitter caches outliving their reset, globals emitted after the bodies referencing them, and a missing runtime declaration. Every assertion passed on either route, so nothing ever failed; the gate now names which route ran.
-- **All four committed browser bundles were dead,** predating a change to the glue code. Each bundle's behaviour is now gated, rather than its existence.
-
-**[aowlc](https://aoughwl.github.io/docs/aowlc) — 2 commits.** A translation unit referenced a global before defining it.
-
-- **An inlined proc copied in from another module names *this* module's string literals,** and globals were emitted after those bodies. The reverse dependency cannot occur, so the ordering is settled rather than negotiated.
-- **A module-level `const` was emitted `static`,** while string literals are referenced across modules by `extern`. The linker accepts both silently; only the consumer's `dlopen` fails.
+**[aowlc](https://aoughwl.github.io/docs/aowlc) — 5 commits.** Translation-unit ordering.
 
 <br>
 
 ## 028 2026-08-03 - Monday, August 3rd 2026
 
-**[aowlsem](https://aoughwl.github.io/docs/aowlsem) — 36 commits.** Imported templates were invisible to overload resolution, two compile-time predicates answered in only one of the two positions they occur in, and then an audit of what the test gates actually assert.
+**[aowli](https://aoughwl.github.io/docs/aowli) — 124 commits.** Objects can live in flat allocated memory — the storage the compiler's own token buffers use — and the interpreter grew record/replay. Replay 19/19, cross-engine **189 agreeing, 0 diverging**; the interpreter now runs the real compiler end to end.
 
-- **An imported template carried no scope entry, so no call could ever select one.** They are now merged into the candidate set *after* the arity filter — an imported template has no recorded parameters, so an arity test drops them all.
-- **`declared()` and `compiles()` folded only inside `when` conditions.** In a `const` initialiser they reached neither path, so `const a = compiles(known(1))` folded to false — correct for every negative case, which is exactly why it went unseen.
-- **Three type-classification gaps.** An imported generic's field type was unrecoverable at the use site; `nil ptr T` written in its infix form classified as unknown in both classifiers that are not the main type checker; and `bitand`/`bitor`/`bitxor` widened the typed operand to match an untyped literal instead of narrowing the literal.
-- **A `const` element of a set literal inlines to its value,** so on POSIX — where `DirSep` and `AltSep` are both `'/'` — the duplicate-element check fired on valid code and stopped a whole standard-library module.
+**[aowlsem](https://aoughwl.github.io/docs/aowlsem) — 48 commits.** Imported templates in overload resolution, and compile-time predicates. Corpus **718/718**, accept/reject 403/403, diagnostics 175/175.
 
-- **The gate binary was 14 hours stale, and every gate defaulted to it.** Every other measurement bug mis-scores a component; this one mis-scores the subject, and fails both ways — a fix missing from the binary reads as "still broken", and a regression missing from it ships. Gates now refuse a stale binary and print its path and timestamp on every run.
-- **Two gates claimed to check a recorded token count and compared nothing.** The numbers sat in a header comment, and one counted any non-zero difference as a pass — so two evaluators folding the same *wrong* constant read as agreement.
-- **`n/n` is true at zero.** A documentation gate printed "1/1 codes documented" with an entire family of error sites unchecked, because its denominator was scraped rather than declared. Floored in five places.
+**[aowlabi](https://aoughwl.github.io/docs/aowlabi) — 20 commits.** The canonical-layout claim checked against the compiler for the first time, which found every inherited field at the wrong offset. **96/96** layout, 153/153 heap, **857/857** marshalling.
 
-**Gates.** Corpus **718/718**, accept/reject 403/403, no-crash 45/45, no-false-positive 35/35, diagnostics 175/175, explanations 94/94, macros 6/6, const evaluation 18/18, compile-time policy 7/7, index 16/16, end-to-end 6/6, imports 5/5 → **10/10**. All re-run on a binary verified fresh.
-
-**[aowlcode](https://aoughwl.github.io/docs/aowlcode) — 3 commits.** The token-thrift claim measured for the first time, then the defects that measuring exposed.
-
-- **The accounting tool over-counted one tool 515×,** sizing an internal payload rather than what actually reaches the model — hiding the real cost driver behind one that does not exist.
-- **File reads are 52.9% of context drain, shell 27.4%, all 26 language tools 15.1%,** at 355× amplification. Neither is being abused — three quarters of read bytes were already windowed — so the lever is substituting a declaration lookup for the 857 reads that wanted exactly one declaration.
-- **Terse output was inert or absent on the tools that cost the most.** It is now the default rather than an opt-in: outlines −43.8%, builds −68.9%, search gained it at −19.5%.
-- **A guard failed open on any file with more than 80 declarations,** disabling itself on exactly the files it exists for.
-
-**[aowltest](https://aoughwl.github.io/docs/aowltest) — 1 commit.** The gate was 35 assertions welded to one binary; it is now a corpus any implementation can be run against.
-
-- **Extracted into nine cases in a small step language,** executed by a runner that knows no implementation, with everything specific behind a three-verb adapter and a line-oriented observation record.
-- **35 → 72 assertions from the extraction alone.** Per-test status, input sets and key stability are record fields; grepping formatted human output could never reach them.
-
-**[aowlmony](https://aoughwl.github.io/docs/aowlmony) — 3 commits.** `verify --memory` catches dangling pointers, witnessed by a real destructor-enabled run.
-
-- **The finding is structural and the run only witnesses it** — a destructor at the blamed scope, the use site reached — so each result is labelled confirmed or structural rather than simply asserted.
-- **It needed a real artifact reader; the driver had only ever used regular expressions.** Line-information deltas are relative to the enclosing node rather than the previous sibling, so an escaping address anchors on the `addr` and not on the proc header.
-- **The trace parser had silently stopped understanding the interpreter's output.** Every operation parsed at line 0 and attribution degraded to "no source location" while reporting nothing wrong.
-- **The driver compiled without the machine-wide toolchain lock,** so three consecutive gate runs gave 64/64, 62/64 and 59/64. `npm test` 41/41 → **64/64**, clean on the first full run after the lock.
-
-**[aowli](https://aoughwl.github.io/docs/aowli) — 37 commits.** An object could not live in flat allocated memory — which is the storage the compiler's own token buffers actually use. Now it can, and the interpreter grew record/replay, coverage and a sampling profiler.
-
-- **An object stored into raw memory read back as zero, on both engines, exit 0.** Fields are now placed at C-ABI offsets and resolved individually, retiring an overlay that aliased every element.
-- **`sizeof` answered 4 for every variant object, against a native build's 12** — the size calculation skipped the `case` section whole, counting neither the discriminator nor any branch.
-- **A `distinct`-typed return value came back as 0,** while the same type crossed correctly as a parameter.
-- **Record/replay, coverage and a sampling profiler, with no instrumentation pass.** The journal serves filesystem, environment, clock, argv and stdin from a portable text log, so a recorded run reproduces elsewhere.
-
-**Gates.** Replay 19/19, coverage 41/41, debugger 21 → 40/40, cross-engine 189 agreeing / **0 diverging** over 16 categories. The interpreter now runs the real compiler end to end: 20.9s interpreted against 0.013s native on a three-line input, byte-identical, and 23.4s on a 57-line one — a startup floor, not a slope.
-
-**[aowlabi](https://aoughwl.github.io/docs/aowlabi) — 16 commits.** The canonical-layout claim had never been checked against the compiler it speaks for. Checking it found every inherited field at the wrong offset.
-
-- **`object of RootObj` started its own fields at offset 0 rather than one pointer in.** An inheritable root carries a hidden runtime-type word, so every offset and every size of every inheriting object was wrong.
-- **The gate is a differential**: one program prints what the compiler actually lays out, another computes it from the model with no `sizeof` anywhere. The compiler implements neither `alignof` nor `offsetof`, so alignment is recovered from a probe object.
-- **Sets, `{.packed.}`, `{.union.}`, range types and `UncheckedArray[T]` had no model at all.**
-- **String literals do not walk the runtime's small-string tiers,** so a 10-character value is stored one way if built at runtime and another if written as a literal.
-
-**Gates.** 96/96 layout checks diffed against the compiler, 153/153 heap offsets, 857/857 marshalling invariants, ~25 seconds. Every rule was falsified before being trusted — removing the hidden word, shifting an offset by one word, or sizing a set by width instead of range each turns the expected rows red.
+**[aowlcode](https://aoughwl.github.io/docs/aowlcode) — 3 commits** · **[aowlmony](https://aoughwl.github.io/docs/aowlmony) — 3 commits** · **[aowltest](https://aoughwl.github.io/docs/aowltest) — 1 commit.** Token cost measured for the first time; `verify --memory` catching dangling pointers; the test gate turned into a corpus any implementation can run against.
 
 <br>
 
 ## 027 2026-08-02 - Sunday, August 2nd 2026
 
-**[aowlsem](https://aoughwl.github.io/docs/aowlsem) — 29 commits.** Compile-time evaluation moved beyond `const` initialisers — and then got bounded by a capability policy.
+**[aowlsem](https://aoughwl.github.io/docs/aowlsem) — 35 commits.** Compile-time evaluation moved beyond `const` initialisers, then got bounded by a capability policy. Corpus 685 → **701/701**, const evaluation **18/18**.
 
-- **Four sites treated "cannot compute" as a definite answer; three miscompiled silently.** `when big():` took the wrong branch with no diagnostic in all three contexts it can appear, including type bodies, where a wrong branch means a wrong type. An enum member given a computed value kept its auto-increment ordinal instead.
-- **A `const` inside a proc forked the compiler until it was killed** — the stop condition matched only top-level declarations, so every child regenerated the evaluator. Bounded by depth as well as by budget.
-- **Aggregate constants now fold** — arrays, `seq[int]`, and all-integer objects — with the value bound once so the initialiser runs a single time. A wrong element count fails rather than folding a partial answer.
-- **Compile-time code now runs under a capability policy.** A macro or const evaluator is granted read and write on its own working directory and nothing else; a denial halts the compile rather than returning a substitute value. Each granted read is *recorded* with a hash, so `ctfe-check` answers whether a compiled artifact is still current — as an exit code, so the build tools need not parse anything.
-- **`--lens:` publishes what the checker resolved** — declarations with position, type and signature, occurrences naming the symbol they bound, and member tables with inheritance and visibility. Positions have to be recorded *during* checking: the typed output carries one only where a subtree was copied verbatim, so every symbol the checker mints has none.
+**[aowli](https://aoughwl.github.io/docs/aowli) — 21 commits.** Interpreted code is now replaceable *and* compilable while the process runs. Corpus **449/449**, hot-swap 9/9, just-in-time 6/6, policy 11/11.
 
-**Gates.** Corpus 685 → **701/701**, accept/reject 401/401. A new const-evaluation gate is **18/18** — both executors match the reference *and* each other, and each is proved to have actually evaluated, since the shape folds would otherwise let a no-op run look green. New compile-time-policy gate **7/7**, every grant paired with its denial.
+**[aowltest](https://aoughwl.github.io/docs/aowltest) — new repo, 3 commits** · **[aowlrepl](https://github.com/aoughwl/aowlrepl) — new repo, 4 commits** · **[aowlhost](https://aoughwl.github.io/docs/aowlhost) — new repo, 4 commits.** Test results keyed by the hash of their transitive inputs, so an unchanged closure is never re-run (**41/41**); a REPL on the interpreter, cold 2.15s and warm 0.19s; and a module run as a plugin under a capability policy, with the interpreter embedded as a library.
 
-**[aowllens](https://aoughwl.github.io/docs/aowllens) — 2 commits.** Reads the checker's index instead of reconstructing it from the tree: an occurrence at a position already names its symbol, so shadowing becomes the checker's answer rather than a guess. The fallback is per question, not per run — no index, or nothing in it for this question, and the existing walk answers exactly as before.
-
-**[aowlmony](https://aoughwl.github.io/docs/aowlmony) — 3 commits.** `verify` diffs a native build against an interpreted one off a single front end. Its first two findings were both artefacts of *which binary ran*, not backend defects — so every verdict now names both implementations with their build dates, and "compile failed" was split out from "the backends disagree". `npm test` 25/25 → **41/41**. One genuine finding: `7 div 0` returned 0 with exit 0, fixed in the interpreter.
-
-**[aowltest](https://github.com/aoughwl/aowltest) — new repo, 3 commits.** Test results keyed by the hash of their transitive inputs: an unchanged closure is never re-run.
-
-- **Content-hashed, never timestamped,** so restoring bytes restores the key and a branch switch re-hits the cache. The import scan is deliberately lexical and over-approximates — that costs a re-run, never a wrong skip.
-- **A compile-time read is an input no static scan can find.** Merging the compiler's recorded reads into the cache entry makes a moved schema file a miss with identical source bytes. Off unless asked for: guessing wrong would silently skip a changed test.
-
-**Gates.** 35 → **41/41** over the cache decision itself — editing a base module re-runs its two dependents and leaves the third cached; restoring the bytes returns 100%. The compile-time cases carry the control that matters: without the recorded reads the same moved schema is invisible and the run hits, so the re-run is attributable.
-
-**[aowlrepl](https://github.com/aoughwl/aowlrepl) — new repo, 4 commits.** A REPL for the language, on the interpreter. State persists because the session is one module, re-run from the top on every cell — cold 2.15s, warm 0.19s, run 1ms.
-
-- **Completion reads the session's own typed output,** which the REPL just compiled, so `xs.l` narrows to `len` because the artifact says `xs` is a `seq`. The same two queries that back the language server.
-- **Highlighting and cell-completeness both ran on a hand-rolled scanner** and now use the real tokenizer, so `echo "a:b"`, `echo '('` and `echo 1'u8` are complete and an unterminated literal is not.
-- **Three silent-wrong-answer defects,** the worst of which ran the *previous* cell's artifact when a compile failed in an unparseable way.
-
-**[aowli](https://aoughwl.github.io/docs/aowli-release) — 11 commits.** Interpreted code is now replaceable *and* compilable while the process runs, and bounded by a capability policy.
-
-- **Hot module swap.** Re-read a module and publish each declaration over the same identities. Module-level variables are not re-run, so state survives the code change — demonstrated on a live HTTP handler: same process, same socket, the request counter keeps counting.
-- **Mid-run JIT.** Hot procs are compiled to a shared library and loaded while the program is still running. Collatz over 30,000 inputs: interpreted 3.467s, JIT **0.336s** including the mid-run compile, native 0.006s, byte-identical.
-- **A native call is the only door out of the value model, which makes it a complete capability boundary.** Grants are a bitmask plus path prefixes; a denial halts uncatchably and never returns a substitute value. Unrestricted runs are unchanged.
-- **`7 div 0` returned 0 with exit 0** — the divisor reached a wide integer type whose division answers NaN, which narrowed back to an ordinary 0. Both engines now raise.
-
-**Gates.** Full corpus **449/449**. New hot-swap 9/9 and JIT 6/6 suites, each with a negative control, because a same-answer assertion also passes when nothing happened. New policy gate 11/11, every grant paired with its denial.
-
-**[aowlhost](https://aoughwl.github.io/docs/aowlhost) — new repo, 4 commits.** Runs a module as a plugin under a capability policy, embedding the interpreter as a library rather than shelling out. The default grant is nothing, and a denied call exits 77. A plugin can wrap its `readFile` in `try`/`except` and the `except` arm never runs — the halt is below the language. Gate 9/9, every denial paired with a granted control, since a trap alone cannot be told apart from a read that never worked.
-
-**[aowlc](https://aoughwl.github.io/docs/aowlc) — 3 commits.** `build` and `run` emitted a single translation unit, so nothing that touched stdout would link — any program calling `echo` failed on a missing *type*, which reads as a code-generation bug. Both now route through whole-program compilation; `--single` opts out, and `--emit-only` writes the linked C without invoking a compiler.
-
-**[web](https://aoughwl.github.io/docs/web) · [css](https://aoughwl.github.io/docs/css) · [web-state](https://github.com/aoughwl/web-state) · [aowlui](https://github.com/aoughwl/aowlui) — 13 commits.** The typed HTML and CSS surfaces, and the reactive DOM layer.
-
-- **`component` gives a tree typed parameters,** and both surfaces now share one lowering engine instead of two that drift. A bare identifier naming an HTML tag was being read as an element, so `h1 title` rendered `<h1><title></title></h1>` — `title`, `label`, `footer`, `form` and `time` are tags *and* ordinary parameter names.
-- **Styling by value, not property soup.** A `Style` is an ordered set of validated declarations merged right-wins, so a theme is a proc returning a value and merging keeps every property it does not name. Declaring the same selector twice merges rather than shadows.
-- **A reactive effect could not know which node to update** — the JS callback types carry no captured environment, so an effect could only touch globals. Context capture by value now backs text binding, and the test counts runs per binding, so a whole-tree re-render fails instead of passing.
-- **A 3,055-line lab stylesheet ingested as values:** 429 selectors into 195 components and 64 kept verbatim, so the raw count measures the model instead of hiding the gap. An earlier pass collapsed two distinct selector forms while declaration counts matched exactly, 1,739 = 1,739, and the design broke anyway — the gate now compares the declaration multiset both ways.
+**[web](https://aoughwl.github.io/docs/web) · [css](https://aoughwl.github.io/docs/css) · [web-state](https://github.com/aoughwl/web-state) · [aowlui](https://github.com/aoughwl/aowlui) — 20 commits.** The typed HTML and CSS surface.
 
 <br>
 
 ## 026 2026-08-01 - Saturday, August 1st 2026
 
-**[aowli](https://aoughwl.github.io/docs/aowli-release) — 18 commits.** Every defect this day was a silent wrong answer: plausible output, exit 0, empty stderr.
+**[aowlsem](https://aoughwl.github.io/docs/aowlsem) — 71 commits.** Macros and `const` initialisers stopped being matched by shape and started being *run*. Corpus **677/677**, accept/reject 400/400, diagnostics 175/175.
 
-- **Control flow leaking through expressions.** A nested `return` lost its value to the enclosing `case` expression, and a statement-list expression discarded `return` / `raise` / `break` and carried on to its trailing value.
-- **Pointers into cell-backed storage had no address at all** (`cast[uint](addr s[i])` gave 0), and a `cast[ptr T]` to a non-scalar pointee had no conversion, so an integer stayed an integer and read as 0.
-- **The hybrid boundary failed open:** aggregates containing pointers crossed by value and segfaulted.
-- **The build script always returned 0.** It now exits non-zero, keeps the linker output, and retries once on intermittent errors.
+**[aowlcode](https://aoughwl.github.io/docs/aowlcode) — 53 commits.** Every tool re-examined for what its verdict actually rests on: 197 curated plus 116 swept cases, 107 unit, 39 end-to-end, all 8 hooks smoke-tested.
 
-**Gates.** The runner defaulted to 6 of ~45 categories and still printed a clean N/N. Real figures with `all`: **414/414**, later 434/434; three-way cross-check 0 divergences; hybrid 6/6; new debugger and async lanes 15/15 and 9/9.
+**[aowli](https://aoughwl.github.io/docs/aowli-release) — 35 commits.** Silent wrong answers — plausible output, exit 0, empty stderr. **414/414**, later 434/434, three-way cross-check with zero divergences.
 
-**[aowlcode](https://aoughwl.github.io/docs/aowlcode) — 44 commits.** One question asked of every tool: what is its verdict actually resting on?
-
-- **The compiler exits 0 on rejected arguments,** so a usage banner had been reading as a clean compile. Now treated as failure.
-- **`explain_failure` answered "OK: compiles clean" for failing compiles,** and the equivalence tools reported "identical" for runs that never ran or that both crashed.
-- **Reduction and bisection were unbounded in time,** and killed runs counted as reproducing.
-- **A stale server binary answered while every signal said healthy.** Diagnosis now identifies the live build and reports paused sessions that were swapped underneath.
-- **Concurrent builds raced on a shared cache directory;** every invocation now serialises through one lock.
-
-**Gates.** The differential harness had been comparing tool *names* only — 6 of 26 tools differed in contract. Now 197 curated plus 116 swept cases, 107 unit, 39 end-to-end, all 8 hooks smoke-tested.
-
-**Messaging.** Instances can now be addressed: a maildir transport turns messages into events, one inbox per domain, a heartbeat that distinguishes live from wedged from dead, and chain-depth and rate limits that break reply loops.
-
-**[serve](https://aoughwl.github.io/docs/net-stack/serve) — 25 commits.** h2spec 95/146 → **146/146** — and the 95 was concurrency, not protocol.
-
-- **The accept loop ran a whole session before accepting again,** which only shows up in aggregate as timeouts.
-- **A return value from the HTTP/2 session was ignored,** dropping frames left in the read tail; and `close()` with unread bytes sent RST where it should have sent GOAWAY.
-- **The reactor gained TLS, timers, stop, an outbound client and produced bodies** — one thread now serves HTTP/1.1, HTTP/2 and HTTP/3 on one port, with TLS, timeouts, graceful shutdown, streaming and static serving with ETag, 304 and ranges.
-
-**Gates.** h2spec 146/146 over both h2c and TLS. Streaming: 128 MiB byte-exact at 6 MB peak RSS. Proxy: 12 concurrent half-second upstreams in 0.53s.
-
-**[aowlsem](https://aoughwl.github.io/docs/aowlsem) — 71 commits.** Macros and `const` initialisers stopped being matched by shape and started being *run*.
-
-- **Macros are now executed, not pattern-matched.** The body is lowered into a plugin module, built, and run per call site with the argument trees marshalled in and the expansion read back — with two independent executors, one interpreting and one compiling, each asserted against the reference *and* against each other.
-- **A `const` no fold recognised was emitted unchanged inside a wrapper that promises a literal.** Such constants are now evaluated by generating a module from the host's own declarations and running it; the value comes back through a machine format rather than `echo`, which renders for humans and loses float digits.
-- **The whole transitive import closure was one flat scope,** so `bindSym("add")` in a module importing two std modules froze several unrelated `add`s into the choice. Visibility is now a fixpoint over the real import graph, seeded from direct imports and extended across export edges.
-- **A generic type argument was substituted only when bare, never recursively** — `Table[string, int]`'s backing storage kept `std/tables`' own type variables, so two instances differing only in hash were a provable clash.
-
-**Gates.** Corpus 677/677, accept/reject 400/400, no-false-positive 35/35, diagnostics 175/175, explanations 93/93.
+**[serve](https://aoughwl.github.io/docs/net-stack/serve) — 29 commits.** h2spec 95/146 → **146/146** over both h2c and TLS; 128 MiB streamed byte-exact at 6 MB peak memory.
 
 <br>
-
 ## 025 2026-07-31 - Friday, July 31st 2026
 
 **[aowlsem](https://aoughwl.github.io/docs/aowlsem) passed its 1000th commit** — 16 days after the first, **65 of them today**, all in the checker. **~32,500 lines** of self-hosted Nimony; byte-exact corpus **632 → 659**, no-false-positive gate **23 → 35**.
