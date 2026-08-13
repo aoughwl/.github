@@ -97,7 +97,7 @@
 
 ## 038 2026-08-13 - Thursday, August 13th 2026
 
-**[aowlsem](https://aoughwl.github.io/docs/aowlsem) — 8 commits.** Generic type aliases, tuple assignment and enum members visible under two names at once. Two more standard-library modules are byte-identical — **39 → 41 of 54** — and divergence from the reference compiler stands at **3,885 tokens**. Counts are as of this morning.
+**[aowlsem](https://aoughwl.github.io/docs/aowlsem) — 17 commits.** Generic type aliases, tuple assignment, enum members visible under two names at once, and comparison lowering inside instantiated generics. Two more standard-library modules are byte-identical — **39 → 41 of 54** — divergence from the reference compiler stands at **3,885 tokens**, and the differential corpus is **906/906**.
 
 <br>
 
