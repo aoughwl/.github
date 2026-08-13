@@ -99,15 +99,11 @@
 
 **[aowlsem](https://aoughwl.github.io/docs/aowlsem) — 8 commits.** Generic type aliases, tuple assignment and enum members visible under two names at once. Two more standard-library modules are byte-identical — **39 → 41 of 54** — and divergence from the reference compiler stands at **3,885 tokens**. Counts are as of this morning.
 
-**master — 2 commits.** The context menu became a document like everything else on the page: **110KB and ~1.1s down to 3.6KB and ~2ms**.
-
 <br>
 
 ## 037 2026-08-12 - Wednesday, August 12th 2026
 
 **[aowlsem](https://aoughwl.github.io/docs/aowlsem) — 73 commits.** Borrowed parameters, template expansion, overload resolution and generic instantiation. Divergence from the reference compiler fell **24% on the day, 5,138 → 3,908 tokens** over 54 modules; two more modules went byte-identical, and the differential corpus grew **883 → 902** cases. Six of the day's fixes were programs the reference compiler accepts and aowlsem was rejecting outright, rather than formatting differences. The [playground](https://aoughwl.github.io/playground/) now checks with aowlsem by default.
-
-**master — 14 commits.** Events became data: a component declares the events it carries, primitives declare what they take, and a wiring change takes effect immediately rather than at the next build. Document roots are now derived rather than listed — **18 named documents down to 6** — and slots and layers went from **2 of 8** declared to **8 of 8**.
 
 **[aowli](https://aoughwl.github.io/docs/aowli) — 1 commit.** Floating-point classification in the JavaScript environment.
 
