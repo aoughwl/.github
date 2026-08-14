@@ -95,9 +95,17 @@
 
 <br>
 
+## 039 2026-08-14 - Friday, August 14th 2026
+
+**[aowlsem](https://aoughwl.github.io/docs/aowlsem) — 19 commits.** Template expansion, generic converters, overload-set ordering, and lifetime hooks for types imported from another module. Divergence from the reference compiler fell **19% on the day, 3,877 → 3,157 tokens** over 54 modules; two more standard-library modules are byte-identical — **41 → 43 of 54** — and the differential corpus is **911/911**.
+
+<br>
+
 ## 038 2026-08-13 - Thursday, August 13th 2026
 
-**[aowlsem](https://aoughwl.github.io/docs/aowlsem) — 17 commits.** Generic type aliases, tuple assignment, enum members visible under two names at once, and comparison lowering inside instantiated generics. Two more standard-library modules are byte-identical — **39 → 41 of 54** — divergence from the reference compiler stands at **3,885 tokens**, and the differential corpus is **906/906**.
+**[aowlsem](https://aoughwl.github.io/docs/aowlsem) — 24 commits.** Generic type aliases, tuple assignment, enum members visible under two names at once, and comparison lowering inside instantiated generics. Two more standard-library modules are byte-identical — **39 → 41 of 54** — divergence from the reference compiler stands at **3,877 tokens**, and the differential corpus is **909/909**.
+
+**[aowli](https://aoughwl.github.io/docs/aowli) — 1 commit.** Floating-point classification moved into the JavaScript runtime, and all four browser bundles were rebuilt against it.
 
 <br>
 
