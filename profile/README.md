@@ -97,7 +97,7 @@
 
 ## 039 2026-08-14 - Friday, August 14th 2026
 
-**[aowlsem](https://aoughwl.github.io/docs/aowlsem) — 19 commits.** Template expansion, generic converters, overload-set ordering, and lifetime hooks for types imported from another module. Divergence from the reference compiler fell **19% on the day, 3,877 → 3,157 tokens** over 54 modules; two more standard-library modules are byte-identical — **41 → 43 of 54** — and the differential corpus is **911/911**.
+**[aowlsem](https://aoughwl.github.io/docs/aowlsem) — 21 commits.** Template expansion, generic converters, overload-set ordering, and lifetime hooks and instance reuse for types imported from another module. Divergence from the reference compiler fell **18% on the day, 3,877 → 3,164 tokens** over 54 modules; two more standard-library modules are byte-identical — **41 → 43 of 54** — and the differential corpus is **911/911** — with the module that compiles aowlsem itself measured against its own grown source, so its figure rose even though the day's fixes cut it too.
 
 <br>
 
