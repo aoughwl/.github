@@ -95,9 +95,21 @@
 
 <br>
 
+## 041 2026-08-16 - Sunday, August 16th 2026
+
+**[aowlsem](https://aoughwl.github.io/docs/aowlsem) — 2 commits.** Template expansion across module boundaries. One standard-library module fell from **510 divergent tokens to 8**, divergence from the reference compiler fell **19% on the day, 2,649 → 2,155 tokens** over 55 modules, 45 of them byte-identical, and the differential corpus is **911/911**.
+
+<br>
+
+## 040 2026-08-15 - Saturday, August 15th 2026
+
+**[aowlsem](https://aoughwl.github.io/docs/aowlsem) — 2 commits.** Index sections for exported converters. The end-to-end gate — build, link and run a program whose macros aowlsem expanded — is **6/6**, which leaves no red gate in the repository; one more standard-library module is byte-identical, **44 → 45 of 55**.
+
+<br>
+
 ## 039 2026-08-14 - Friday, August 14th 2026
 
-**[aowlsem](https://aoughwl.github.io/docs/aowlsem) — 35 commits.** Template expansion, generic instantiation and converters, overload-set ordering, pointer coercion, symbol numbering, and lifetime hooks and instance reuse for types imported from another module. Divergence from the reference compiler fell **32% on the day, 3,877 → 2,641 tokens** over 54 modules; three more standard-library modules are byte-identical — **41 → 44 of 54** — and the differential corpus is **911/911** — with the module that compiles aowlsem itself measured against its own grown source, so its figure rose even though the day's fixes cut it too.
+**[aowlsem](https://aoughwl.github.io/docs/aowlsem) — 37 commits.** Template expansion, generic instantiation and converters, overload-set ordering, pointer coercion, symbol numbering, and lifetime hooks and instance reuse for types imported from another module. Divergence from the reference compiler fell **32% on the day, 3,877 → 2,641 tokens** over 54 modules; three more standard-library modules are byte-identical — **41 → 44 of 54** — and the differential corpus is **911/911** — with the module that compiles aowlsem itself measured against its own grown source, so its figure rose even though the day's fixes cut it too.
 
 <br>
 
