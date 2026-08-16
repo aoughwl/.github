@@ -97,7 +97,15 @@
 
 ## 041 2026-08-16 - Sunday, August 16th 2026
 
-**[aowlsem](https://aoughwl.github.io/docs/aowlsem) — 2 commits.** Template expansion across module boundaries. One standard-library module fell from **510 divergent tokens to 8**, divergence from the reference compiler fell **19% on the day, 2,649 → 2,155 tokens** over 55 modules, 45 of them byte-identical, and the differential corpus is **911/911**.
+**[aowlsem](https://aoughwl.github.io/docs/aowlsem) — 31 commits.** Template expansion across module boundaries, typed-template conversions, block arguments, comparisons over type variables, and the `sizeof` path. Divergence from the reference compiler fell **37% on the day, 2,649 → 1,662 tokens** over 55 modules, **46** of which now compare equal once line information is normalised, and the differential corpus is **921/921**.
+
+**[aowlmony](https://aoughwl.github.io/docs/aowlmony) — 7 commits.** The build cache, the project model, dependency locking, and the dangling-pointer checker. A warm rebuild now costs **0ms of compile time**, 0.27s wall, down from 1.3s; dependencies pin content as well as revision; and the driver has its first packaged release. Gates: cache 11/11, project 8/8, dependencies 10/10, memory 13/13, and **19 of 22** commands byte-identical to the previous implementation with three listed differences.
+
+**[aowlup](https://aoughwl.github.io/docs/aowlup) — 8 commits.** Release install, registry repair, and per-tool shims. A cold machine installs the manager and then the driver from published releases with no source checkout — **7/7** on that gate — and the command surface is **40 of 48** byte-identical to the previous implementation with eight listed differences; registry 16/16.
+
+**[aowlcas](https://aoughwl.github.io/docs/aowlcas) — 2 commits.** New repository: the content-addressed store that the build cache, the package store and the driver become views over. Blobs addressed by content, recorded answers keyed separately, roots and a collector — **14/14**, including a case that corrupts a blob and requires the verifier to catch and name it.
+
+**[nimony-aoughwl](https://aoughwl.github.io/docs/nimony-fork) — 1 commit.** Shared-object identity. Two compiles of different projects now run at once against a cold shared object and both succeed, **5 rounds of 5**, with no machine-wide lock.
 
 <br>
 
