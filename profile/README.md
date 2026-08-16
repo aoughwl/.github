@@ -105,8 +105,6 @@
 
 **[aowlcas](https://aoughwl.github.io/docs/aowlcas) — 2 commits.** New repository: the content-addressed store that the build cache, the package store and the driver become views over. Blobs addressed by content, recorded answers keyed separately, roots and a collector — **14/14**, including a case that corrupts a blob and requires the verifier to catch and name it.
 
-**[nimony-aoughwl](https://aoughwl.github.io/docs/nimony-fork) — 1 commit.** Shared-object identity. Two compiles of different projects now run at once against a cold shared object and both succeed, **5 rounds of 5**, with no machine-wide lock.
-
 <br>
 
 ## 040 2026-08-15 - Saturday, August 15th 2026
