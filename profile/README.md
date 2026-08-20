@@ -95,6 +95,26 @@
 
 <br>
 
+## 044 2026-08-20 - Thursday, August 20th 2026
+
+**[aoughwl.github.io](https://aoughwl.github.io/store/) — 4 commits.** A storefront: products, plans, licence keys and machine seats as one generic mechanism rather than a page per product, and the first thing on it priced as a subscription. A buy button whose product is not in the catalogue now says so rather than inviting a click it cannot honour.
+
+**aoughwl-bot · [discord](https://aoughwl.github.io/docs/discord) — 2 commits.** The subscriber role, granted when a payment clears and taken back when it lapses, and an Authorization scheme that callers choose rather than inherit.
+
+<br>
+
+## 043 2026-08-19 - Wednesday, August 19th 2026
+
+**[aowlsem](https://aoughwl.github.io/docs/aowlsem) — 17 commits.** Generic instance identity, the base type a projection loads through, and bitwise classification on the copy path. A type now hashes to one instance in every module, `std/tables` compiles and runs, and one more standard-library module compares equal — **35 → 36 of 55**. The end-to-end gate — build, link and run a program aowlsem processed — grew from **6 cases to 51** on the day and stands at **49/51**, both reds diagnosed.
+
+<br>
+
+## 042 2026-08-17 - Monday, August 17th 2026
+
+**aowltarkov — new, and not yet a repository.** A first look at Escape From Tarkov as a target: an ontology of the game's data, a demo that reduces against it, and a local server stub.
+
+<br>
+
 ## 041 2026-08-16 - Sunday, August 16th 2026
 
 **[aowlsem](https://aoughwl.github.io/docs/aowlsem) — 31 commits.** Template expansion across module boundaries, typed-template conversions, block arguments, comparisons over type variables, and the `sizeof` path. Divergence from the reference compiler fell **37% on the day, 2,649 → 1,662 tokens** over 55 modules, **46** of which now compare equal once line information is normalised, and the differential corpus is **921/921**.
