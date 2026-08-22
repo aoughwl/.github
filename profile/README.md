@@ -95,6 +95,12 @@
 
 <br>
 
+## 045 2026-08-22 - Saturday, August 22nd 2026
+
+**aowli — 3 commits.** The boundary between interpreted and compiled code now moves while the program is running: at a breakpoint a module goes native, compiled into the live process, or comes back under the interpreter, without a restart. The debugger reaches hybrid mode for the first time, so a program runs compiled everywhere except the file being stepped through. A new lane carries **27** assertions and reports, per module, how many calls each side actually answered rather than only that the answer was right — hybrid **28/28**, the debugger's own lane **138/138**, and the two engines agree with each other and with native at **11/11**.
+
+<br>
+
 ## 044 2026-08-20 - Thursday, August 20th 2026
 
 **[aoughwl.github.io](https://aoughwl.github.io/store/) — 4 commits.** A storefront: products, plans, licence keys and machine seats as one generic mechanism rather than a page per product, and the first thing on it priced as a subscription. A buy button whose product is not in the catalogue now says so rather than inviting a click it cannot honour.
