@@ -81,6 +81,12 @@
   <br>
 </h3>
 <p align="center">
+  <b><a href="https://aoughwl.github.io/docs/jester">Jester</a></b> - Unity, turned into a game you mod while it is running.
+  <br>
+  <sub>a small host, mods compiled from source and hot-swapped in place - Electron's idea, without a browser per app</sub>
+</p>
+
+<p align="center">
   ▸ <a href="https://discord.gg/nxa3W7w4rJ">Join the Discord</a>
   ▸ <a href="https://aoughwl.com/">Visit our website</a>
 </p>
@@ -95,6 +101,74 @@
 
 <br>
 
+## 055 2026-09-13 - Sunday, September 13th 2026
+
+**minecraft — new repository, 3 commits.** A playable Minecraft, built as a Jester application rather than as a mod loader for the real one: **15 mods** and one modpack, with the blocks, textures and sounds read out of the copy the player already installed.
+
+<br>
+
+## 054 2026-09-11 - Friday, September 11th 2026
+
+**[jester](https://aoughwl.github.io/docs/jester) — 40 commits.** Options screens that really move something, an inventory HUD that does not walk every row per item, and entities, containers and chat carried on the wire. The host surface reached **1.9.0**, and every figure the documentation states about it is now derived from the engine's own dispatch table instead of typed by hand. A browser build holds a real library and was measured at what it costs there.
+
+<br>
+
+## 053 2026-09-10 - Thursday, September 10th 2026
+
+**[jester](https://aoughwl.github.io/docs/jester) — 32 commits.** A world that follows the player, blocks that break and drop, a sky overhead and a loading screen to stop at. Minecraft's protocol is spoken to a real server one packet at a time, and its audio decoded by the host.
+
+**[aowlsem](https://aoughwl.github.io/docs/aowlsem) — 10 commits.** Const initialisers, symbol ownership and the `openArray` conversion path. All five of the game's build tools now compile under it, and the binaries built through [aowlmony](https://aoughwl.github.io/docs/aowlmony) behave identically to the ones nimony builds.
+
+**[aoughwl.github.io](https://aoughwl.github.io/docs/jester) — 2 commits.** Jester on the website, with the interpreter running on the page — a demo that used to last 35 seconds now holds.
+
+<br>
+
+## 052 2026-09-09 - Wednesday, September 9th 2026
+
+**[jester](https://aoughwl.github.io/docs/jester) — 119 commits.** The boundary between a mod and the engine is **498 host calls**, and the C# dispatch table and the mod-side declarations are checked against each other name by name before anything ships. Grid inventories, text fields, audio and skinned animation reached that surface on the day, and a mod may now be a window, an application, or a page in a browser. Forty-one mods were rebuilt against one SDK, and a build that had grown to 400 MB gave two thirds of it back.
+
+**The toolchain on Windows — 59 commits across seven repos.** The semantic checker, the build driver, the installer, the C backend, the lowering pass and the Claude Code server each built, found their own artifacts and linked there for the first time. [aowlsem](https://aoughwl.github.io/docs/aowlsem)'s differential corpus grew **936 → 942**; [aowlc](https://aoughwl.github.io/docs/aowlc)'s claims gate reads its own README and stands at **78/78**, with its slowest run down **976s → 42s**.
+
+**[aowlspt](https://aoughwl.github.io/docs/aowlspt) · [aoughwl.github.io](https://aoughwl.github.io/) — 8 commits.** Deprecated: this work is Jester's now. Its **63** documents were published as their own section first, and the bot AI, the settings schema and the content importers cross over as ordinary mods.
+
+<br>
+
+## 051 2026-09-08 - Tuesday, September 8th 2026
+
+**[jester](https://aoughwl.github.io/docs/jester) — new repository, 14 commits.** A Unity host of a few thousand lines that draws nothing and plays nothing: it loads an interpreter, hands it a mod, and answers the calls that come back. Everything above that — the player, the weapons, the world, the menu you just used — is a mod written in [aowlmony](https://aoughwl.github.io/docs/aowlmony), compiled, and swapped while the game runs with its data left where it was. The comparison people reach for is Electron, and the difference is the point: Electron ships a copy of the browser per application, while Jester is installed once and shared, so an application weighs what its own content weighs.
+
+<br>
+
+## 050 2026-09-01 - Tuesday, September 1st 2026
+
+**[aowlspt](https://aoughwl.github.io/docs/aowlspt) — 13 commits.** The install carries the compiler and proves it runs on the machine it landed on. Four tools that had been reporting success for work that never happened now say what actually happened, and the in-game error dialog is caught rather than watched.
+
+<br>
+
+## 049 2026-08-31 - Monday, August 31st 2026
+
+**[aowlspt](https://aoughwl.github.io/docs/aowlspt) — 194 commits.** The reference documentation is generated out of the source, behind a gate that refuses to publish when the two disagree. A full-screen map on a key, an explicit choice of renderer so a legacy toggle can no longer blank it, and the post-processing panels drawn by the game's own toolkit.
+
+<br>
+
+## 048 2026-08-30 - Sunday, August 30th 2026
+
+**[aowlspt](https://aoughwl.github.io/docs/aowlspt) — 82 commits.** Performance, and the native drawing path. The menu the player passes through on the way into a raid went **2.75s → ~350ms**, an ESP draws onto a canvas discovered at runtime instead of over the frame, and each boss rolls its own chance once per raid rather than all of them arriving together.
+
+<br>
+
+## 047 2026-08-29 - Saturday, August 29th 2026
+
+**[aowlspt](https://aoughwl.github.io/docs/aowlspt) — 49 commits.** The in-raid map and the radar became one spatial widget that rotates with the player and honours its settings while the game is running, loading screens carry the art for the place being loaded, and the single-player branding holds with the inspector switched off.
+
+<br>
+
+## 046 2026-08-28 - Friday, August 28th 2026
+
+**[aowlspt](https://aoughwl.github.io/docs/aowlspt) — 67 commits.** A retained-mode widget framework of our own, drawn over either render backend, and settings a mod declares rather than hand-draws. A live-scene API on top of the proven call layers, the item templates the payloads referenced and the database never had, and the bot family presented as one thing everywhere a player looks.
+
+<br>
+
 ## 045 2026-08-22 - Saturday, August 22nd 2026
 
 **aowli — 3 commits.** The boundary between interpreted and compiled code now moves while the program is running: at a breakpoint a module goes native, compiled into the live process, or comes back under the interpreter, without a restart. The debugger reaches hybrid mode for the first time, so a program runs compiled everywhere except the file being stepped through. A new lane carries **27** assertions and reports, per module, how many calls each side actually answered rather than only that the answer was right — hybrid **28/28**, the debugger's own lane **138/138**, and the two engines agree with each other and with native at **11/11**.
@@ -103,7 +177,7 @@
 
 ## 044 2026-08-20 - Thursday, August 20th 2026
 
-**[aoughwl.github.io](https://aoughwl.github.io/store/) — 4 commits.** A storefront: products, plans, licence keys and machine seats as one generic mechanism rather than a page per product, and the first thing on it priced as a subscription. A buy button whose product is not in the catalogue now says so rather than inviting a click it cannot honour.
+**[aoughwl.github.io](https://aoughwl.github.io/store/) — 11 commits.** A storefront: products, plans, licence keys and machine seats as one generic mechanism rather than a page per product, and the first thing on it priced as a subscription. A buy button whose product is not in the catalogue now says so rather than inviting a click it cannot honour.
 
 **aoughwl-bot · [discord](https://aoughwl.github.io/docs/discord) — 2 commits.** The subscriber role, granted when a payment clears and taken back when it lapses, and an Authorization scheme that callers choose rather than inherit.
 
@@ -123,9 +197,9 @@
 
 ## 041 2026-08-16 - Sunday, August 16th 2026
 
-**[aowlsem](https://aoughwl.github.io/docs/aowlsem) — 31 commits.** Template expansion across module boundaries, typed-template conversions, block arguments, comparisons over type variables, and the `sizeof` path. Divergence from the reference compiler fell **37% on the day, 2,649 → 1,662 tokens** over 55 modules, **46** of which now compare equal once line information is normalised, and the differential corpus is **921/921**.
+**[aowlsem](https://aoughwl.github.io/docs/aowlsem) — 67 commits.** Template expansion across module boundaries, typed-template conversions, block arguments, comparisons over type variables, and the `sizeof` path. Divergence from the reference compiler fell **37% on the day, 2,649 → 1,662 tokens** over 55 modules, **46** of which now compare equal once line information is normalised, and the differential corpus is **921/921**.
 
-**[aowlmony](https://aoughwl.github.io/docs/aowlmony) — 7 commits.** The build cache, the project model, dependency locking, and the dangling-pointer checker. A warm rebuild now costs **0ms of compile time**, 0.27s wall, down from 1.3s; dependencies pin content as well as revision; and the driver has its first packaged release. Gates: cache 11/11, project 8/8, dependencies 10/10, memory 13/13, and **19 of 22** commands byte-identical to the previous implementation with three listed differences.
+**[aowlmony](https://aoughwl.github.io/docs/aowlmony) — 8 commits.** The build cache, the project model, dependency locking, and the dangling-pointer checker. A warm rebuild now costs **0ms of compile time**, 0.27s wall, down from 1.3s; dependencies pin content as well as revision; and the driver has its first packaged release. Gates: cache 11/11, project 8/8, dependencies 10/10, memory 13/13, and **19 of 22** commands byte-identical to the previous implementation with three listed differences.
 
 **[aowlup](https://aoughwl.github.io/docs/aowlup) — 8 commits.** Release install, registry repair, and per-tool shims. A cold machine installs the manager and then the driver from published releases with no source checkout — **7/7** on that gate — and the command surface is **40 of 48** byte-identical to the previous implementation with eight listed differences; registry 16/16.
 
