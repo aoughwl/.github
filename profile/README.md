@@ -103,7 +103,7 @@
 
 ## 055 2026-09-13 - Sunday, September 13th 2026
 
-**minecraft — new repository, 3 commits.** A playable Minecraft, built as a Jester application rather than as a mod loader for the real one: **15 mods** and one modpack, with the blocks, textures and sounds read out of the copy the player already installed.
+**[minecraft](https://github.com/aoughwl/minecraft) — new repository, 3 commits.** A playable Minecraft, built as a Jester application rather than as a mod loader for the real one: **15 mods** and one modpack, with the blocks, textures and sounds read out of the copy the player already installed.
 
 <br>
 
@@ -171,7 +171,7 @@
 
 ## 045 2026-08-22 - Saturday, August 22nd 2026
 
-**aowli — 3 commits.** The boundary between interpreted and compiled code now moves while the program is running: at a breakpoint a module goes native, compiled into the live process, or comes back under the interpreter, without a restart. The debugger reaches hybrid mode for the first time, so a program runs compiled everywhere except the file being stepped through. A new lane carries **27** assertions and reports, per module, how many calls each side actually answered rather than only that the answer was right — hybrid **28/28**, the debugger's own lane **138/138**, and the two engines agree with each other and with native at **11/11**.
+**[aowli](https://aoughwl.github.io/docs/aowli) — 3 commits.** The boundary between interpreted and compiled code now moves while the program is running: at a breakpoint a module goes native, compiled into the live process, or comes back under the interpreter, without a restart. The debugger reaches hybrid mode for the first time, so a program runs compiled everywhere except the file being stepped through. A new lane carries **27** assertions and reports, per module, how many calls each side actually answered rather than only that the answer was right — hybrid **28/28**, the debugger's own lane **138/138**, and the two engines agree with each other and with native at **11/11**.
 
 <br>
 
