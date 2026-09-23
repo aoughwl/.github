@@ -81,7 +81,7 @@
   <br>
 </h3>
 <p align="center">
-  <b><a href="https://aoughwl.github.io/docs/jester">Jester</a></b> - Unity, turned into a game you mod while it is running.
+  <b><a href="https://aoughwl.github.io/docs/jester">Jester</a></b> - Unity, built for modding while it runs.
   <br>
   <sub>a small host, mods compiled from source and hot-swapped in place - Electron's idea, without a browser per app</sub>
 </p>
@@ -98,6 +98,12 @@
 <br><br><br><br>
 
 # Daily Blog
+
+<br>
+
+## 069 2026-09-20 - Sunday, September 20th 2026
+
+**[aoughwl.github.io](https://aoughwl.github.io/store) · aowlup · aowl-store — 11 commits.** The store went live: **aowli** is a real $9.99/month subscription now, and the price includes the TypeScript, Python and JS/WASM backends alongside the interpreter and debugger — one subscription, every backend. `aowlspt` came off sale (folded into Jester); Jester itself is listed as **upcoming**. A new Welcome page put STORE second in the nav and moved old work into an ATTIC section, the free browser copies of `aowli` were obfuscated, and there are no more public `aowli` binaries. `aowlup login`/`install` turns a purchased licence key into working binaries in one command. The aowlspt live-inspector write-up moved out of the blog and into its own docs page, where it belongs.
 
 <br>
 
@@ -139,6 +145,42 @@
 
 <br>
 
+## 068 2026-09-07 - Monday, September 7th 2026
+
+**[aowlspt](https://aoughwl.github.io/docs/aowlspt) — 33 commits.** "Basement" wired straight into a live SPT 4.1.5 server: bot control via Harmony patches on the game's own generator, `/spt/bots` and `/spt/waves` re-keying the same plant rows the emulator used. Speech now streams sentence by sentence while the model is still writing — first spoken sentence in **~2.3s**, down from 3.3–4s — over two local voices (Kokoro-82M on CPU, Chatterbox cloning on CUDA) plus cloud speech through Groq, with push-to-talk streamed from an in-process microphone. A full map rip-and-reimport pipeline over AssetRipper's HTTP API proved the game's maps are built-in player scenes, not bundles.
+
+<br>
+
+## 067 2026-09-06 - Sunday, September 6th 2026
+
+**[aowlspt](https://aoughwl.github.io/docs/aowlspt) — 24 commits.** "Basement" (Escape From My Basement) landed as a new companion/AI-directed backend mod: seeded persistent worlds, a three-tier brain, progressive speech and a directive stream, with both server and client halves wired in. Proven with a real two-mod test that plants loot across `tarkov` and `basement` and checks it lands — a path neither mod's own self-check could catch alone.
+
+<br>
+
+## 066 2026-09-05 - Saturday, September 5th 2026
+
+**[aowlspt](https://aoughwl.github.io/docs/aowlspt) — 16 commits.** A stress tool (`pfxstress.py`) reproduced a POSTFX-settings deadlock live and captured the hung thread's stack. Raid exit now falls back to a raw keystroke when the posted ESC brings no response within 3s, the loot census stopped counting its own self-check's planted item, and the full menu → raid → menu loop ran unattended, live, for the first time.
+
+<br>
+
+## 065 2026-09-04 - Friday, September 4th 2026
+
+**[aowlspt](https://aoughwl.github.io/docs/aowlspt) — 46 commits.** Settings pages now count only their own mod's pages instead of every page on the tab, a sliced renderer holds large pages at 24 rows (8ms) per tick, and DLSS settings became real dropdowns through the game's own widget. A 16KB cap on the overlay bridge had been silently truncating a 569KB settings payload — fixed and named. Mode-skip and native mod-loading landed behind flags, both off by default.
+
+<br>
+
+## 064 2026-09-03 - Thursday, September 3rd 2026
+
+**[aowlspt](https://aoughwl.github.io/docs/aowlspt) — 27 commits.** DLSS settings surfaced as native rows — dropdowns, tooltips, intensity — backed by mod config, and a DLSSNR ("DLSS 5") model install path documented and proven end to end except the rendered frame. The interaction layer between host and client got mapped in full: **41 invariants**, 15 enforced at build time, 26 named but not yet. Every raw store into game memory now goes through a generated, metadata-checked `FieldRef` instead of a hand-written one.
+
+<br>
+
+## 063 2026-09-02 - Wednesday, September 2nd 2026
+
+**[aowlspt](https://aoughwl.github.io/docs/aowlspt) — 171 commits.** The single biggest day in the window. The native settings UI was rebuilt end to end off a fully mapped boot-flow and settings-screen document; every store the host makes into game memory now goes through one metadata-checked gate instead of twelve ad-hoc sites. A menu-arrival crash that had looked like a UI bug was root-caused to a re-entrant `Submit` call reading a torn-down `Profile` — fixed. New crash forensics: a Windows crash-report parser, a minidump reader, and a symbolizer that resolves a crash-site RVA back to the owning method. `buildlock` gained hung-build detection and blocked concurrent edits during a build, and an offline mod-load harness caught a real use-after-free before it shipped.
+
+<br>
+
 ## 050 2026-09-01 - Tuesday, September 1st 2026
 
 **[aowlspt](https://aoughwl.github.io/docs/aowlspt) — 13 commits.** The install carries the compiler and proves it runs on the machine it landed on. Four tools that had been reporting success for work that never happened now say what actually happened, and the in-game error dialog is caught rather than watched.
@@ -169,9 +211,45 @@
 
 <br>
 
+## 062 2026-08-27 - Thursday, August 27th 2026
+
+**[aowlspt](https://aoughwl.github.io/docs/aowlspt) — 121 commits.** The API surface got audited in full — **70 routes**, not the 13 that had been hand-curated — and six `Dictionary` fields were found being served as empty arrays. The bot population mod folded into one "Bot AI," a Progression page shipped (level, skills, weapon mastery, trader loyalty), flea-market and trader economy settings went native under Singleplayer, and deploy verification switched from grepping for marker strings to asserting the actual PE exports.
+
+<br>
+
+## 061 2026-08-26 - Wednesday, August 26th 2026
+
+**[aowlspt](https://aoughwl.github.io/docs/aowlspt) — 77 commits.** Native settings subtabs shipped (PostFX folded into Graphics), the debug overlay got a real tree — collapsible, searchable, movable — and SAIN's driving calls moved onto byte-verified RVAs. A build-time symbol table now fails the build outright if a resolved name turns out to be lying, mods can call each other by name and version, and a new spatial "maps" mod drew the in-game map, radar and indicators over one guarded feed.
+
+<br>
+
+## 060 2026-08-25 - Tuesday, August 25th 2026
+
+**[aowlspt](https://aoughwl.github.io/docs/aowlspt) — 30 commits.** SAIN bot AI came back in observer mode after it had been killing the client outright — every by-name route now refuses instead of crashing. The settings UI scaled from 23 to **802 settings** with item spawning, and a full 1.0 release-readiness audit landed.
+
+<br>
+
+## 059 2026-08-24 - Monday, August 24th 2026
+
+**[aowlspt](https://aoughwl.github.io/docs/aowlspt) — 96 commits.** **[aoughwl.github.io](https://aoughwl.github.io/docs/aowlspt) — 1 commit** documenting it. The settings write path had been rejecting every scalar value, not just malformed ones — fixed, along with a marketplace manifest so `aowlsptcode` can actually be installed and a typed MCP server put over the live inspector. Mod settings render as their own native tab in Tarkov's UI instead of needing F12. The day's own verdict: "a verification that cannot fail is the bug" — three confidently-wrong inspector answers were found and fixed, and a personal address was scrubbed from the repository's history.
+
+<br>
+
+## 058 2026-08-23 - Sunday, August 23rd 2026
+
+**[aowlspt](https://aoughwl.github.io/docs/aowlspt) — 51 commits.** A native MODS settings tab, with subtabs cloned from the game's own tab strip. The texture pipeline was retargeted at `EasyBundle::Load` — BSG's actual asset path, not Unity's generic one — and an inspector shipped that asks a GameObject what components it **has** instead of guessing type names by string match. A name index resolves shared-RVA thunks, and code pointers now resolve from IL2CPP's own per-assembly table instead of unreadable `MethodInfo`.
+
+<br>
+
 ## 045 2026-08-22 - Saturday, August 22nd 2026
 
 **[aowli](https://aoughwl.github.io/docs/aowli) — 3 commits.** The boundary between interpreted and compiled code now moves while the program is running: at a breakpoint a module goes native, compiled into the live process, or comes back under the interpreter, without a restart. The debugger reaches hybrid mode for the first time, so a program runs compiled everywhere except the file being stepped through. A new lane carries **27** assertions and reports, per module, how many calls each side actually answered rather than only that the answer was right — hybrid **28/28**, the debugger's own lane **138/138**, and the two engines agree with each other and with native at **11/11**.
+
+<br>
+
+## 057 2026-08-21 - Friday, August 21st 2026
+
+**[aowlspt](https://aoughwl.github.io/docs/aowlspt) — 105 commits.** **[aoughwl.github.io](https://aoughwl.github.io/) — 3 commits** of docs table styling alongside it. The character creator and screen went live end to end (every slot, avatar packs, a working session), per-mod settings pages render into Tarkov's own settings screen across three phases, and an F3 debug panel plus ESP markers actually render. Managed IL2CPP methods can now be called directly by static RVA with no reflection, the image CDN redirect fixed a TLS-handshake failure that had been misdiagnosed as an HTTP one, and the OS-close hang was fixed with a thread-scoped message hook.
 
 <br>
 
@@ -186,6 +264,12 @@
 ## 043 2026-08-19 - Wednesday, August 19th 2026
 
 **[aowlsem](https://aoughwl.github.io/docs/aowlsem) — 17 commits.** Generic instance identity, the base type a projection loads through, and bitwise classification on the copy path. A type now hashes to one instance in every module, `std/tables` compiles and runs, and one more standard-library module compares equal — **35 → 36 of 55**. The end-to-end gate — build, link and run a program aowlsem processed — grew from **6 cases to 51** on the day and stands at **49/51**, both reds diagnosed.
+
+<br>
+
+## 056 2026-08-18 - Tuesday, August 18th 2026
+
+**[aowlspt](https://aoughwl.github.io/docs/aowlspt) — new repository, 17 commits.** A from-scratch rewrite for **post-1.0** Tarkov: a native SPT/Tarkov mod system in nimony, with its own emulator growing loot, a market, production, skills, scavs and real quests, live objects and fields reaching the client, and a backend written in nimony brought up alongside the launcher.
 
 <br>
 
