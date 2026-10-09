@@ -85,7 +85,7 @@
 <p align="center">
   <a href="https://aoughwl.github.io/start"><b>Get started in 5 minutes</b></a> - browser first, then a Linux install that goes from nothing to a native binary in about three minutes
   <br>
-  <sub>test262 53,593 / 53,595 · html5lib 1,792 / 1,792 · parser byte-identical on the whole Nimony compiler source</sub>
+  <sub>test262 53,593 / 53,595 · Web Platform Tests ~93.5% (Ladybird 96.2%) · parser byte-identical on the whole Nimony compiler source</sub>
 </p>
 <p align="center">
   <b><a href="https://aoughwl.github.io/docs/jester">Jester</a></b> - Unity, built for modding while it runs.
