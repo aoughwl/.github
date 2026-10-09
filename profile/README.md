@@ -108,6 +108,26 @@
 
 <br>
 
+## 071 2026-10-09 - Friday, October 9th 2026
+
+**[playground](https://aoughwl.github.io/playground/) · nimony-web · nimony-playground — 17 commits. Every listed browser case passes; checks 46% faster.**
+
+* **`"a,b,c".split(',').len` printed 0 in the VM.** `framedStdModules` sent bytes ≥ 0x80 raw; the nim_js boundary re-encoded them as UTF-8, misaligning every module after one (std/strutils has 8). Now `\xHH`, which `webvfs.unescapeTransport` already expected.
+* **std/sets asserted.** `jsffi.toStr` wrote long strings through `toCString`, leaving Nimony's inline 3-char compare prefix zero: `"sysvq0asl"` printed right and compared unequal, so `visibleOnly` dropped every system symbol. Copies through `borrowCStringUnsafe` now.
+* **Check 1600 → 860 ms.** `allocFixed` (4,045,250 calls of ~14 bytes) zeroes 256 KB ahead instead of per call; `jsffi.toLatin1` replaces `toStr` + a Nim-side UTF-8 collapse.
+* **`tools/playground-cases.mjs`**: 11 programs through headless Chromium; a known-bad row that starts passing fails the run. **`tools/playground-drift.mjs`**: the two deployed copies differed in 24 files.
+
+**Gates.** playground-cases 11/11 (from 9 + 2 known-bad); aowlsem.js `.s.nif` byte-identical before/after on 51 programs; drift 63/63.
+
+**[aowlsem](https://aoughwl.github.io/docs/aowlsem) · [aowlup](https://aoughwl.github.io/docs/aowlup) — 4 commits.**
+
+* **`subReturnType` resolves a source-form generic head**; `generic_ret_seq_head` added. `traceBanner` reads a fixed list via `getEnv`, so the browser build needs no `environ`.
+* **`aowlup setup` planned five private clones and failed each mid-run**; `git ls-remote` now marks them `private — skipped`. `init` listed in `--help`.
+
+**Gates.** aowlsem `diff.sh` 968 cases, `e2e` 51/51.
+
+<br>
+
 ## 070 2026-10-08 - Thursday, October 8th 2026
 
 **[aowlup](https://aoughwl.github.io/docs/aowlup) · [aowlmony](https://aoughwl.github.io/docs/aowlmony) · aowlparser — 7 commits. A clean machine now reaches a native binary.**
