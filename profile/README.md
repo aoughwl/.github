@@ -31,9 +31,11 @@
   ·
   <a href="https://aoughwl.github.io/docs/aowlsem/lowering">lowering</a>
   ·
-  <a href="https://aoughwl.github.io/aowli">interpreter</a>
+  <a href="https://aoughwl.github.io/engine">runtime (JS + Nimony, one heap)</a>
   ·
-  <a href="https://aoughwl.github.io/aowli/debugging">debugger</a>
+  <a href="https://aoughwl.github.io/docs/aowljs-engine">JavaScript engine</a>
+  ·
+  <a href="https://aoughwl.github.io/docs/titicaca">browser engine</a>
   <br>
   <a href="https://aoughwl.github.io/docs/aowlc">C</a>
   ·
@@ -45,7 +47,7 @@
   ·
   <a href="https://aoughwl.github.io/docs/aowlpy">Python</a>
   <br>
-  <a href="https://aoughwl.github.io/docs/aowllib">runtime</a>
+  <a href="https://aoughwl.github.io/docs/aowlrt">native runtime</a>
   ·
   <a href="https://aoughwl.github.io/docs/aowlabi">ABI</a>
   ·
@@ -81,6 +83,11 @@
   <br>
 </h3>
 <p align="center">
+  <a href="https://aoughwl.github.io/start"><b>Get started in 5 minutes</b></a> - browser first, then a Linux install that goes from nothing to a native binary in about three minutes
+  <br>
+  <sub>test262 53,593 / 53,595 · html5lib 1,792 / 1,792 · parser byte-identical on the whole Nimony compiler source</sub>
+</p>
+<p align="center">
   <b><a href="https://aoughwl.github.io/docs/jester">Jester</a></b> - Unity, built for modding while it runs.
   <br>
   <sub>a small host, mods compiled from source and hot-swapped in place - Electron's idea, without a browser per app</sub>
@@ -98,6 +105,31 @@
 <br><br><br><br>
 
 # Daily Blog
+
+<br>
+
+## 070 2026-10-08 - Thursday, October 8th 2026
+
+**[aowlup](https://aoughwl.github.io/docs/aowlup) · [aowlmony](https://aoughwl.github.io/docs/aowlmony) · aowlparser — 7 commits. A clean machine now reaches a native binary.**
+
+* **`aowlup setup` built nothing on a fresh machine.** It cloned upstream nimony (hastur moved to `src/hastur/hastur.nim`), asserted `items: not a JArray` on private repos, wrote no shims. Now clones `aoughwl/nimony`; releases v0.1.0-alpha.3/.4.
+* **An edited `include` reused the stale build.** Manifest gains `inc <file> <hash> <module>`; `changedFiles` bumps the including module. `runInherit("")` printed `sh: 1: : Permission denied`; now names the missing slot.
+* **aowlparser had no build recipe**, so every install fell back to `nifler`; `build.sh` added.
+
+**Gates.** empty `HOME`, no credentials: `install.sh` → `run hello.nim` 181 s, all exit 0.
+
+**[aowli](https://aoughwl.github.io/aowli) — 6 commits. Value semantics, streaming I/O, popen.**
+
+* **`var e = s; e.add x` grew `s` in default mode.** `copyOnAssign` skipped `vkSeq`; native `1 0`, both engines `1 1`. Copies unless lowering ran through the destroyer.
+* **stdin was slurped to EOF and `fflush` was a no-op**: `OutSink.inChunk` (`read(0)`) and `onFlush`.
+* **`aowli-dbg` aborted at `popen`; `$` rendered a cstring as `ptr`.** Added `popen`/`pclose`/`fgets`/`isatty`. `--profile-every:N`; `build-dbg.sh` 65 s → 8 s.
+
+**Gates.** `run.sh all` 460/460; crosscheck 461 agree / 15 agree-fail / 0 diverge / 2 timeout.
+
+**[aoughwl.github.io](https://aoughwl.github.io/) · nimony-playground — 5 commits. Start page, engine, FAQ.**
+
+* **`/start`**: playground `#c=` deep links, then the measured Linux install. **`/engine`** replaces aowli (archived); **`/faq`**; homepage rewritten; public/private lists checked against the API.
+* **24 dead links** fixed; `tools/deadlinks.mjs`. Playground reruns on Native JS when the VM's fixed heap OOMs (`fib(30)`).
 
 <br>
 
